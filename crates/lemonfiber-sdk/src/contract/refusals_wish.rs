@@ -1,0 +1,108 @@
+/// `WISH-1`: Said where the words searched for are too few or too many to search with.
+pub const NOT_A_SEARCH: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-1",
+    name: "NOT_A_SEARCH",
+    status: 400,
+    description: "Said where the words searched for are too few or too many to search with.",
+};
+
+/// `WISH-2`: Said where the place a search was asked to go on from is not one a page answered.
+pub const NOT_A_PLACE: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-2",
+    name: "NOT_A_PLACE",
+    status: 400,
+    description:
+        "Said where the place a search was asked to go on from is not one a page answered.",
+};
+
+/// `WISH-3`: Said where no title this member may ask for goes by the id and kind named.
+pub const NOT_ASKABLE: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-3",
+    name: "NOT_ASKABLE",
+    status: 404,
+    description: "Said where no title this member may ask for goes by the id and kind named.",
+};
+
+/// `WISH-4`: Said where the house cannot fetch that kind of title, or anything, right now.
+pub const CANNOT_FETCH: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-4",
+    name: "CANNOT_FETCH",
+    status: 409,
+    description: "Said where the house cannot fetch that kind of title, or anything, right now.",
+};
+
+/// `WISH-5`: Said where the title asked for is already in the house.
+pub const ALREADY_HERE: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-5",
+    name: "ALREADY_HERE",
+    status: 409,
+    description: "Said where the title asked for is already in the house.",
+};
+
+/// `WISH-6`: Said where the member has asked for all their allowance lets them, until it frees up.
+pub const NOTHING_LEFT: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-6",
+    name: "NOTHING_LEFT",
+    status: 409,
+    description:
+        "Said where the member has asked for all their allowance lets them, until it frees up.",
+};
+
+/// `WISH-7`: Said where the house has no room for new things, which is the house's and nobody's limit.
+pub const NO_ROOM: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-7",
+    name: "NO_ROOM",
+    status: 503,
+    description:
+        "Said where the house has no room for new things, which is the house's and nobody's limit.",
+};
+
+/// `WISH-8`: Said where what answers the household's asks did not answer, so nothing was asked.
+pub const NOT_WORKING: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-8",
+    name: "NOT_WORKING",
+    status: 503,
+    description:
+        "Said where what answers the household's asks did not answer, so nothing was asked.",
+};
+
+/// `WISH-9`: Said where the house has nothing to search or ask with at all.
+pub const NOT_SET_UP: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-9",
+    name: "NOT_SET_UP",
+    status: 503,
+    description: "Said where the house has nothing to search or ask with at all.",
+};
+
+/// `WISH-10`: Said where a season named is not one the title has, or seasons were named for a film.
+pub const NOT_ITS_SEASON: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-10",
+    name: "NOT_ITS_SEASON",
+    status: 400,
+    description:
+        "Said where a season named is not one the title has, or seasons were named for a film.",
+};
+
+/// `WISH-11`: Said where nobody is named for something only a member can do.
+pub const NOBODY_ASKING: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-11",
+    name: "NOBODY_ASKING",
+    status: 400,
+    description: "Said where nobody is named for something only a member can do.",
+};
+
+/// `WISH-12`: Said where the member named is not somebody in the household.
+pub const NOT_A_MEMBER: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-12",
+    name: "NOT_A_MEMBER",
+    status: 404,
+    description: "Said where the member named is not somebody in the household.",
+};
+
+/// `WISH-13`: Said where a title a member may ask for has no picture to show them.
+pub const NO_PICTURE: crate::RefusalCode = crate::RefusalCode {
+    code: "WISH-13",
+    name: "NO_PICTURE",
+    status: 404,
+    description: "Said where a title a member may ask for has no picture to show them.",
+};

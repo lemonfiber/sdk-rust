@@ -10,37 +10,97 @@ use crate::Refused;
 
 const DERIVES: &str = "#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]";
 
-pub fn files(artefact: &Artefact, shaped: &Shaped) -> Result<Vec<(String, String)>, Refused> {
-    let mut written = Vec::new();
-    let mut groups: BTreeMap<char, Vec<&Shape>> = BTreeMap::new();
-    for shape in shaped.shapes.values() {
-        let letter = shape
-            .name
-            .chars()
-            .next()
-            .unwrap_or('x')
-            .to_ascii_lowercase();
-        groups.entry(letter).or_default().push(shape);
-    }
-    for (letter, shapes) in &groups {
-        let mut text = String::new();
-        for shape in shapes {
-            text.push_str(&shape_of(shape));
-        }
-        written.push((format!("shapes_{letter}.rs"), text));
-    }
-    written.push(("mod.rs".to_owned(), root(artefact, shaped, groups.keys())));
-    written.push(("reads.rs".to_owned(), reads(artefact, shaped)?));
-    written.push(("actions.rs".to_owned(), actions(shaped)));
-    written.push(("refusals.rs".to_owned(), refusals(artefact)));
-    written.push(("key_callable.rs".to_owned(), key_callable(artefact)));
-    written
-        .into_iter()
-        .map(|(path, text)| formatted(&text).map(|text| (path, text)))
-        .collect()
+const MOST_LINES: usize = 900;
+
+const CUT: &str = "// cut\n";
+
+pub type Groups = BTreeMap<String, Vec<String>>;
+
+struct Modules {
+    shapes: Vec<(String, String)>,
+    reads: Vec<(String, String)>,
+    actions: Vec<(String, String)>,
+    refusals: Vec<(String, String)>,
 }
 
-fn formatted(text: &str) -> Result<String, Refused> {
+pub fn files(artefact: &Artefact, shaped: &Shaped) -> Result<Vec<(String, String)>, Refused> {
+    let mut groups = Groups::new();
+    for shape in shaped.shapes.values() {
+        groups
+            .entry(letter(&shape.name))
+            .or_default()
+            .push(shape_of(shape));
+    }
+    let modules = Modules {
+        shapes: paged("shapes", &groups)?,
+        reads: paged("reads", &reads(artefact, shaped)?)?,
+        actions: paged("actions", &actions(shaped))?,
+        refusals: paged("refusals", &refusals(artefact))?,
+    };
+    let lists = [
+        ("mod", root(artefact, shaped, &modules)),
+        ("action_names", action_names(shaped)),
+        ("refusal_list", refusal_list(artefact)),
+        ("key_callable", key_callable(artefact)),
+    ];
+    let mut written: Vec<(String, String)> = lists
+        .into_iter()
+        .map(|(name, text)| formatted(&text).map(|text| (name.to_owned(), text)))
+        .collect::<Result<_, _>>()?;
+    written.extend(modules.shapes);
+    written.extend(modules.reads);
+    written.extend(modules.actions);
+    written.extend(modules.refusals);
+    Ok(written
+        .into_iter()
+        .map(|(name, text)| (format!("{name}.rs"), text))
+        .collect())
+}
+
+fn letter(name: &str) -> String {
+    name.chars()
+        .next()
+        .unwrap_or('x')
+        .to_ascii_lowercase()
+        .to_string()
+}
+
+pub fn paged(stem: &str, groups: &Groups) -> Result<Vec<(String, String)>, Refused> {
+    let mut modules = Vec::new();
+    for (key, items) in groups {
+        let text = formatted(&items.join(CUT))?;
+        let pages = pages_of(&text);
+        let several = pages.len() > 1;
+        for (at, page) in pages.iter().enumerate() {
+            let name = if several {
+                format!("{stem}_{key}_{}", at + 1)
+            } else {
+                format!("{stem}_{key}")
+            };
+            modules.push((name, format!("{}\n", page.join("\n\n"))));
+        }
+    }
+    Ok(modules)
+}
+
+fn pages_of(text: &str) -> Vec<Vec<&str>> {
+    let mut pages = Vec::new();
+    let mut page = Vec::new();
+    let mut lines = 0;
+    for item in text.split(CUT).map(str::trim) {
+        let counted = item.lines().count() + 1;
+        if lines + counted > MOST_LINES && !page.is_empty() {
+            pages.push(std::mem::take(&mut page));
+            lines = 0;
+        }
+        page.push(item);
+        lines += counted;
+    }
+    pages.push(page);
+    pages
+}
+
+pub fn formatted(text: &str) -> Result<String, Refused> {
     match rustfmt(text) {
         Some(done) if done.status.success() => Ok(String::from_utf8_lossy(&done.stdout).into_owned()),
         _ => Err(Refused::new(
@@ -187,23 +247,54 @@ fn enum_of(text: &mut String, name: &str, attribute: Option<String>, variants: &
     text.push_str("}\n\n");
 }
 
-fn root<'a>(
-    artefact: &Artefact,
-    shaped: &Shaped,
-    letters: impl Iterator<Item = &'a char>,
-) -> String {
+fn each(modules: &[(String, String)], before: &str, after: &str) -> String {
+    let mut text = String::new();
+    for (name, _) in modules {
+        let _ = writeln!(text, "{before}{name}{after}");
+    }
+    text
+}
+
+fn module(said: &str, name: &str, list: &str, pages: &[(String, String)]) -> String {
+    let exported = each(pages, "pub use super::", "::*;");
+    format!("/// {said}\npub mod {name} {{\n{list}{exported}}}\n\n")
+}
+
+fn root(artefact: &Artefact, shaped: &Shaped, modules: &Modules) -> String {
     let mut text = "//! The lemonfiber web API's shapes, reads, actions and refusals, generated from the\n\
                     //! contract artefact taken from the lemonfiber revision [`REVISION`] names.\n\
                     //! `just generate` writes this module, and CI refuses it where it differs from\n\
-                    //! what that writes.\n\n"
+                    //! what that writes.\n\n\
+                    mod action_names;\npub mod key_callable;\nmod refusal_list;\n"
         .to_owned();
-    text.push_str("pub mod actions;\npub mod key_callable;\npub mod reads;\npub mod refusals;\n");
-    for letter in letters {
-        let _ = writeln!(text, "mod shapes_{letter};\npub use shapes_{letter}::*;");
+    text.push_str(&each(&modules.reads, "mod ", ";"));
+    text.push_str(&each(&modules.actions, "mod ", ";"));
+    text.push_str(&each(&modules.refusals, "mod ", ";"));
+    for (name, _) in &modules.shapes {
+        let _ = writeln!(text, "mod {name};\npub use {name}::*;");
     }
+    text.push('\n');
+    text.push_str(&module(
+        "Every read the web API serves: a struct for each, holding what it takes.",
+        "reads",
+        "",
+        &modules.reads,
+    ));
+    text.push_str(&module(
+        "Every action the web API takes: a struct for each, holding its arguments.",
+        "actions",
+        "pub use super::action_names::NAMES;\n",
+        &modules.actions,
+    ));
+    text.push_str(&module(
+        "Every code a refusal may carry, with the status it is answered with.",
+        "refusals",
+        "pub use super::refusal_list::ALL;\n",
+        &modules.refusals,
+    ));
     let _ = write!(
         text,
-        "\n/// The wire version this contract describes.\npub const API_VERSION: u32 = {};\n\n\
+        "/// The wire version this contract describes.\npub const API_VERSION: u32 = {};\n\n\
          /// The lemonfiber revision this contract was taken from.\npub const REVISION: &str = {};\n\n",
         artefact.api_version,
         literal(&artefact.revision)
@@ -335,10 +426,8 @@ fn read_answer(
     (answer, text)
 }
 
-fn reads(artefact: &Artefact, shaped: &Shaped) -> Result<String, Refused> {
-    let mut text =
-        "//! Every read the web API serves: a struct for each, holding what it takes.\n\n"
-            .to_owned();
+fn reads(artefact: &Artefact, shaped: &Shaped) -> Result<Groups, Refused> {
+    let mut groups = Groups::new();
     let mut names = BTreeSet::new();
     let mut answered = BTreeSet::new();
     let mut problems = Vec::new();
@@ -351,7 +440,7 @@ fn reads(artefact: &Artefact, shaped: &Shaped) -> Result<String, Refused> {
             ));
         }
         let segments = segments_of(read);
-        text.push_str(&read_struct(read, &name, &segments));
+        let mut text = read_struct(read, &name, &segments);
         let path = literal(&read.path);
         let segments = listed(&segments);
         if read.file {
@@ -359,6 +448,7 @@ fn reads(artefact: &Artefact, shaped: &Shaped) -> Result<String, Refused> {
                 text,
                 "impl crate::FileRead for {name} {{\nconst PATH: &'static str = {path};\nconst SEGMENTS: &'static [&'static str] = &[{segments}];\n}}\n"
             );
+            groups.entry(letter(&name)).or_default().push(text);
             continue;
         }
         let (answer, written) = read_answer(read, &name, shaped, &mut answered);
@@ -369,9 +459,10 @@ fn reads(artefact: &Artefact, shaped: &Shaped) -> Result<String, Refused> {
             "impl crate::Read for {name} {{\ntype Answer = {answer};\nconst PATH: &'static str = {path};\nconst SEGMENTS: &'static [&'static str] = &[{segments}];\nconst KINDS: &'static [&'static str] = &[{}];\n}}\n",
             listed(&kinds)
         );
+        groups.entry(letter(&name)).or_default().push(text);
     }
     if problems.is_empty() {
-        Ok(text)
+        Ok(groups)
     } else {
         Err(Refused::listing(
             "the vendored contract lists reads this generator cannot tell apart",
@@ -380,40 +471,39 @@ fn reads(artefact: &Artefact, shaped: &Shaped) -> Result<String, Refused> {
     }
 }
 
-fn actions(shaped: &Shaped) -> String {
-    let mut text =
-        "//! Every action the web API takes: a struct for each, holding its arguments.\n\n"
-            .to_owned();
+fn actions(shaped: &Shaped) -> Groups {
+    let mut groups = Groups::new();
     for action in &shaped.actions {
         let derives = if action.defaulted {
             "Debug, Clone, Default, PartialEq, serde::Serialize"
         } else {
             "Debug, Clone, PartialEq, serde::Serialize"
         };
-        let _ = writeln!(
-            text,
-            "/// `POST /api/actions/{}`.\n#[derive({derives})]\npub struct {} {{",
+        let mut text = format!(
+            "/// `POST /api/actions/{}`.\n#[derive({derives})]\npub struct {} {{\n",
             action.name, action.ident
         );
         for field in &action.fields {
             text.push_str(&field_of(field, true));
         }
-        text.push_str("}\n\n");
-    }
-    for action in &shaped.actions {
         let consent: Vec<&str> = action.consent.iter().map(String::as_str).collect();
-        let consent = listed(&consent);
         let _ = writeln!(
             text,
-            "impl crate::Action for {} {{\nconst NAME: &'static str = {};\nconst REHEARSAL: bool = {};\nconst CONSENT: &'static [&'static str] = &[{consent}];\n}}\n",
+            "}}\n\nimpl crate::Action for {} {{\nconst NAME: &'static str = {};\nconst REHEARSAL: bool = {};\nconst CONSENT: &'static [&'static str] = &[{}];\n}}\n",
             action.ident,
             literal(&action.name),
-            action.rehearsal
+            action.rehearsal,
+            listed(&consent)
         );
+        groups.entry(letter(&action.ident)).or_default().push(text);
     }
-    text.push_str(
-        "/// The name of every action the web API takes.\npub const NAMES: &[&str] = &[\n",
-    );
+    groups
+}
+
+fn action_names(shaped: &Shaped) -> String {
+    let mut text =
+        "/// The name of every action the web API takes.\npub const NAMES: &[&str] = &[\n"
+            .to_owned();
     for action in &shaped.actions {
         let _ = writeln!(text, "{},", literal(&action.name));
     }
@@ -421,13 +511,11 @@ fn actions(shaped: &Shaped) -> String {
     text
 }
 
-fn refusals(artefact: &Artefact) -> String {
-    let mut text =
-        "//! Every code a refusal may carry, with the status it is answered with.\n\n".to_owned();
+fn refusals(artefact: &Artefact) -> Groups {
+    let mut groups = Groups::new();
     for refusal in &artefact.refusals {
-        let _ = writeln!(
-            text,
-            "/// `{}`: {}\npub const {}: crate::RefusalCode = crate::RefusalCode {{\ncode: {},\nname: {},\nstatus: {},\ndescription: {},\n}};\n",
+        groups.entry(refusal.family.clone()).or_default().push(format!(
+            "/// `{}`: {}\npub const {}: crate::RefusalCode = crate::RefusalCode {{\ncode: {},\nname: {},\nstatus: {},\ndescription: {},\n}};\n\n",
             refusal.code,
             refusal.description,
             screaming(&refusal.name),
@@ -435,13 +523,17 @@ fn refusals(artefact: &Artefact) -> String {
             literal(&refusal.name),
             refusal.status,
             literal(&refusal.description)
-        );
+        ));
     }
-    text.push_str(
-        "/// Every code a refusal may carry.\npub const ALL: &[crate::RefusalCode] = &[\n",
-    );
+    groups
+}
+
+fn refusal_list(artefact: &Artefact) -> String {
+    let mut text =
+        "/// Every code a refusal may carry.\npub const ALL: &[crate::RefusalCode] = &[\n"
+            .to_owned();
     for refusal in &artefact.refusals {
-        let _ = writeln!(text, "{},", screaming(&refusal.name));
+        let _ = writeln!(text, "super::refusals::{},", screaming(&refusal.name));
     }
     text.push_str("];\n");
     text

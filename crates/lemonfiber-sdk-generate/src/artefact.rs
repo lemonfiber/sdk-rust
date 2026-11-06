@@ -69,6 +69,7 @@ pub struct KeyCallable {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Refusal {
+    pub family: String,
     pub code: String,
     pub name: String,
     pub status: u16,
@@ -249,9 +250,12 @@ fn is_word(name: &str) -> bool {
 }
 
 fn is_code(code: &str, family: &str) -> bool {
-    code.strip_prefix(family)
-        .and_then(|rest| rest.strip_prefix('-'))
-        .is_some_and(|number| !number.is_empty() && number.chars().all(|c| c.is_ascii_digit()))
+    !family.is_empty()
+        && family.bytes().all(|byte| byte.is_ascii_uppercase())
+        && code
+            .strip_prefix(family)
+            .and_then(|rest| rest.strip_prefix('-'))
+            .is_some_and(|number| !number.is_empty() && number.chars().all(|c| c.is_ascii_digit()))
 }
 
 fn is_read_path(path: &str) -> bool {
@@ -541,6 +545,7 @@ fn read_refusals(
                 problems.push(format!("{what}: the name {name} is another code's too"));
             }
             refusals.push(Refusal {
+                family: family.to_ascii_lowercase(),
                 code: code.clone(),
                 name: name.to_owned(),
                 status,

@@ -3,10 +3,72 @@
 //! `just generate` writes this module, and CI refuses it where it differs from
 //! what that writes.
 
-pub mod actions;
+mod action_names;
+mod actions_a;
+mod actions_b;
+mod actions_c;
+mod actions_d;
+mod actions_f;
+mod actions_g;
+mod actions_h;
+mod actions_i;
+mod actions_m;
+mod actions_p;
+mod actions_q;
+mod actions_r;
+mod actions_s;
+mod actions_u;
+mod actions_w;
 pub mod key_callable;
-pub mod reads;
-pub mod refusals;
+mod reads_a;
+mod reads_b;
+mod reads_c;
+mod reads_e;
+mod reads_f;
+mod reads_h;
+mod reads_l;
+mod reads_m;
+mod reads_n;
+mod reads_o;
+mod reads_p;
+mod reads_q;
+mod reads_r;
+mod reads_s;
+mod reads_t;
+mod reads_u;
+mod reads_v;
+mod reads_w;
+mod refusal_list;
+mod refusals_admit;
+mod refusals_ask;
+mod refusals_bundle;
+mod refusals_cred;
+mod refusals_device;
+mod refusals_form;
+mod refusals_gone;
+mod refusals_key;
+mod refusals_life;
+mod refusals_migrate;
+mod refusals_play;
+mod refusals_plugin;
+mod refusals_quota;
+mod refusals_rate;
+mod refusals_read;
+mod refusals_rehearse;
+mod refusals_remove;
+mod refusals_repair;
+mod refusals_restore;
+mod refusals_serve;
+mod refusals_setting;
+mod refusals_setup;
+mod refusals_space;
+mod refusals_stack;
+mod refusals_storage;
+mod refusals_undo;
+mod refusals_update;
+mod refusals_wire;
+mod refusals_wish;
+mod refusals_word;
 mod shapes_a;
 pub use shapes_a::*;
 mod shapes_b;
@@ -37,14 +99,22 @@ mod shapes_n;
 pub use shapes_n::*;
 mod shapes_o;
 pub use shapes_o::*;
-mod shapes_p;
-pub use shapes_p::*;
+mod shapes_p_1;
+pub use shapes_p_1::*;
+mod shapes_p_2;
+pub use shapes_p_2::*;
+mod shapes_p_3;
+pub use shapes_p_3::*;
 mod shapes_q;
 pub use shapes_q::*;
 mod shapes_r;
 pub use shapes_r::*;
-mod shapes_s;
-pub use shapes_s::*;
+mod shapes_s_1;
+pub use shapes_s_1::*;
+mod shapes_s_2;
+pub use shapes_s_2::*;
+mod shapes_s_3;
+pub use shapes_s_3::*;
 mod shapes_t;
 pub use shapes_t::*;
 mod shapes_u;
@@ -53,6 +123,83 @@ mod shapes_v;
 pub use shapes_v::*;
 mod shapes_w;
 pub use shapes_w::*;
+
+/// Every read the web API serves: a struct for each, holding what it takes.
+pub mod reads {
+    pub use super::reads_a::*;
+    pub use super::reads_b::*;
+    pub use super::reads_c::*;
+    pub use super::reads_e::*;
+    pub use super::reads_f::*;
+    pub use super::reads_h::*;
+    pub use super::reads_l::*;
+    pub use super::reads_m::*;
+    pub use super::reads_n::*;
+    pub use super::reads_o::*;
+    pub use super::reads_p::*;
+    pub use super::reads_q::*;
+    pub use super::reads_r::*;
+    pub use super::reads_s::*;
+    pub use super::reads_t::*;
+    pub use super::reads_u::*;
+    pub use super::reads_v::*;
+    pub use super::reads_w::*;
+}
+
+/// Every action the web API takes: a struct for each, holding its arguments.
+pub mod actions {
+    pub use super::action_names::NAMES;
+    pub use super::actions_a::*;
+    pub use super::actions_b::*;
+    pub use super::actions_c::*;
+    pub use super::actions_d::*;
+    pub use super::actions_f::*;
+    pub use super::actions_g::*;
+    pub use super::actions_h::*;
+    pub use super::actions_i::*;
+    pub use super::actions_m::*;
+    pub use super::actions_p::*;
+    pub use super::actions_q::*;
+    pub use super::actions_r::*;
+    pub use super::actions_s::*;
+    pub use super::actions_u::*;
+    pub use super::actions_w::*;
+}
+
+/// Every code a refusal may carry, with the status it is answered with.
+pub mod refusals {
+    pub use super::refusal_list::ALL;
+    pub use super::refusals_admit::*;
+    pub use super::refusals_ask::*;
+    pub use super::refusals_bundle::*;
+    pub use super::refusals_cred::*;
+    pub use super::refusals_device::*;
+    pub use super::refusals_form::*;
+    pub use super::refusals_gone::*;
+    pub use super::refusals_key::*;
+    pub use super::refusals_life::*;
+    pub use super::refusals_migrate::*;
+    pub use super::refusals_play::*;
+    pub use super::refusals_plugin::*;
+    pub use super::refusals_quota::*;
+    pub use super::refusals_rate::*;
+    pub use super::refusals_read::*;
+    pub use super::refusals_rehearse::*;
+    pub use super::refusals_remove::*;
+    pub use super::refusals_repair::*;
+    pub use super::refusals_restore::*;
+    pub use super::refusals_serve::*;
+    pub use super::refusals_setting::*;
+    pub use super::refusals_setup::*;
+    pub use super::refusals_space::*;
+    pub use super::refusals_stack::*;
+    pub use super::refusals_storage::*;
+    pub use super::refusals_undo::*;
+    pub use super::refusals_update::*;
+    pub use super::refusals_wire::*;
+    pub use super::refusals_wish::*;
+    pub use super::refusals_word::*;
+}
 
 /// The wire version this contract describes.
 pub const API_VERSION: u32 = 1;
