@@ -1,0 +1,23 @@
+[package]
+name = "lemonfiber-sdk-generate"
+description = "Writes the lemonfiber-sdk contract module from the vendored web API artefact, and holds it and the client to the contract."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+authors.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "lemonfiber-sdk-generate"
+path = "src/main.rs"
+
+[dependencies]
+serde_json = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[lints]
+workspace = true

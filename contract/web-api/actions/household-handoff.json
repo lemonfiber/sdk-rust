@@ -1,0 +1,18 @@
+{
+  "action": "household-handoff",
+  "arguments": [
+    {
+      "name": "name",
+      "type": {
+        "default": null,
+        "description": "Who an action addressed to somebody in the household is for, as they sign in.",
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    }
+  ],
+  "consent": [],
+  "rehearsal": true
+}

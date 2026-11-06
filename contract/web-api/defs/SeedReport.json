@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "What a seed pass amounted to.",
+  "type": "object",
+  "properties": {
+    "assessment": {
+      "description": "Whether drift could be assessed, or the expected-state record was lost.",
+      "$ref": "Assessment.json"
+    },
+    "rehearsed": {
+      "description": "Whether this pass only said what it would do.\n\nA flag rather than a second shape, because every connection above means the\nsame thing either way: what the service holds is what it holds, and what\nlemonfiber would write is what it would write. What changes is that two of the\nstates are reachable only here, and that the last line of the report is an\ninstruction to run it for real rather than to run it again.",
+      "type": "boolean"
+    },
+    "wirings": {
+      "description": "Every connection attempted, and how each turned out.",
+      "type": "array",
+      "items": {
+        "$ref": "Wiring.json"
+      }
+    }
+  },
+  "required": [
+    "wirings",
+    "assessment",
+    "rehearsed"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "What one rotation came to.",
+  "type": "object",
+  "properties": {
+    "consumers": {
+      "description": "Every consumer, and how far the rotation reached it.",
+      "type": "array",
+      "items": {
+        "$ref": "Propagation.json"
+      }
+    },
+    "credential": {
+      "description": "Which credential was to be replaced.",
+      "type": "string"
+    },
+    "offer": {
+      "description": "The offer a replacement that takes one answers, where this reading named one.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "settled": {
+      "description": "What became of the replacement.",
+      "$ref": "Settled.json"
+    }
+  },
+  "required": [
+    "credential",
+    "settled",
+    "consumers"
+  ]
+}

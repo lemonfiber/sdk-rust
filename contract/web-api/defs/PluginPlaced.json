@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One service of an installed plugin, as it was placed.",
+  "type": "object",
+  "properties": {
+    "asks": {
+      "description": "Every capability it asks for.",
+      "type": "array",
+      "items": {
+        "$ref": "PluginAsking.json"
+      }
+    },
+    "asks_for": {
+      "description": "What it asks for there, where it says.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "config_path": {
+      "description": "Where inside the container its one configuration directory is mounted.\n\nResolved rather than optional. The record answers where the directory is, and\na run that re-derived the fallback would answer for a container it did not\nwrite the day that fallback moved.",
+      "type": "string"
+    },
+    "contract": {
+      "description": "The port inside its container it speaks its contracts on, where it declared one\napart from where it listens.",
+      "type": [
+        "integer",
+        "null"
+      ],
+      "format": "uint16",
+      "maximum": 65535,
+      "minimum": 0
+    },
+    "description": {
+      "description": "The line its dashboard entry shows beside it: the one its wiring names, or what\nthe plugin says it does for the operator.",
+      "type": "string",
+      "default": ""
+    },
+    "digest": {
+      "description": "The digest that fixes what runs.",
+      "type": "string"
+    },
+    "fields": {
+      "description": "Its container fields beyond those above.",
+      "$ref": "ServiceFields.json"
+    },
+    "fronts": {
+      "description": "The service of the same plugin it stands in front of, as an adapter.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "default": null
+    },
+    "health": {
+      "description": "The path it answers over HTTP to say it is up, where its health is asked that way.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hidden": {
+      "description": "Whether its wiring hid it from the dashboard.",
+      "type": "boolean"
+    },
+    "icon": {
+      "description": "The icon its dashboard entry shows, where its wiring names one.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "image": {
+      "description": "The registry path, carrying no pin of its own.",
+      "type": "string"
+    },
+    "listens": {
+      "description": "The port it answers on inside the stack's network, where it declared one.",
+      "type": [
+        "integer",
+        "null"
+      ],
+      "format": "uint16",
+      "default": null,
+      "maximum": 65535,
+      "minimum": 0
+    },
+    "media_types": {
+      "description": "The media it files, in the stack manifest's vocabulary, which decides what it\ncomes to in each service that asks for what it provides; none in an older record.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "name": {
+      "description": "What it is called, for a reader, which is what its dashboard entry is listed as;\na record written before this was kept lists it by its id.",
+      "type": "string",
+      "default": ""
+    },
+    "native": {
+      "description": "The API it answers the stack's other services in, where it names one.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "networks": {
+      "description": "Networks an older record named for it. Nothing reads them: each service's place on\nthe networks is derived with the project, and a record written now holds none.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "provides": {
+      "description": "Every core capability this one service fills, which is what makes it a candidate\nwhen the stack asks for one.\n\nPer service rather than read off the plugin's whole list, because a wiring\nreaches a service and not a plugin: of a plugin's two services, the one that\nfills a capability is the one an ask for it would reach. Defaulted for a record\nwritten before this was kept, which reads as filling nothing — a service nothing\nis wired to, rather than one wired to on a guess.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "reached": {
+      "description": "How it is reached, or nothing where it has no listener.",
+      "anyOf": [
+        {
+          "$ref": "PluginReached.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reaches": {
+      "description": "Where it reaches outside the machine, where it says.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "replaces": {
+      "description": "The stack's own service it moves in place of, where it names one.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "service": {
+      "description": "The service's id, which is the name its container is written under.",
+      "type": "string"
+    },
+    "shape": {
+      "description": "The privileged shape lemonfiber writes for it, where it took one.",
+      "anyOf": [
+        {
+          "$ref": "PluginShape.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "speaks": {
+      "description": "Each capability contract it answers as an adapter, as `capability@major`.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "starting": {
+      "description": "The digest of the starting files kept for its run proofs, where it has any.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tag": {
+      "description": "The readable name that digest went by when it was installed.",
+      "type": "string"
+    },
+    "takes_data": {
+      "description": "Whether the library is mounted for it.",
+      "type": "boolean"
+    },
+    "upstream": {
+      "description": "Each field of the `upstream.json` lemonfiber writes for it as an adapter, to the\nid of the plugin's secret that field holds.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "service",
+    "image",
+    "digest",
+    "tag",
+    "config_path",
+    "takes_data"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Every capability this stack has, by the path its request is served at.",
+  "type": "object",
+  "properties": {
+    "capabilities": {
+      "description": "What each comes to for the credential that asked. A request this stack does\nnot have is absent rather than listed as anything.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "CapabilityState.json"
+      }
+    },
+    "scope": {
+      "description": "Whose credential asked.",
+      "$ref": "CredentialScope.json"
+    },
+    "stack": {
+      "description": "The stack's own identifier, the one pairing material carries, to every credential\nalike: what tells two credentials apart from two stacks. Never the address or the\ncertificate, which re-pairing exists to change. Absent only where this machine\nhas nowhere to keep one.",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "scope",
+    "capabilities"
+  ]
+}

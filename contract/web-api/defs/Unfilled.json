@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A capability something asks for and nothing fills, and what asked for it.\n\nThe pair rather than the name: a capability nothing fills is a fact about the\nstack, and a capability *`seerr` asks for* and nothing fills is a thing somebody\ncan act on. Reporting the first and leaving the second to be worked out is the\nobscure failure at the point of use this exists instead of.",
+  "type": "object",
+  "properties": {
+    "by": {
+      "description": "The service that asked.",
+      "type": "string"
+    },
+    "capability": {
+      "description": "What it asked for.",
+      "type": "string"
+    },
+    "files": {
+      "description": "The medium it asked a filler of, where nothing filling it files that medium.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "native": {
+      "description": "The upstream's own API it asked in, or every API it asked in any of, where no\nupstream filling it declares one of them.",
+      "anyOf": [
+        {
+          "$ref": "Apis.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "by",
+    "capability"
+  ]
+}

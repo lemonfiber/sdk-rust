@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One service reading a setting or a secret.",
+  "type": "object",
+  "properties": {
+    "default": {
+      "description": "What the service's manifest declares while no value is recorded.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "met": {
+      "description": "Whether those settings hold what it needs now.",
+      "type": "boolean"
+    },
+    "needs": {
+      "description": "The values of other settings under which the variable is written: each setting\nwith the values it has to hold one of.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "service": {
+      "description": "The service.",
+      "type": "string"
+    },
+    "variable": {
+      "description": "The variable it is read into.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "service",
+    "variable",
+    "needs",
+    "met"
+  ]
+}

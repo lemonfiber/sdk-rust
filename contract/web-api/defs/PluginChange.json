@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One change installing a plugin makes to the machine.\n\nA path and what goes at it, which is the whole of what an install touches. None is an\nedit to a file the stack already has: a plugin's route is the proxy's routing table\nand its dashboard entry the panel list's, each applied over its contract.",
+  "type": "object",
+  "properties": {
+    "path": {
+      "description": "Where it lands, in full.\n\nIn full rather than relative to the stack, because *what is this about to do\nto my machine* is answered by a path somebody can go and look at — and a\nrelative one is right about a directory the reader has to work out for\nthemselves.",
+      "type": "string"
+    },
+    "placeholders": {
+      "description": "Each placeholder the file as shipped names a secret by, in the order it holds them:\nnone for anything but a starting file naming a secret, and never a value.",
+      "type": "array",
+      "items": {
+        "$ref": "PluginPlaceholder.json"
+      }
+    },
+    "puts": {
+      "description": "What lands there.",
+      "$ref": "PluginPuts.json"
+    }
+  },
+  "required": [
+    "path",
+    "puts",
+    "placeholders"
+  ]
+}

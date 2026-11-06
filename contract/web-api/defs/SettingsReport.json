@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Every setting and secret the stack's services read, and what changing a setting came to.",
+  "type": "object",
+  "properties": {
+    "change": {
+      "description": "The change asked for, where one was.",
+      "anyOf": [
+        {
+          "$ref": "SettingChange.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "guards": {
+      "description": "Each of lemonfiber's own guards this act moved onto its plugin after its own\nchange, or on a reading would move, for good and with no yes of its own; one it\ncould not move stays on offer and says why.",
+      "type": "array",
+      "items": {
+        "$ref": "StackMoveTaken.json"
+      }
+    },
+    "rehearsed": {
+      "description": "Whether this was a rehearsal.",
+      "type": "boolean"
+    },
+    "secrets": {
+      "description": "Every secret a service's environment names, in name order, never with its value.",
+      "type": "array",
+      "items": {
+        "$ref": "SecretRead.json"
+      }
+    },
+    "settings": {
+      "description": "Every setting, in name order.",
+      "type": "array",
+      "items": {
+        "$ref": "SettingRead.json"
+      }
+    },
+    "unvetted": {
+      "description": "The operator's overlay and every service it changes, where there is one: merged\nover the project this run would start, and held to nothing lemonfiber vets.",
+      "anyOf": [
+        {
+          "$ref": "Unvetted.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "waiting": {
+      "description": "The services held back until the operator gives what they need to start, each\nwith what it waits for, as status names them.",
+      "type": "array",
+      "items": {
+        "$ref": "Waiting.json"
+      }
+    }
+  },
+  "required": [
+    "settings",
+    "secrets",
+    "waiting",
+    "rehearsed"
+  ]
+}

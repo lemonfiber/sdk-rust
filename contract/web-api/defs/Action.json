@@ -1,0 +1,559 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "What an undo does.\n\nTagged by what it does rather than by the field it sits in, so a reader parsing\none branches on a word rather than on which keys are present.",
+  "oneOf": [
+    {
+      "description": "Remove the resource that was created.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "remove"
+        },
+        "id": {
+          "description": "The identifier to remove.",
+          "type": "string"
+        },
+        "resource": {
+          "description": "The kind of resource.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "resource",
+        "id"
+      ]
+    },
+    {
+      "description": "Restore a value, or remove it where there was none before (`None`).",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "restore"
+        },
+        "key": {
+          "description": "The setting to restore.",
+          "type": "string"
+        },
+        "value": {
+          "description": "What to restore it to, or `None` to remove it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "wrote": {
+          "description": "What lemonfiber put there, which has to still be there for putting the\nold value back to be putting anything back.\n\nCarried so that a reversal can ask whether it is undoing its own work.\nWithout it a reversal knows only what it would like the setting to say,\nand a setting the operator has since chosen for themselves reads exactly\nlike one nobody has touched.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "key",
+        "wrote"
+      ]
+    },
+    {
+      "description": "Remove a path that was created.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "delete"
+        },
+        "path": {
+          "description": "The path to remove.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "path"
+      ]
+    },
+    {
+      "description": "Take a region lemonfiber wrote back out of the file it was written into.\n\nOnly where the region is still what was written. One that was edited since, or\nwhose markers were, is somebody else's work now, and is left exactly as it is.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "withdraw"
+        },
+        "key": {
+          "description": "The same file beneath the stack directory, as the record of what lemonfiber\nmaterialised names it.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "Whose region it is, as its markers name it.",
+          "type": "string"
+        },
+        "path": {
+          "description": "The file the region is in.",
+          "type": "string"
+        },
+        "written": {
+          "description": "The checksum of what was written between the markers, which has to still be\nwhat is there for taking it out to be taking out lemonfiber's own work.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "does",
+        "path",
+        "key",
+        "owner",
+        "written"
+      ]
+    },
+    {
+      "description": "Write a file back to what it held before lemonfiber wrote over it.\n\nOnly where it still holds what was written. One written since is somebody\nelse's work now, and is left exactly as it is.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "rewind"
+        },
+        "path": {
+          "description": "The file to write back.",
+          "type": "string"
+        },
+        "previous": {
+          "description": "What to write back into it.",
+          "type": "string"
+        },
+        "written": {
+          "description": "The checksum of what lemonfiber wrote, which has to still be what is there\nfor writing the old text back to be undoing lemonfiber's own work.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "does",
+        "path",
+        "previous",
+        "written"
+      ]
+    },
+    {
+      "description": "Write the value the secret store holds of a plugin's minted secret back into a\nstarting file, where the shipped file puts the placeholder.\n\nOnly where it still holds what was written. One written since is somebody else's\nwork now, and is left exactly as it is.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "reseed"
+        },
+        "path": {
+          "description": "The file to write back.",
+          "type": "string"
+        },
+        "plugin": {
+          "description": "The plugin the secret is of.",
+          "type": "string"
+        },
+        "secret": {
+          "description": "The secret, by its id.",
+          "type": "string"
+        },
+        "written": {
+          "description": "The checksum of what lemonfiber wrote, which has to still be what is there.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "does",
+        "path",
+        "plugin",
+        "secret",
+        "written"
+      ]
+    },
+    {
+      "description": "Move a service's state back to where it was.\n\nOnly where nothing has taken its old place, and only from where it was moved to.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "move-back"
+        },
+        "from": {
+          "description": "Where it goes back to.",
+          "type": "string"
+        },
+        "to": {
+          "description": "Where it is now.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "from",
+        "to"
+      ]
+    },
+    {
+      "description": "Move a value in the environment file back to the key it was under.\n\nOnly where the key it is under now holds a value and the one it goes back to holds\nnone.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "rename-back"
+        },
+        "from": {
+          "description": "The key it goes back to.",
+          "type": "string"
+        },
+        "to": {
+          "description": "The key it is under now.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "from",
+        "to"
+      ]
+    },
+    {
+      "description": "Keep the copy of a volume where it is: the volume was never changed, so nothing\nis put back.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "keep-copy"
+        },
+        "to": {
+          "description": "Where the copy is.",
+          "type": "string"
+        },
+        "volume": {
+          "description": "The volume it was copied from.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "volume",
+        "to"
+      ]
+    },
+    {
+      "description": "Pin a service back to the version it was standing on.\n\nThe one reversal nothing in this product carries out. Which version runs is\ndecided by the materialised stack and by what Compose was told to start, and\na reversal of settings and files reaches neither — so this is worked out,\nreported, and left for the operator rather than attempted.",
+      "type": "object",
+      "properties": {
+        "current": {
+          "description": "The version this run moved it to, which has to still be the one running\nfor putting the old one back to be putting anything back.",
+          "type": "string"
+        },
+        "does": {
+          "type": "string",
+          "const": "repin"
+        },
+        "previous": {
+          "description": "The version to put back.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "previous",
+        "current"
+      ]
+    },
+    {
+      "description": "Put one field of a service's own resource back to what it held.\n\nThe only reversal that needs the service itself: the value lives inside it,\nand nothing on the host can write it. A reversal that cannot reach the\nservice says so rather than reporting the field restored.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "reconfigure"
+        },
+        "field": {
+          "description": "The field to put back.",
+          "type": "string"
+        },
+        "id": {
+          "description": "The identifier to change.",
+          "type": "string"
+        },
+        "resource": {
+          "description": "The kind of resource.",
+          "type": "string"
+        },
+        "value": {
+          "description": "What to put back, or `None` where it held nothing.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "does",
+        "resource",
+        "id",
+        "field"
+      ]
+    },
+    {
+      "description": "Revoke the key a mint made.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "revoke"
+        },
+        "name": {
+          "description": "The key's name.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "name"
+      ]
+    },
+    {
+      "description": "Make a revoked key good again.\n\nWorked out so the record of a revoke has a reversal to name, and never carried\nout: a key is revoked because something should stop holding it, and reinstating\nit would hand back what the revoke took away. Whatever still needs a key is\nminted a new one.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "reinstate"
+        },
+        "name": {
+          "description": "The key's name.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "name"
+      ]
+    },
+    {
+      "description": "Revoke the device key a registration made.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "revoke-device"
+        },
+        "name": {
+          "description": "The device key's name.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "name"
+      ]
+    },
+    {
+      "description": "Make a revoked device key good again.\n\nWorked out so the record of a revoke has a reversal to name, and never carried\nout, for the reason [`Action::Reinstate`] never is.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "reinstate-device"
+        },
+        "name": {
+          "description": "The device key's name.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "name"
+      ]
+    },
+    {
+      "description": "Put a setting in the settings store back to what it held.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "resettle"
+        },
+        "filed": {
+          "description": "The environment file's setting it goes back to, where it was moved out of one.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "The setting's name.",
+          "type": "string"
+        },
+        "recorded": {
+          "description": "What lemonfiber recorded, which has to still be there.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "value": {
+          "description": "What to put back, or `None` to clear it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "does",
+        "name"
+      ]
+    },
+    {
+      "description": "Give a grant back to a plugin, or end one it was given.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "regrant"
+        },
+        "give": {
+          "description": "Whether to give it, rather than end it.",
+          "type": "boolean"
+        },
+        "grant": {
+          "description": "The grant, by the setting the credential is held under.",
+          "$ref": "PluginGrant.json"
+        },
+        "plugin": {
+          "description": "The plugin the grant is of.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "plugin",
+        "grant",
+        "give"
+      ]
+    },
+    {
+      "description": "Put a secret in the secret store back to the value it held.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "rehold"
+        },
+        "earlier": {
+          "description": "The fingerprint of the value to put back, or `None` to forget it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "filed": {
+          "description": "The environment file's setting it goes back to, where it was moved out of one.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kept": {
+          "description": "The fingerprint of what lemonfiber kept, which has to still be there.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "The secret's name.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "name"
+      ]
+    },
+    {
+      "description": "Leave the media server's internal certificate as it is.\n\nWorked out so the record of a replacement has a reversal to name, and never carried\nout: the certificate is put back only by replacing it again.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "unreplaced"
+        },
+        "service": {
+          "description": "The media server's service.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "service"
+      ]
+    },
+    {
+      "description": "Leave one of lemonfiber's own guards on its plugin.\n\nWorked out so the record of the move has a reversal to name, and never carried out:\nthe release that moved the guard moves it for good.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "unmoved"
+        },
+        "service": {
+          "description": "The stack's own service the guard's plugin took the place of.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "service"
+      ]
+    },
+    {
+      "description": "Start a service again, or stop it again.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "run"
+        },
+        "running": {
+          "description": "Whether it is left running.",
+          "type": "boolean"
+        },
+        "service": {
+          "description": "The service.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "service",
+        "running"
+      ]
+    },
+    {
+      "description": "Leave the operator's overlay as it is.\n\nWorked out so the record of a change to it has a reversal to name, and never\ncarried out: lemonfiber does not write the operator's own file.",
+      "type": "object",
+      "properties": {
+        "does": {
+          "type": "string",
+          "const": "leave"
+        },
+        "path": {
+          "description": "The overlay.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "does",
+        "path"
+      ]
+    }
+  ]
+}
