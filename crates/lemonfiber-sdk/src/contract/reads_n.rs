@@ -8,7 +8,7 @@ impl crate::Answer for super::News {
 
 impl crate::Read for News {
     type Answer = super::News;
-    const PATH: &'static str = "/api/news";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["news-items"];
+    const PATH: &str = "/api/news";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["news-items"];
 }

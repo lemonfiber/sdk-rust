@@ -12,9 +12,9 @@ impl crate::Answer for super::Uninstall {
 
 impl crate::Read for Uninstall {
     type Answer = super::Uninstall;
-    const PATH: &'static str = "/api/uninstall";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["uninstall"];
+    const PATH: &str = "/api/uninstall";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["uninstall"];
 }
 
 /// `GET /api/update`, answered with `self-update` or `update`.
@@ -46,7 +46,7 @@ impl crate::Answer for UpdateAnswer {
 
 impl crate::Read for Update {
     type Answer = UpdateAnswer;
-    const PATH: &'static str = "/api/update";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["self-update", "update"];
+    const PATH: &str = "/api/update";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["self-update", "update"];
 }

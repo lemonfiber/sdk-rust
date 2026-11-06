@@ -10,9 +10,9 @@ pub struct Reissue {
 }
 
 impl crate::Action for Reissue {
-    const NAME: &'static str = "reissue";
+    const NAME: &str = "reissue";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/remove`.
@@ -31,9 +31,9 @@ pub struct Remove {
 }
 
 impl crate::Action for Remove {
-    const NAME: &'static str = "remove";
+    const NAME: &str = "remove";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/repair`.
@@ -57,9 +57,9 @@ pub struct Repair {
 }
 
 impl crate::Action for Repair {
-    const NAME: &'static str = "repair";
+    const NAME: &str = "repair";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer", "agreed", "confirm"];
+    const CONSENT: &[&str] = &["offer", "agreed", "confirm"];
 }
 
 /// `POST /api/actions/reset`.
@@ -75,9 +75,9 @@ pub struct Reset {
 }
 
 impl crate::Action for Reset {
-    const NAME: &'static str = "reset";
+    const NAME: &str = "reset";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/restart`.
@@ -99,9 +99,9 @@ pub struct Restart {
 }
 
 impl crate::Action for Restart {
-    const NAME: &'static str = "restart";
+    const NAME: &str = "restart";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/restore`.
@@ -126,7 +126,7 @@ pub struct Restore {
 }
 
 impl crate::Action for Restore {
-    const NAME: &'static str = "restore";
+    const NAME: &str = "restore";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer", "confirm"];
+    const CONSENT: &[&str] = &["offer", "confirm"];
 }

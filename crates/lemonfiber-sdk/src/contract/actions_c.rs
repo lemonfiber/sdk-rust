@@ -3,9 +3,9 @@
 pub struct CompanionPair {}
 
 impl crate::Action for CompanionPair {
-    const NAME: &'static str = "companion-pair";
+    const NAME: &str = "companion-pair";
     const REHEARSAL: bool = false;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/config-set`.
@@ -29,9 +29,9 @@ pub struct ConfigSet {
 }
 
 impl crate::Action for ConfigSet {
-    const NAME: &'static str = "config-set";
+    const NAME: &str = "config-set";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["confirm"];
+    const CONSENT: &[&str] = &["confirm"];
 }
 
 /// `POST /api/actions/credentials-revoke`.
@@ -55,7 +55,7 @@ pub struct CredentialsRevoke {
 }
 
 impl crate::Action for CredentialsRevoke {
-    const NAME: &'static str = "credentials-revoke";
+    const NAME: &str = "credentials-revoke";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }

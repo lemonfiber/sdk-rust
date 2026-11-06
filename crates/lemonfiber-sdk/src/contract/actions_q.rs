@@ -7,9 +7,9 @@ pub struct QualityReapply {
 }
 
 impl crate::Action for QualityReapply {
-    const NAME: &'static str = "quality-reapply";
+    const NAME: &str = "quality-reapply";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/quality-set`.
@@ -30,9 +30,9 @@ pub struct QualitySet {
 }
 
 impl crate::Action for QualitySet {
-    const NAME: &'static str = "quality-set";
+    const NAME: &str = "quality-set";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["confirm"];
+    const CONSENT: &[&str] = &["confirm"];
 }
 
 /// `POST /api/actions/quality-upgrade`.
@@ -47,7 +47,7 @@ pub struct QualityUpgrade {
 }
 
 impl crate::Action for QualityUpgrade {
-    const NAME: &'static str = "quality-upgrade";
+    const NAME: &str = "quality-upgrade";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["confirm"];
+    const CONSENT: &[&str] = &["confirm"];
 }

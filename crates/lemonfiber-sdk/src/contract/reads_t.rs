@@ -15,7 +15,7 @@ impl crate::Answer for super::TraceReport {
 
 impl crate::Read for Trace {
     type Answer = super::TraceReport;
-    const PATH: &'static str = "/api/trace";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["trace"];
+    const PATH: &str = "/api/trace";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["trace"];
 }

@@ -17,9 +17,9 @@ pub struct HostingInstall {
 }
 
 impl crate::Action for HostingInstall {
-    const NAME: &'static str = "hosting-install";
+    const NAME: &str = "hosting-install";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/hosting-remove`.
@@ -38,9 +38,9 @@ pub struct HostingRemove {
 }
 
 impl crate::Action for HostingRemove {
-    const NAME: &'static str = "hosting-remove";
+    const NAME: &str = "hosting-remove";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/household-allow`.
@@ -68,9 +68,9 @@ pub struct HouseholdAllow {
 }
 
 impl crate::Action for HouseholdAllow {
-    const NAME: &'static str = "household-allow";
+    const NAME: &str = "household-allow";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/household-approve`.
@@ -85,9 +85,9 @@ pub struct HouseholdApprove {
 }
 
 impl crate::Action for HouseholdApprove {
-    const NAME: &'static str = "household-approve";
+    const NAME: &str = "household-approve";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/household-decline`.
@@ -106,9 +106,9 @@ pub struct HouseholdDecline {
 }
 
 impl crate::Action for HouseholdDecline {
-    const NAME: &'static str = "household-decline";
+    const NAME: &str = "household-decline";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/household-handoff`.
@@ -123,7 +123,7 @@ pub struct HouseholdHandoff {
 }
 
 impl crate::Action for HouseholdHandoff {
-    const NAME: &'static str = "household-handoff";
+    const NAME: &str = "household-handoff";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }

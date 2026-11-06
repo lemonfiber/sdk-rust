@@ -24,9 +24,9 @@ impl crate::Answer for FormsAnswer {
 
 impl crate::Read for Forms {
     type Answer = FormsAnswer;
-    const PATH: &'static str = "/api/forms";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["forms", "preview"];
+    const PATH: &str = "/api/forms";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["forms", "preview"];
 }
 
 /// `GET /api/front-door`, answered with `front-door`.
@@ -39,7 +39,7 @@ impl crate::Answer for super::FrontDoorReport {
 
 impl crate::Read for FrontDoor {
     type Answer = super::FrontDoorReport;
-    const PATH: &'static str = "/api/front-door";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["front-door"];
+    const PATH: &str = "/api/front-door";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["front-door"];
 }

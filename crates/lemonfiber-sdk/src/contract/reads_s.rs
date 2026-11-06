@@ -8,9 +8,9 @@ impl crate::Answer for super::StatusReport {
 
 impl crate::Read for Status {
     type Answer = super::StatusReport;
-    const PATH: &'static str = "/api/status";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["status"];
+    const PATH: &str = "/api/status";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["status"];
 }
 
 /// `GET /api/services`, answered with `status`.
@@ -23,9 +23,9 @@ pub struct Services {
 
 impl crate::Read for Services {
     type Answer = super::StatusReport;
-    const PATH: &'static str = "/api/services";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["status"];
+    const PATH: &str = "/api/services";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["status"];
 }
 
 /// `GET /api/storage`, answered with `doctor`.
@@ -34,9 +34,9 @@ pub struct Storage {}
 
 impl crate::Read for Storage {
     type Answer = super::DoctorReport;
-    const PATH: &'static str = "/api/storage";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["doctor"];
+    const PATH: &str = "/api/storage";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["doctor"];
 }
 
 /// `GET /api/stuck`, answered with `stuck`.
@@ -49,9 +49,9 @@ impl crate::Answer for super::StuckReport {
 
 impl crate::Read for Stuck {
     type Answer = super::StuckReport;
-    const PATH: &'static str = "/api/stuck";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["stuck"];
+    const PATH: &str = "/api/stuck";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["stuck"];
 }
 
 /// `GET /api/stored`, answered with `stored`.
@@ -64,9 +64,9 @@ impl crate::Answer for super::Stored {
 
 impl crate::Read for Stored {
     type Answer = super::Stored;
-    const PATH: &'static str = "/api/stored";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["stored"];
+    const PATH: &str = "/api/stored";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["stored"];
 }
 
 /// `GET /api/space`, answered with `space`.
@@ -79,9 +79,9 @@ impl crate::Answer for super::Reckoning {
 
 impl crate::Read for Space {
     type Answer = super::Reckoning;
-    const PATH: &'static str = "/api/space";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["space"];
+    const PATH: &str = "/api/space";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["space"];
 }
 
 /// `GET /api/settings`, answered with `settings`.
@@ -94,7 +94,7 @@ impl crate::Answer for super::SettingsReport {
 
 impl crate::Read for Settings {
     type Answer = super::SettingsReport;
-    const PATH: &'static str = "/api/settings";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["settings"];
+    const PATH: &str = "/api/settings";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["settings"];
 }

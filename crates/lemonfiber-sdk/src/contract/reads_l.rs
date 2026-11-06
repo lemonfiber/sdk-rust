@@ -33,7 +33,7 @@ impl crate::Answer for LogsAnswer {
 
 impl crate::Read for Logs {
     type Answer = LogsAnswer;
-    const PATH: &'static str = "/api/logs";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["job", "log"];
+    const PATH: &str = "/api/logs";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["job", "log"];
 }

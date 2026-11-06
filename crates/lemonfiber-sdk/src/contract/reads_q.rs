@@ -8,7 +8,7 @@ impl crate::Answer for super::QualityReport {
 
 impl crate::Read for Quality {
     type Answer = super::QualityReport;
-    const PATH: &'static str = "/api/quality";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["quality"];
+    const PATH: &str = "/api/quality";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["quality"];
 }

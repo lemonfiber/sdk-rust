@@ -10,7 +10,7 @@ pub struct Forget {
 }
 
 impl crate::Action for Forget {
-    const NAME: &'static str = "forget";
+    const NAME: &str = "forget";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["confirm"];
+    const CONSENT: &[&str] = &["confirm"];
 }

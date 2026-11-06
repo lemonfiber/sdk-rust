@@ -18,9 +18,9 @@ impl crate::Answer for super::HeldReport {
 
 impl crate::Read for Held {
     type Answer = super::HeldReport;
-    const PATH: &'static str = "/api/held";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["held"];
+    const PATH: &str = "/api/held";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["held"];
 }
 
 /// `GET /api/held/{id}`, answered with `title`.
@@ -42,9 +42,9 @@ impl crate::Answer for super::TitleReport {
 
 impl crate::Read for HeldId {
     type Answer = super::TitleReport;
-    const PATH: &'static str = "/api/held/{id}";
-    const SEGMENTS: &'static [&'static str] = &["id"];
-    const KINDS: &'static [&'static str] = &["title"];
+    const PATH: &str = "/api/held/{id}";
+    const SEGMENTS: &[&str] = &["id"];
+    const KINDS: &[&str] = &["title"];
 }
 
 /// `GET /api/hosting`, answered with `hosting`.
@@ -57,9 +57,9 @@ impl crate::Answer for super::HostingReport {
 
 impl crate::Read for Hosting {
     type Answer = super::HostingReport;
-    const PATH: &'static str = "/api/hosting";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["hosting"];
+    const PATH: &str = "/api/hosting";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["hosting"];
 }
 
 /// `GET /api/history`, answered with `history`.
@@ -72,9 +72,9 @@ impl crate::Answer for super::HistoryReport {
 
 impl crate::Read for History {
     type Answer = super::HistoryReport;
-    const PATH: &'static str = "/api/history";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["history"];
+    const PATH: &str = "/api/history";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["history"];
 }
 
 /// `GET /api/held/{id}/poster`, answered with a file.
@@ -91,8 +91,8 @@ pub struct HeldIdPoster {
 }
 
 impl crate::FileRead for HeldIdPoster {
-    const PATH: &'static str = "/api/held/{id}/poster";
-    const SEGMENTS: &'static [&'static str] = &["id"];
+    const PATH: &str = "/api/held/{id}/poster";
+    const SEGMENTS: &[&str] = &["id"];
 }
 
 /// `GET /api/held/{id}/backdrop`, answered with a file.
@@ -109,6 +109,6 @@ pub struct HeldIdBackdrop {
 }
 
 impl crate::FileRead for HeldIdBackdrop {
-    const PATH: &'static str = "/api/held/{id}/backdrop";
-    const SEGMENTS: &'static [&'static str] = &["id"];
+    const PATH: &str = "/api/held/{id}/backdrop";
+    const SEGMENTS: &[&str] = &["id"];
 }

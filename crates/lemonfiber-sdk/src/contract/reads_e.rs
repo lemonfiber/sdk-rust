@@ -24,7 +24,7 @@ impl crate::Answer for ExplainAnswer {
 
 impl crate::Read for Explain {
     type Answer = ExplainAnswer;
-    const PATH: &'static str = "/api/explain";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["glossary", "word"];
+    const PATH: &str = "/api/explain";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["glossary", "word"];
 }

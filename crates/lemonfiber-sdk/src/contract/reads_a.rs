@@ -18,9 +18,9 @@ impl crate::Answer for super::AskableReport {
 
 impl crate::Read for Askable {
     type Answer = super::AskableReport;
-    const PATH: &'static str = "/api/askable";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["askable"];
+    const PATH: &str = "/api/askable";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["askable"];
 }
 
 /// `GET /api/alerts`, answered with `alerts`.
@@ -33,9 +33,9 @@ impl crate::Answer for super::AlertReport {
 
 impl crate::Read for Alerts {
     type Answer = super::AlertReport;
-    const PATH: &'static str = "/api/alerts";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["alerts"];
+    const PATH: &str = "/api/alerts";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["alerts"];
 }
 
 /// `GET /api/askable/{id}/poster`, answered with a file.
@@ -52,6 +52,6 @@ pub struct AskableIdPoster {
 }
 
 impl crate::FileRead for AskableIdPoster {
-    const PATH: &'static str = "/api/askable/{id}/poster";
-    const SEGMENTS: &'static [&'static str] = &["id"];
+    const PATH: &str = "/api/askable/{id}/poster";
+    const SEGMENTS: &[&str] = &["id"];
 }

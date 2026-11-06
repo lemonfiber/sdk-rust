@@ -8,19 +8,19 @@ pub trait Read: Serialize {
     /// What it answers with, typed by its kind.
     type Answer: Answer;
     /// The path it is served at, a `{segment}` for each part the struct fills.
-    const PATH: &'static str;
+    const PATH: &str;
     /// The segments of the path the struct fills.
-    const SEGMENTS: &'static [&'static str];
+    const SEGMENTS: &[&str];
     /// The kinds it answers with.
-    const KINDS: &'static [&'static str];
+    const KINDS: &[&str];
 }
 
 /// A read the web API answers with a file: a struct holding what it takes.
 pub trait FileRead: Serialize {
     /// The path it is served at, a `{segment}` for each part the struct fills.
-    const PATH: &'static str;
+    const PATH: &str;
     /// The segments of the path the struct fills.
-    const SEGMENTS: &'static [&'static str];
+    const SEGMENTS: &[&str];
 }
 
 /// What a read answers with.
@@ -33,11 +33,11 @@ pub trait Answer: DeserializeOwned {
 /// An action `POST /api/actions/<name>` takes: a struct holding its arguments.
 pub trait Action: Serialize {
     /// Its name.
-    const NAME: &'static str;
+    const NAME: &str;
     /// Whether it takes `dry_run`, so it can be rehearsed first.
     const REHEARSAL: bool;
     /// The arguments that carry the operator's consent.
-    const CONSENT: &'static [&'static str];
+    const CONSENT: &[&str];
 }
 
 /// One code a refusal may carry, as the contract lists it.

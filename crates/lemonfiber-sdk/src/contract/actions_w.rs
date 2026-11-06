@@ -7,9 +7,9 @@ pub struct Walkthrough {
 }
 
 impl crate::Action for Walkthrough {
-    const NAME: &'static str = "walkthrough";
+    const NAME: &str = "walkthrough";
     const REHEARSAL: bool = false;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/watch`.
@@ -24,9 +24,9 @@ pub struct Watch {
 }
 
 impl crate::Action for Watch {
-    const NAME: &'static str = "watch";
+    const NAME: &str = "watch";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/watched`.
@@ -53,9 +53,9 @@ pub struct Watched {
 }
 
 impl crate::Action for Watched {
-    const NAME: &'static str = "watched";
+    const NAME: &str = "watched";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/wiring-fill`.
@@ -81,7 +81,7 @@ pub struct WiringFill {
 }
 
 impl crate::Action for WiringFill {
-    const NAME: &'static str = "wiring-fill";
+    const NAME: &str = "wiring-fill";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }

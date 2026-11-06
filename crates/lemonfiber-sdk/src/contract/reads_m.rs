@@ -8,7 +8,7 @@ impl crate::Answer for super::MigrationReport {
 
 impl crate::Read for Migration {
     type Answer = super::MigrationReport;
-    const PATH: &'static str = "/api/migration";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["migration"];
+    const PATH: &str = "/api/migration";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["migration"];
 }

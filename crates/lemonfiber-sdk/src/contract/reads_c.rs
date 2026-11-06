@@ -12,9 +12,9 @@ impl crate::Answer for super::DoctorReport {
 
 impl crate::Read for Checks {
     type Answer = super::DoctorReport;
-    const PATH: &'static str = "/api/checks";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["doctor"];
+    const PATH: &str = "/api/checks";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["doctor"];
 }
 
 /// `GET /api/config`, answered with `config`.
@@ -31,9 +31,9 @@ impl crate::Answer for super::ConfigReport {
 
 impl crate::Read for Config {
     type Answer = super::ConfigReport;
-    const PATH: &'static str = "/api/config";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["config"];
+    const PATH: &str = "/api/config";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["config"];
 }
 
 /// `GET /api/catalogue`, answered with `catalogue`.
@@ -46,9 +46,9 @@ impl crate::Answer for super::CatalogueReport {
 
 impl crate::Read for Catalogue {
     type Answer = super::CatalogueReport;
-    const PATH: &'static str = "/api/catalogue";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["catalogue"];
+    const PATH: &str = "/api/catalogue";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["catalogue"];
 }
 
 /// `GET /api/clients`, answered with `clients`.
@@ -61,9 +61,9 @@ impl crate::Answer for super::Guidance {
 
 impl crate::Read for Clients {
     type Answer = super::Guidance;
-    const PATH: &'static str = "/api/clients";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["clients"];
+    const PATH: &str = "/api/clients";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["clients"];
 }
 
 /// `GET /api/credentials`, answered with `credentials`.
@@ -76,7 +76,7 @@ impl crate::Answer for super::Inventory {
 
 impl crate::Read for Credentials {
     type Answer = super::Inventory;
-    const PATH: &'static str = "/api/credentials";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["credentials"];
+    const PATH: &str = "/api/credentials";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["credentials"];
 }

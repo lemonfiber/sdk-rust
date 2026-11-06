@@ -14,7 +14,7 @@ pub struct Grant {
 }
 
 impl crate::Action for Grant {
-    const NAME: &'static str = "grant";
+    const NAME: &str = "grant";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }

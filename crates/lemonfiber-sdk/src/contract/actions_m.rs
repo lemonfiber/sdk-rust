@@ -10,9 +10,9 @@ pub struct MigrateAdopt {
 }
 
 impl crate::Action for MigrateAdopt {
-    const NAME: &'static str = "migrate-adopt";
+    const NAME: &str = "migrate-adopt";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["confirm"];
+    const CONSENT: &[&str] = &["confirm"];
 }
 
 /// `POST /api/actions/migrate-beside`.
@@ -27,9 +27,9 @@ pub struct MigrateBeside {
 }
 
 impl crate::Action for MigrateBeside {
-    const NAME: &'static str = "migrate-beside";
+    const NAME: &str = "migrate-beside";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["confirm"];
+    const CONSENT: &[&str] = &["confirm"];
 }
 
 /// `POST /api/actions/migrate-import`.
@@ -44,9 +44,9 @@ pub struct MigrateImport {
 }
 
 impl crate::Action for MigrateImport {
-    const NAME: &'static str = "migrate-import";
+    const NAME: &str = "migrate-import";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["confirm"];
+    const CONSENT: &[&str] = &["confirm"];
 }
 
 /// `POST /api/actions/migrate-replace`.
@@ -62,7 +62,7 @@ pub struct MigrateReplace {
 }
 
 impl crate::Action for MigrateReplace {
-    const NAME: &'static str = "migrate-replace";
+    const NAME: &str = "migrate-replace";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }

@@ -8,9 +8,9 @@ impl crate::Answer for super::Listing {
 
 impl crate::Read for Backups {
     type Answer = super::Listing;
-    const PATH: &'static str = "/api/backups";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["archives"];
+    const PATH: &str = "/api/backups";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["archives"];
 }
 
 /// `GET /api/bandwidth`, answered with `bandwidth`.
@@ -23,9 +23,9 @@ impl crate::Answer for super::Sharing {
 
 impl crate::Read for Bandwidth {
     type Answer = super::Sharing;
-    const PATH: &'static str = "/api/bandwidth";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["bandwidth"];
+    const PATH: &str = "/api/bandwidth";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["bandwidth"];
 }
 
 /// `GET /api/bundle/{name}`, answered with a file.
@@ -36,6 +36,6 @@ pub struct BundleName {
 }
 
 impl crate::FileRead for BundleName {
-    const PATH: &'static str = "/api/bundle/{name}";
-    const SEGMENTS: &'static [&'static str] = &["name"];
+    const PATH: &str = "/api/bundle/{name}";
+    const SEGMENTS: &[&str] = &["name"];
 }

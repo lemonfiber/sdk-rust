@@ -12,9 +12,9 @@ impl crate::Answer for super::PlayingReport {
 
 impl crate::Read for Playing {
     type Answer = super::PlayingReport;
-    const PATH: &'static str = "/api/playing";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["playing"];
+    const PATH: &str = "/api/playing";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["playing"];
 }
 
 /// `GET /api/provenance`, answered with `provenance`.
@@ -27,9 +27,9 @@ impl crate::Answer for super::ProvenanceReport {
 
 impl crate::Read for Provenance {
     type Answer = super::ProvenanceReport;
-    const PATH: &'static str = "/api/provenance";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["provenance"];
+    const PATH: &str = "/api/provenance";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["provenance"];
 }
 
 /// `GET /api/plugins`, answered with `plugins`.
@@ -42,7 +42,7 @@ impl crate::Answer for super::PluginInstalls {
 
 impl crate::Read for Plugins {
     type Answer = super::PluginInstalls;
-    const PATH: &'static str = "/api/plugins";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["plugins"];
+    const PATH: &str = "/api/plugins";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["plugins"];
 }

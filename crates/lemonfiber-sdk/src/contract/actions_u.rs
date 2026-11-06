@@ -10,9 +10,9 @@ pub struct Undo {
 }
 
 impl crate::Action for Undo {
-    const NAME: &'static str = "undo";
+    const NAME: &str = "undo";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/uninstall`.
@@ -42,9 +42,9 @@ pub struct Uninstall {
 }
 
 impl crate::Action for Uninstall {
-    const NAME: &'static str = "uninstall";
+    const NAME: &str = "uninstall";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer", "confirm"];
+    const CONSENT: &[&str] = &["offer", "confirm"];
 }
 
 /// `POST /api/actions/up`.
@@ -62,9 +62,9 @@ pub struct Up {
 }
 
 impl crate::Action for Up {
-    const NAME: &'static str = "up";
+    const NAME: &str = "up";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/update`.
@@ -89,7 +89,7 @@ pub struct Update {
 }
 
 impl crate::Action for Update {
-    const NAME: &'static str = "update";
+    const NAME: &str = "update";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer", "confirm"];
+    const CONSENT: &[&str] = &["offer", "confirm"];
 }

@@ -446,7 +446,7 @@ fn reads(artefact: &Artefact, shaped: &Shaped) -> Result<Groups, Refused> {
         if read.file {
             let _ = writeln!(
                 text,
-                "impl crate::FileRead for {name} {{\nconst PATH: &'static str = {path};\nconst SEGMENTS: &'static [&'static str] = &[{segments}];\n}}\n"
+                "impl crate::FileRead for {name} {{\nconst PATH: &str = {path};\nconst SEGMENTS: &[&str] = &[{segments}];\n}}\n"
             );
             groups.entry(letter(&name)).or_default().push(text);
             continue;
@@ -456,7 +456,7 @@ fn reads(artefact: &Artefact, shaped: &Shaped) -> Result<Groups, Refused> {
         let kinds: Vec<&str> = read.kinds.iter().map(String::as_str).collect();
         let _ = writeln!(
             text,
-            "impl crate::Read for {name} {{\ntype Answer = {answer};\nconst PATH: &'static str = {path};\nconst SEGMENTS: &'static [&'static str] = &[{segments}];\nconst KINDS: &'static [&'static str] = &[{}];\n}}\n",
+            "impl crate::Read for {name} {{\ntype Answer = {answer};\nconst PATH: &str = {path};\nconst SEGMENTS: &[&str] = &[{segments}];\nconst KINDS: &[&str] = &[{}];\n}}\n",
             listed(&kinds)
         );
         groups.entry(letter(&name)).or_default().push(text);
@@ -489,7 +489,7 @@ fn actions(shaped: &Shaped) -> Groups {
         let consent: Vec<&str> = action.consent.iter().map(String::as_str).collect();
         let _ = writeln!(
             text,
-            "}}\n\nimpl crate::Action for {} {{\nconst NAME: &'static str = {};\nconst REHEARSAL: bool = {};\nconst CONSENT: &'static [&'static str] = &[{}];\n}}\n",
+            "}}\n\nimpl crate::Action for {} {{\nconst NAME: &str = {};\nconst REHEARSAL: bool = {};\nconst CONSENT: &[&str] = &[{}];\n}}\n",
             action.ident,
             literal(&action.name),
             action.rehearsal,

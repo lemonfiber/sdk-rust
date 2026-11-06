@@ -25,9 +25,9 @@ pub struct PluginInstall {
 }
 
 impl crate::Action for PluginInstall {
-    const NAME: &'static str = "plugin-install";
+    const NAME: &str = "plugin-install";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer", "approved"];
+    const CONSENT: &[&str] = &["offer", "approved"];
 }
 
 /// `POST /api/actions/plugin-prove`.
@@ -47,9 +47,9 @@ pub struct PluginProve {
 }
 
 impl crate::Action for PluginProve {
-    const NAME: &'static str = "plugin-prove";
+    const NAME: &str = "plugin-prove";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/plugin-remove`.
@@ -69,9 +69,9 @@ pub struct PluginRemove {
 }
 
 impl crate::Action for PluginRemove {
-    const NAME: &'static str = "plugin-remove";
+    const NAME: &str = "plugin-remove";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/plugin-run`.
@@ -103,9 +103,9 @@ pub struct PluginRun {
 }
 
 impl crate::Action for PluginRun {
-    const NAME: &'static str = "plugin-run";
+    const NAME: &str = "plugin-run";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer", "approved"];
+    const CONSENT: &[&str] = &["offer", "approved"];
 }
 
 /// `POST /api/actions/plugin-update`.
@@ -139,9 +139,9 @@ pub struct PluginUpdate {
 }
 
 impl crate::Action for PluginUpdate {
-    const NAME: &'static str = "plugin-update";
+    const NAME: &str = "plugin-update";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer", "approved"];
+    const CONSENT: &[&str] = &["offer", "approved"];
 }
 
 /// `POST /api/actions/pull`.
@@ -156,7 +156,7 @@ pub struct Pull {
 }
 
 impl crate::Action for Pull {
-    const NAME: &'static str = "pull";
+    const NAME: &str = "pull";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }

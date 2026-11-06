@@ -10,9 +10,9 @@ pub struct Backup {
 }
 
 impl crate::Action for Backup {
-    const NAME: &'static str = "backup";
+    const NAME: &str = "backup";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/bandwidth`.
@@ -51,7 +51,7 @@ pub struct Bandwidth {
 }
 
 impl crate::Action for Bandwidth {
-    const NAME: &'static str = "bandwidth";
+    const NAME: &str = "bandwidth";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }

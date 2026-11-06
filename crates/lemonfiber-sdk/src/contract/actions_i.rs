@@ -11,9 +11,9 @@ pub struct InternalCertificateReplace {
 }
 
 impl crate::Action for InternalCertificateReplace {
-    const NAME: &'static str = "internal-certificate-replace";
+    const NAME: &str = "internal-certificate-replace";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/invite`.
@@ -47,7 +47,7 @@ pub struct Invite {
 }
 
 impl crate::Action for Invite {
-    const NAME: &'static str = "invite";
+    const NAME: &str = "invite";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["confirm"];
+    const CONSENT: &[&str] = &["confirm"];
 }

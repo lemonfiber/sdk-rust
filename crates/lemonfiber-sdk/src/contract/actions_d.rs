@@ -9,9 +9,9 @@ pub struct Diagnose {
 }
 
 impl crate::Action for Diagnose {
-    const NAME: &'static str = "diagnose";
+    const NAME: &str = "diagnose";
     const REHEARSAL: bool = false;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/down`.
@@ -32,9 +32,9 @@ pub struct Down {
 }
 
 impl crate::Action for Down {
-    const NAME: &'static str = "down";
+    const NAME: &str = "down";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/downloads-pause`.
@@ -50,9 +50,9 @@ pub struct DownloadsPause {
 }
 
 impl crate::Action for DownloadsPause {
-    const NAME: &'static str = "downloads-pause";
+    const NAME: &str = "downloads-pause";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/downloads-resume`.
@@ -68,7 +68,7 @@ pub struct DownloadsResume {
 }
 
 impl crate::Action for DownloadsResume {
-    const NAME: &'static str = "downloads-resume";
+    const NAME: &str = "downloads-resume";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }

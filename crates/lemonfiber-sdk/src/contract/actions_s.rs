@@ -12,9 +12,9 @@ pub struct Search {
 }
 
 impl crate::Action for Search {
-    const NAME: &'static str = "search";
+    const NAME: &str = "search";
     const REHEARSAL: bool = false;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/seed`.
@@ -26,9 +26,9 @@ pub struct Seed {
 }
 
 impl crate::Action for Seed {
-    const NAME: &'static str = "seed";
+    const NAME: &str = "seed";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/settings-clear`.
@@ -48,9 +48,9 @@ pub struct SettingsClear {
 }
 
 impl crate::Action for SettingsClear {
-    const NAME: &'static str = "settings-clear";
+    const NAME: &str = "settings-clear";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/settings-set`.
@@ -70,9 +70,9 @@ pub struct SettingsSet {
 }
 
 impl crate::Action for SettingsSet {
-    const NAME: &'static str = "settings-set";
+    const NAME: &str = "settings-set";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/space`.
@@ -88,9 +88,9 @@ pub struct Space {
 }
 
 impl crate::Action for Space {
-    const NAME: &'static str = "space";
+    const NAME: &str = "space";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/stop-seeding`.
@@ -110,9 +110,9 @@ pub struct StopSeeding {
 }
 
 impl crate::Action for StopSeeding {
-    const NAME: &'static str = "stop-seeding";
+    const NAME: &str = "stop-seeding";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["offer"];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/support`.
@@ -139,9 +139,9 @@ pub struct Support {
 }
 
 impl crate::Action for Support {
-    const NAME: &'static str = "support";
+    const NAME: &str = "support";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &["confirm"];
+    const CONSENT: &[&str] = &["confirm"];
 }
 
 /// `POST /api/actions/switch`.
@@ -156,7 +156,7 @@ pub struct Switch {
 }
 
 impl crate::Action for Switch {
-    const NAME: &'static str = "switch";
+    const NAME: &str = "switch";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }

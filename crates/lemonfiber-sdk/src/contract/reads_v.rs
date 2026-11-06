@@ -8,7 +8,7 @@ impl crate::Answer for super::VersionReport {
 
 impl crate::Read for Version {
     type Answer = super::VersionReport;
-    const PATH: &'static str = "/api/version";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["version"];
+    const PATH: &str = "/api/version";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["version"];
 }

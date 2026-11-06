@@ -15,9 +15,9 @@ impl crate::Answer for super::PartWayReport {
 
 impl crate::Read for Watching {
     type Answer = super::PartWayReport;
-    const PATH: &'static str = "/api/watching";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["part-way"];
+    const PATH: &str = "/api/watching";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["part-way"];
 }
 
 /// `GET /api/wiring`, answered with `wiring`.
@@ -30,7 +30,7 @@ impl crate::Answer for super::WiringReport {
 
 impl crate::Read for Wiring {
     type Answer = super::WiringReport;
-    const PATH: &'static str = "/api/wiring";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["wiring"];
+    const PATH: &str = "/api/wiring";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["wiring"];
 }

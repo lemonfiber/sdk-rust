@@ -15,7 +15,7 @@ impl crate::Answer for super::HouseholdReport {
 
 impl crate::Read for Requests {
     type Answer = super::HouseholdReport;
-    const PATH: &'static str = "/api/requests";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["household"];
+    const PATH: &str = "/api/requests";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["household"];
 }

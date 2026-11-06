@@ -9,9 +9,9 @@ pub struct Accept {
 }
 
 impl crate::Action for Accept {
-    const NAME: &'static str = "accept";
+    const NAME: &str = "accept";
     const REHEARSAL: bool = false;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/adopt`.
@@ -23,9 +23,9 @@ pub struct Adopt {
 }
 
 impl crate::Action for Adopt {
-    const NAME: &'static str = "adopt";
+    const NAME: &str = "adopt";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }
 
 /// `POST /api/actions/ask`.
@@ -53,7 +53,7 @@ pub struct Ask {
 }
 
 impl crate::Action for Ask {
-    const NAME: &'static str = "ask";
+    const NAME: &str = "ask";
     const REHEARSAL: bool = true;
-    const CONSENT: &'static [&'static str] = &[];
+    const CONSENT: &[&str] = &[];
 }

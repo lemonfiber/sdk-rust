@@ -8,7 +8,7 @@ impl crate::Answer for super::Leaving {
 
 impl crate::Read for Outbound {
     type Answer = super::Leaving;
-    const PATH: &'static str = "/api/outbound";
-    const SEGMENTS: &'static [&'static str] = &[];
-    const KINDS: &'static [&'static str] = &["outbound"];
+    const PATH: &str = "/api/outbound";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["outbound"];
 }
