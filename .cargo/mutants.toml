@@ -1,0 +1,6 @@
+# What `just mutation` mutates: the written client. The generated contract is held to
+# what the artefact generates instead.
+exclude_globs = ["crates/lemonfiber-sdk/src/contract/**"]
+test_workspace = false
+cap_lints = true
+minimum_test_timeout = 60.0

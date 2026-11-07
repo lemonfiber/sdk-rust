@@ -8,7 +8,8 @@
 #
 #   gates   gates / gates
 #   pin-only pin-only / pin-only
-#   build            check, contract, msrv, deny
+#   build            check, contract, msrv, deny, mutation testing,
+#                    backward compatibility
 #   sonar            coverage, sonar, gate / gate
 #   contract-drift   contract-drift / drift
 #

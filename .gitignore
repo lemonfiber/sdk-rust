@@ -1,4 +1,5 @@
 /target
 lcov.info
+/mutants.out*/
 /.spec-canonical/
 .DS_Store

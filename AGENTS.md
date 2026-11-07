@@ -36,6 +36,10 @@ them. A client that disagrees with the contract is wrong.
 - **The token is a header, never a URL** (`ARCH-R52`); **loopback, or an address a
   certificate pin vouches for** (`ARCH-R60`, `ARCH-R99`). A pinned stack is reached
   through `Http` alone.
+- **What the core pins does not break unannounced.** `backward compatibility` compares the
+  public surface with that commit, and a break needs `!` after the type in the title.
+- **Every mutant is told apart.** `mutation testing` runs `cargo-mutants` over the written
+  client in CI, on every pull request that changes code.
 - **No explanatory comments.** A `///` doc is written where a lint asks for one, and
   says what the item is.
 
@@ -45,6 +49,7 @@ them. A client that disagrees with the contract is wrong.
 just ci              # fmt, clippy, the contract check, cargo-deny, coverage
 just test            # the suite alone
 just reads ../spec   # the reads held to the contract page in a spec checkout
+just bc              # the public surface against the commit the core pins
 ```
 
 ## Before you open a PR

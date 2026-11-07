@@ -95,6 +95,8 @@ Nothing panics for an expected failure: every call returns a `Result`, and the e
 `contract` is generated from the artefact lemonfiber publishes, at the revision
 `contract/VERSION` names, and never edited by hand.
 
+[The guide](docs/guide.md) covers each of these in full.
+
 ## The address and the transport
 
 A loopback address needs no pin. Any other address needs the stack's certificate pin,
