@@ -25,7 +25,7 @@ const LONGEST_PAUSE: Duration = Duration::from_secs(30);
 
 const REFUSED_OUTRIGHT: &[u16] = &[400, 401, 403, 404];
 
-const MOST_SAID: usize = 64 * 1024;
+pub(crate) const MOST_SAID: usize = 64 * 1024;
 
 /// How a stream is followed: how long a silence may last, and how it is reopened.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

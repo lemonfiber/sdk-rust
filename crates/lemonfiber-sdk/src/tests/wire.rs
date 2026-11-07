@@ -12,7 +12,7 @@ use crate::error::{Refusal, RefusedBecause};
 use crate::open::kept;
 use crate::query::{located, segment};
 use crate::refusal::refusal_of;
-use crate::sse::Parser;
+use crate::sse::{Parser, LARGEST};
 use crate::transport::{Failure, Method, Request, Response};
 use crate::{Address, CertificatePin, Credential, Error, File, Picture, RefusalCode, Resolve};
 
@@ -50,6 +50,10 @@ fn what_is_not_an_envelope_is_unreadable_and_quotes_nothing_of_it() {
         (b"[]", "it is not an envelope"),
         (br#"{"kind": "status"}"#, "it carries no api_version"),
         (br#"{"api_version": 1, "data": {}}"#, "it names no kind"),
+        (
+            br#"{"api_version": 1, "kind": "", "data": {}}"#,
+            "it names no kind",
+        ),
         (
             br#"{"api_version": 1, "kind": "status"}"#,
             "it carries no data",
@@ -300,6 +304,14 @@ fn the_stream_is_read_whatever_way_its_lines_end_and_however_it_is_cut() -> Outc
     let mut parser = Parser::new(12);
     assert!(matches!(parser.push(b"data: 1234"), Ok(events) if events.is_empty()));
     assert!(matches!(parser.push(b"56789"), Err(Error::Unreadable(_))));
+    assert_eq!(LARGEST, 16_777_216);
+    let mut parser = Parser::new(8);
+    assert!(matches!(parser.push(b"data: 12"), Ok(events) if events.is_empty()));
+    let events = parser.push(b"345678\n\n")?;
+    assert_eq!(
+        events.first().map(|event| event.data.as_str()),
+        Some("12345678")
+    );
     Ok(())
 }
 
@@ -366,6 +378,8 @@ fn an_address_lemonfiber_does_not_print_is_refused() -> Outcome {
         ("not an address", None),
         ("ftp://127.0.0.1", None),
         ("http://user:pass@127.0.0.1", None),
+        ("http://user@127.0.0.1", None),
+        ("http://:pass@127.0.0.1", None),
         ("http://127.0.0.1/?token=x", None),
         ("http://127.0.0.1/#x", None),
         ("http://192.0.2.1", None),
@@ -394,10 +408,8 @@ fn an_address_lemonfiber_does_not_print_is_refused() -> Outcome {
 
 #[test]
 fn the_system_resolver_finds_this_machine() {
-    assert!(crate::SystemResolver
-        .resolve("localhost")
-        .iter()
-        .all(IpAddr::is_loopback));
+    let found = crate::SystemResolver.resolve("localhost");
+    assert!(!found.is_empty() && found.iter().all(IpAddr::is_loopback));
     assert!(crate::SystemResolver.resolve("name.invalid").is_empty());
 }
 

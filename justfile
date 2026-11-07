@@ -63,19 +63,21 @@ sync revision:
 bc base="origin/main" title="":
     scripts/backward_compat.sh {{quote(base)}} {{quote(title)}}
 
-# Mutation testing, every mutant told apart by the suite or timed out. Slow: CI runs it on
-# every pull request that changes code.
+# Mutation testing: no mutant survives, and a run that mutated nothing fails. Slow: CI runs
+# it on every pull request that changes code.
 mutation:
     #!/usr/bin/env bash
     set -uo pipefail
     cargo mutants --package lemonfiber-sdk --no-shuffle --colors never --jobs "$(nproc)"
     status=$?
-    if [ "${status}" -ne 0 ] && [ "${status}" -ne 3 ]; then
-      exit "${status}"
+    if [ ! -f mutants.out/outcomes.json ] || { [ "${status}" -ne 0 ] && [ "${status}" -ne 2 ] && [ "${status}" -ne 3 ]; }; then
+      echo "cargo mutants stopped with ${status}, before it judged the mutants."
+      exit 1
     fi
+    missed="$(jq '.missed' mutants.out/outcomes.json)"
     judged="$(jq '.caught + .timeout' mutants.out/outcomes.json)"
-    echo "${judged} mutants told apart."
-    [ "${judged}" -gt 0 ]
+    echo "${judged} mutants told apart, ${missed} survived."
+    [ "${missed}" -eq 0 ] && [ "${judged}" -gt 0 ]
 
 # Rewrite CHANGELOG.md from the commit history.
 changelog:

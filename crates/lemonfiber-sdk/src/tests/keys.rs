@@ -77,7 +77,17 @@ async fn a_key_is_minted_with_its_secret_or_as_a_claim_and_a_device_key_is_regis
         Ok(reply(200, enveloped("device-key", &registered))),
     ]))?;
     assert_eq!(client.mint(&minting()).await?.data.name, "home");
-    assert_eq!(client.mint_claim(&minting()).await?.data.name, "home");
+    assert_eq!(
+        client
+            .mint_claim(&KeysBody {
+                claim: None,
+                ..minting()
+            })
+            .await?
+            .data
+            .name,
+        "home"
+    );
     let registering = DeviceKeysBody {
         attestation: Some(DeviceKeyAttestation::Android {
             chain: vec![base64url(b"der")],
