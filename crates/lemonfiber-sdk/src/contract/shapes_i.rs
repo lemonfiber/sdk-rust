@@ -48,6 +48,7 @@ pub struct Indexer {
 /// machine, and a value that arrived by nobody filling it in has established none of
 /// them.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Installed {
     /// Homebrew put it here, on macOS or on Linux.
     #[serde(rename = "homebrew")]
@@ -79,6 +80,9 @@ pub enum Installed {
     /// can be told apart. Not a failure, and not a licence to guess.
     #[serde(rename = "untellable")]
     Untellable,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// An import that stopped part-way, in the words of whatever stopped it.
@@ -255,6 +259,7 @@ pub struct InvitationApplied {
 /// these is an answer, and which one it is decides what there is to say rather than
 /// whether anything worked.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum InvitationStanding {
     /// The account did not exist, and was made.
     #[serde(rename = "made")]
@@ -281,6 +286,9 @@ pub enum InvitationStanding {
     /// larger, because the account being withdrawn is one they have watched on.
     #[serde(rename = "reset")]
     Reset,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One thing a removal reaches, said to be going or said to be kept.

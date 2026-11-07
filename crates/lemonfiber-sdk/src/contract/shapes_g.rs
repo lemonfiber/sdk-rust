@@ -44,6 +44,7 @@ pub struct Group {
 /// meet, and a value or a secret is asked only where its own needs are met.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "asks")]
+#[non_exhaustive]
 pub enum GuardQuestion {
     /// One of a setting's values.
     #[serde(rename = "choice")]
@@ -74,6 +75,9 @@ pub enum GuardQuestion {
         /// What holding it is for.
         why: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// The guidance in full, for a surface that shows all of it.

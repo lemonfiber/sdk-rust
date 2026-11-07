@@ -421,6 +421,7 @@ pub struct PluginPlaceholder {
 
 /// The form a placeholder asks its secret to be written in.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum PluginPlaceholderForm {
     /// The value itself.
     #[serde(rename = "plain")]
@@ -429,6 +430,9 @@ pub enum PluginPlaceholderForm {
     /// hash of its password reads it.
     #[serde(rename = "pbkdf2")]
     Pbkdf2,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One proof that has to hold before a plugin is reported installed.
@@ -462,6 +466,7 @@ pub struct PluginProving {
 
 /// What an install puts at one path.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum PluginPuts {
     /// A directory brought into being, which is where one service keeps its own
     /// configuration.
@@ -486,6 +491,9 @@ pub enum PluginPuts {
     /// their values never shown.
     #[serde(rename = "upstream")]
     Upstream,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// How an installed service is reached, where it is reached at all.
@@ -508,6 +516,7 @@ pub enum PluginPuts {
 /// of the system rather than a request a plugin made.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "tier")]
+#[non_exhaustive]
 pub enum PluginReached {
     /// From this machine and nowhere else. No route, and no label to route to.
     #[serde(rename = "loopback")]
@@ -529,6 +538,9 @@ pub enum PluginReached {
         /// The port the service listens on.
         port: u16,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// One recipe, as an operator agrees to what it does.
@@ -568,6 +580,7 @@ pub struct PluginRecipeInput {
 
 /// When a recipe runs.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum PluginRecipeOn {
     /// During an install and an update, after the plugin's proofs and the stack's checks
     /// hold and before the install is recorded. What a recipe that says nothing does,
@@ -577,6 +590,9 @@ pub enum PluginRecipeOn {
     /// Only when the operator asks for it by name, with approvals of its own.
     #[serde(rename = "demand")]
     Demand,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What one recipe came to.
@@ -787,6 +803,7 @@ pub struct PluginSecret {
 
 /// A privileged shape lemonfiber writes for a service.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum PluginShape {
     /// `NET_ADMIN` and the tunnel device.
     #[serde(rename = "egress-guard")]
@@ -794,6 +811,9 @@ pub enum PluginShape {
     /// The host's render devices and the group that owns them.
     #[serde(rename = "render")]
     Render,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// An adapter that writes the files of the service it fronts, through that service's
@@ -826,6 +846,7 @@ pub struct PluginSource {
 /// rather than found out at the next update.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "standing")]
+#[non_exhaustive]
 pub enum PluginSourceStanding {
     /// It answered, so the plugin can be updated from it.
     #[serde(rename = "reachable")]
@@ -842,6 +863,9 @@ pub enum PluginSourceStanding {
         /// Why nothing was asked.
         why: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// One call a recipe makes, in the order it makes them.
@@ -860,26 +884,4 @@ pub struct PluginStep {
     /// Where it calls: a service of this stack's or the plugin's own, or a name outside
     /// both, as the manifest wrote it. Never a resolved address.
     pub to: String,
-}
-
-/// What one step came to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginStepRan {
-    /// What it came to.
-    pub came: super::StepCame,
-    /// Whether it reached somewhere other than this plugin's own services, which an
-    /// install going back cannot undo.
-    pub landed: bool,
-    /// The status its last answer carried, where anything answered.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub status: Option<u16>,
-    /// The step's id.
-    pub step: String,
-    /// Where it calls, by the name the manifest gives it.
-    pub to: String,
-    /// How many times it was made.
-    pub tries: u32,
-    /// Why it came to what it did, where that wants saying.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub why: Option<String>,
 }

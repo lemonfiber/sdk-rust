@@ -31,6 +31,7 @@ pub struct Update {
 /// What `GET /api/update` answers with, by its kind.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "kind", content = "data")]
+#[non_exhaustive]
 pub enum UpdateAnswer {
     /// The `self-update` kind.
     #[serde(rename = "self-update")]

@@ -69,6 +69,10 @@ fn shapes(put: &mut impl FnMut(&str, Value)) {
         ] }),
     );
     put("defs/Code.json", json!({ "type": "string" }));
+    put(
+        "defs/Side.json",
+        json!({ "oneOf": [{ "type": "string", "const": "left" }, { "type": "string", "const": "right" }] }),
+    );
 }
 
 fn lists(put: &mut impl FnMut(&str, Value)) {
@@ -78,6 +82,7 @@ fn lists(put: &mut impl FnMut(&str, Value)) {
             { "name": "forms", "type": { "default": [], "type": "array", "items": { "type": "string" } } },
             { "name": "offer", "type": { "default": null, "type": ["string", "null"] } },
             { "name": "level", "type": { "default": "fine", "$ref": "../defs/Level.json" } },
+            { "name": "sides", "type": { "default": null, "type": "array", "prefixItems": [{ "$ref": "../defs/Side.json" }], "minItems": 1, "maxItems": 1 } },
         ], "consent": ["offer"], "rehearsal": true }),
     );
     put(
@@ -293,6 +298,26 @@ fn what_is_generated_is_held_to_what_is_committed_file_by_file() -> Outcome {
     }
     let module = fs::read_to_string(generated.join("mod.rs"))?;
     assert!(module.contains("Pull(Box<String>)") && module.contains("Status(Box<StatusOfThings>)"));
+    let open = "#[non_exhaustive]";
+    let panel = fs::read_to_string(generated.join("shapes_p.rs"))?;
+    assert!(panel.contains(&format!(
+        "#[serde(tag = \"panel\")]\n{open}\npub enum Panel"
+    )));
+    assert!(panel.contains("#[serde(untagged)]\n    Unrecognised(serde_json::Value),"));
+    let choice = fs::read_to_string(generated.join("shapes_c.rs"))?;
+    assert!(choice.contains(&format!("{open}\npub enum Choice")));
+    assert!(choice.contains("#[serde(untagged)]\n    Unrecognised(serde_json::Value),"));
+    let value = fs::read_to_string(generated.join("shapes_v.rs"))?;
+    assert!(value.contains(&format!("#[serde(untagged)]\n{open}\npub enum Value")));
+    assert!(value.contains("    Unrecognised(serde_json::Value),"));
+    let level = fs::read_to_string(generated.join("shapes_l.rs"))?;
+    assert!(level.contains("pub enum Level") && !level.contains(open));
+    assert!(!level.contains("Unrecognised"));
+    let side = fs::read_to_string(generated.join("shapes_s.rs"))?;
+    assert!(side.contains("pub enum Side") && !side.contains(&format!("{open}\npub enum Side")));
+    assert!(shapes.contains(&format!("{open}\npub enum StatusOfThingsMode")));
+    assert!(shapes.contains("#[serde(untagged)]\n    Unrecognised(String),"));
+    assert!(module.contains(&format!("{open}\npub enum Payload")));
     for declared in [
         "mod refusals_life;",
         "pub use super::refusals_life::*;",
@@ -533,6 +558,18 @@ fn an_action_a_body_or_a_refusal_this_cannot_write_is_refused() -> Outcome {
             json!({ "name": "X", "status": 400, "description": "Raised." }),
         ),
         "is not a code of LIFE",
+    )
+}
+
+#[test]
+fn an_enum_a_stack_answers_with_cannot_take_the_name_written_for_a_new_value() -> Outcome {
+    refuses(
+        set(
+            "defs/Panel.json",
+            "/oneOf/1/properties/panel/const",
+            json!("Unrecognised"),
+        ),
+        "Panel holds a variant named Unrecognised",
     )
 }
 

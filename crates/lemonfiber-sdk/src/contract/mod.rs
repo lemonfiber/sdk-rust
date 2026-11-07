@@ -298,6 +298,7 @@ pub const KINDS: &[&str] = &[
 /// The data of an envelope, typed by its kind.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "kind", content = "data")]
+#[non_exhaustive]
 pub enum Payload {
     /// The `admission` kind.
     #[serde(rename = "admission")]

@@ -5,10 +5,14 @@ use std::process::{Command, Output, Stdio};
 
 use crate::artefact::{Artefact, Read};
 use crate::names::{field, literal, pascal, screaming};
-use crate::schema::{Body, Field, Holds, Shape, Shaped, Ty, Variant};
+use crate::schema::{Body, Field, Holds, Shape, Shaped, Ty, Variant, UNRECOGNISED};
 use crate::Refused;
 
+const JSON: &str = "serde_json::Value";
+
 const DERIVES: &str = "#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]";
+
+const OPEN: &str = "#[non_exhaustive]\n";
 
 const MOST_LINES: usize = 900;
 
@@ -29,7 +33,7 @@ pub fn files(artefact: &Artefact, shaped: &Shaped) -> Result<Vec<(String, String
         groups
             .entry(letter(&shape.name))
             .or_default()
-            .push(shape_of(shape));
+            .push(shape_of(shape, !shaped.asked.contains(&shape.name)));
     }
     let modules = Modules {
         shapes: paged("shapes", &groups)?,
@@ -142,7 +146,7 @@ fn rust(ty: &Ty) -> String {
         Ty::Int(held) => (*held).to_owned(),
         Ty::Float => "f64".to_owned(),
         Ty::Unit => "()".to_owned(),
-        Ty::Json => "serde_json::Value".to_owned(),
+        Ty::Json => JSON.to_owned(),
         Ty::List(item) => format!("Vec<{}>", rust(item)),
         Ty::Map(value) => format!("std::collections::BTreeMap<String, {}>", rust(value)),
         Ty::Opt(inner) => format!("Option<{}>", rust(inner)),
@@ -202,7 +206,7 @@ fn variant_of(variant: &Variant) -> String {
     text
 }
 
-fn shape_of(shape: &Shape) -> String {
+fn shape_of(shape: &Shape, open: bool) -> String {
     let mut text = doc(
         shape.doc.as_deref(),
         &format!("The `{}` shape.", shape.name),
@@ -215,19 +219,29 @@ fn shape_of(shape: &Shape) -> String {
             }
             text.push_str("}\n\n");
         }
-        Body::External(variants) => enum_of(&mut text, &shape.name, None, variants),
-        Body::Tagged { tag, variants } => enum_of(
-            &mut text,
-            &shape.name,
-            Some(format!("#[serde(tag = {})]", literal(tag))),
-            variants,
-        ),
-        Body::Untagged(variants) => enum_of(
-            &mut text,
-            &shape.name,
-            Some("#[serde(untagged)]".to_owned()),
-            variants,
-        ),
+        Body::External(variants) => {
+            let plain = variants
+                .iter()
+                .all(|variant| variant.holds == Holds::Nothing);
+            let held = if plain { "String" } else { JSON };
+            let last = open.then(|| unrecognised("#[serde(untagged)]\n", held));
+            enum_of(&mut text, &shape.name, "", last, variants);
+        }
+        Body::Tagged { tag, variants } => {
+            let attribute = format!("#[serde(tag = {})]\n", literal(tag));
+            let last = open.then(|| unrecognised("#[serde(untagged)]\n", JSON));
+            enum_of(&mut text, &shape.name, &attribute, last, variants);
+        }
+        Body::Untagged(variants) => {
+            let last = open.then(|| unrecognised("", JSON));
+            enum_of(
+                &mut text,
+                &shape.name,
+                "#[serde(untagged)]\n",
+                last,
+                variants,
+            );
+        }
         Body::Alias(ty) => {
             let _ = writeln!(text, "pub type {} = {};\n", shape.name, rust(ty));
         }
@@ -235,15 +249,23 @@ fn shape_of(shape: &Shape) -> String {
     text
 }
 
-fn enum_of(text: &mut String, name: &str, attribute: Option<String>, variants: &[Variant]) {
-    let _ = writeln!(text, "{DERIVES}");
-    if let Some(attribute) = attribute {
-        let _ = writeln!(text, "{attribute}");
-    }
-    let _ = writeln!(text, "pub enum {name} {{");
+fn unrecognised(attribute: &str, held: &str) -> String {
+    format!("/// A value this client was not generated with, as it arrived.\n{attribute}{UNRECOGNISED}({held}),\n")
+}
+
+fn enum_of(
+    text: &mut String,
+    name: &str,
+    attribute: &str,
+    last: Option<String>,
+    variants: &[Variant],
+) {
+    let open = if last.is_some() { OPEN } else { "" };
+    let _ = write!(text, "{DERIVES}\n{attribute}{open}pub enum {name} {{\n");
     for variant in variants {
         text.push_str(&variant_of(variant));
     }
+    text.push_str(&last.unwrap_or_default());
     text.push_str("}\n\n");
 }
 
@@ -306,7 +328,7 @@ fn root(artefact: &Artefact, shaped: &Shaped, modules: &Modules) -> String {
     text.push_str("];\n\n");
     text.push_str(
         "/// The data of an envelope, typed by its kind.\n#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]\n\
-         #[serde(tag = \"kind\", content = \"data\")]\npub enum Payload {\n",
+         #[serde(tag = \"kind\", content = \"data\")]\n#[non_exhaustive]\npub enum Payload {\n",
     );
     for (kind, ty) in &shaped.kinds {
         let _ = writeln!(
@@ -407,7 +429,7 @@ fn read_answer(
     }
     let answer = format!("{name}Answer");
     let mut text = format!(
-        "/// What `GET {}` answers with, by its kind.\n#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]\n#[serde(tag = \"kind\", content = \"data\")]\npub enum {answer} {{\n",
+        "/// What `GET {}` answers with, by its kind.\n#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]\n#[serde(tag = \"kind\", content = \"data\")]\n#[non_exhaustive]\npub enum {answer} {{\n",
         read.path
     );
     for kind in &read.kinds {

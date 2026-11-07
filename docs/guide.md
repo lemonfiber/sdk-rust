@@ -94,6 +94,11 @@ as `HeldIdAnswer`, holding a variant for each.
 A field the path holds is sent escaped as one segment. One left empty, or given as `.`
 or `..`, is `Error::Unsendable` and nothing is sent. The other fields are the query.
 
+Every enum an answer can carry is `#[non_exhaustive]` and has an `Unrecognised` variant,
+holding a value this crate was not generated with as it arrived, so a stack newer than
+the crate still answers. Match it with a `_` arm. Enums a request sends list only what
+the contract lists.
+
 Some reads are not a single envelope:
 
 - `Client::logs` takes `reads::Logs` and answers with `Logged::Lines`, an envelope a

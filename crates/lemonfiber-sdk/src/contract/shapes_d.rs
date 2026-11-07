@@ -1,6 +1,7 @@
 /// Which protocol a transfer is moving over, since the same download reads
 /// differently on each — a Usenet download has no peers, a torrent has no server.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum DashboardProtocol {
     /// A Usenet download.
     #[serde(rename = "usenet")]
@@ -8,6 +9,9 @@ pub enum DashboardProtocol {
     /// A torrent download.
     #[serde(rename = "torrent")]
     Torrent,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// A figure a source reports, kept apart from the two ways it can be missing.
@@ -19,6 +23,7 @@ pub enum DashboardProtocol {
 /// them.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "reading")]
+#[non_exhaustive]
 pub enum DashboardReading {
     /// The source answered this refresh with a value — which may legitimately be
     /// zero.
@@ -36,6 +41,9 @@ pub enum DashboardReading {
     /// The source has never answered, so nothing can be said about it.
     #[serde(rename = "unknown")]
     Unknown,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// A kind of device somebody in the house might watch on.
@@ -95,6 +103,7 @@ pub enum DeviceKeyAttestation {
 
 /// Where a device key lives, as its attestation says.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum DeviceKeyBacking {
     /// A separate secure chip on an Android phone, as the hardware attested.
     #[serde(rename = "strongbox")]
@@ -107,6 +116,9 @@ pub enum DeviceKeyBacking {
     /// attested; outside the operating system's reach, without a chip of its own.
     #[serde(rename = "tee")]
     Tee,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Every device key this machine has registered, and what became of a revoke.
@@ -138,6 +150,7 @@ pub struct DeviceKeysBody {
 
 /// What a quality command did to the stored choice.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Disposition {
     /// The choice was only shown; nothing was asked to change.
     #[serde(rename = "shown")]
@@ -160,6 +173,9 @@ pub enum Disposition {
     /// hand-edit, and writes nothing.
     #[serde(rename = "would-reapply")]
     WouldReapply,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What checking a finding disturbs, and the narrowing a diagnosis runs it under.
@@ -212,6 +228,7 @@ pub struct Disturbances {
 /// fill each one arrive over time, so a category may name more than lemonfiber
 /// can yet establish.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum DoctorCategory {
     /// Docker present, the daemon reachable, the platform understood.
     #[serde(rename = "environment")]
@@ -240,6 +257,9 @@ pub enum DoctorCategory {
     /// Drift from lemonfiber-managed state, permissions, manifest validity.
     #[serde(rename = "config")]
     Config,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What a diagnostic run found, and what it amounts to.
@@ -263,6 +283,7 @@ pub struct DoctorReport {
 /// passed — the dishonesty this whole subsystem exists to prevent.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "outcome")]
+#[non_exhaustive]
 pub enum DoctorVerdict {
     /// Verified working, with the evidence worth showing.
     #[serde(rename = "pass")]
@@ -343,6 +364,9 @@ pub enum DoctorVerdict {
         /// Why the check did not apply.
         reason: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// One download client, and whether it is paused.
@@ -356,6 +380,7 @@ pub struct Downloader {
 
 /// Whether a download client is fetching, as it reads it back.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum DownloaderState {
     /// It said it is paused.
     #[serde(rename = "paused")]
@@ -366,6 +391,9 @@ pub enum DownloaderState {
     /// It could not be asked, which is a different thing from either.
     #[serde(rename = "unknown")]
     Unknown,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// A profile left out of a closure, and what it would have needed.

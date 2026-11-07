@@ -5,6 +5,7 @@
 /// so the scope is recorded in the archive and honoured on the way back.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "scope")]
+#[non_exhaustive]
 pub enum Scope {
     /// Every service's configuration, plus lemonfiber's own and the stack.
     #[serde(rename = "whole_stack")]
@@ -33,6 +34,9 @@ pub enum Scope {
         /// The host trees captured, in the order the survey reported them.
         trees: Vec<super::Tree>,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// What a search that could tell this trace's stall apart would spend, and what it covers.
@@ -85,6 +89,7 @@ pub type Secret = String;
 
 /// Where a secret's value came from.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum SecretFrom {
     /// The operator entered it.
     #[serde(rename = "operator")]
@@ -98,6 +103,9 @@ pub enum SecretFrom {
     /// lemonfiber made it at install.
     #[serde(rename = "minted")]
     Minted,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One secret, without its value.
@@ -142,6 +150,7 @@ pub struct SeedReport {
 /// so a warning always names both what broke and what to do about it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "severity")]
+#[non_exhaustive]
 pub enum SeedSeverity {
     /// Nothing is broken: the connection is settled, or its drift is the operator's
     /// own edit that still works.
@@ -156,11 +165,15 @@ pub enum SeedSeverity {
         /// What to do about it.
         remediation: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// How one connection turned out after a seed pass.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "state")]
+#[non_exhaustive]
 pub enum SeedState {
     /// Written and read back.
     #[serde(rename = "wired")]
@@ -306,11 +319,15 @@ pub enum SeedState {
         /// Why it was refused, in lemonfiber's own words.
         reason: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// Where one completed download stands.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "standing")]
+#[non_exhaustive]
 pub enum SeedingStanding {
     /// Nothing ever linked it into a library: it was never imported, and removing
     /// it loses nothing.
@@ -332,6 +349,9 @@ pub enum SeedingStanding {
     /// The operator asked for this one to be left alone.
     #[serde(rename = "left_alone")]
     LeftAlone,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// Where a copy of lemonfiber stands, in the words the specification uses.
@@ -340,6 +360,7 @@ pub enum SeedingStanding {
 /// anything has been read has not established that this copy is current, and a
 /// default that said so would be a claim made by an empty value.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum SelfUpdateStanding {
     /// The version running is the newest known.
     #[serde(rename = "current")]
@@ -354,6 +375,9 @@ pub enum SelfUpdateStanding {
     /// Availability could not be determined, which is not a fault and stops nothing.
     #[serde(rename = "check-failed")]
     CheckFailed,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One service, as it stands.
@@ -409,6 +433,7 @@ pub struct ServiceCertificate {
 /// A value written exactly as declared.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum ServiceConstant {
     /// A string.
     Text(String),
@@ -416,6 +441,8 @@ pub enum ServiceConstant {
     Integer(i64),
     /// A boolean.
     Boolean(bool),
+    /// A value this client was not generated with, as it arrived.
+    Unrecognised(serde_json::Value),
 }
 
 /// The container fields an install record keeps for a service, beyond those every
@@ -495,6 +522,7 @@ pub struct ServiceNetwork {
 
 /// How tightly the container is held.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum ServicePosture {
     /// Six kernel capabilities, no privilege gained, a bounded process count.
     #[serde(rename = "standard")]
@@ -502,6 +530,9 @@ pub enum ServicePosture {
     /// A read-only root and no kernel capability at all, besides.
     #[serde(rename = "confined")]
     Confined,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where one service comes from, as the stack declares it.
@@ -588,6 +619,7 @@ pub struct ServiceSetting {
 /// services and needs no comparison table. The declaration order is therefore
 /// load-bearing.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum ServiceState {
     /// Exited without being asked to, and is not coming back on its own.
     #[serde(rename = "failed")]
@@ -620,6 +652,9 @@ pub enum ServiceState {
     /// The operating system owns this one, not lemonfiber.
     #[serde(rename = "host-managed")]
     HostManaged,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// The address of a capability's filler.
@@ -637,6 +672,7 @@ pub struct ServiceUrlOf {
 
 /// A user mode a manifest writes by name.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum ServiceUserMode {
     /// No user: the image decides.
     #[serde(rename = "image")]
@@ -647,22 +683,29 @@ pub enum ServiceUserMode {
     /// The operator's uid and gid as the container's user.
     #[serde(rename = "uid")]
     Uid,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// How a manifest writes [`UserMode`]: a mode by name, or the variables an image reads
 /// the operator's ids from.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum ServiceUserModeWritten {
     /// A mode by name.
     ServiceUserMode(super::ServiceUserMode),
     /// The variables its image reads the operator's uid and gid from.
     ServiceIdVariables(super::ServiceIdVariables),
+    /// A value this client was not generated with, as it arrived.
+    Unrecognised(serde_json::Value),
 }
 
 /// One environment variable's value.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum ServiceValue {
     /// A constant.
     ServiceConstant(super::ServiceConstant),
@@ -672,6 +715,8 @@ pub enum ServiceValue {
     ServiceUrlOf(super::ServiceUrlOf),
     /// A declared secret.
     ServiceSecretOf(super::ServiceSecretOf),
+    /// A value this client was not generated with, as it arrived.
+    Unrecognised(serde_json::Value),
 }
 
 /// What a caller offers at the door.
@@ -714,11 +759,14 @@ pub struct SettingChange {
 /// One value a setting accepts.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum SettingChoice {
     /// A value that is always a choice.
     ServiceConstant(super::ServiceConstant),
     /// Values that are choices only where `needs` is met.
     SettingChoiceNeeding(super::SettingChoiceNeeding),
+    /// A value this client was not generated with, as it arrived.
+    Unrecognised(serde_json::Value),
 }
 
 /// Values that are choices only where the other settings `needs` names hold one of the
@@ -805,81 +853,4 @@ pub struct SettingsReport {
     /// The services held back until the operator gives what they need to start, each
     /// with what it waits for, as status names them.
     pub waiting: Vec<super::Waiting>,
-}
-
-/// What became of a rotation.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "settled")]
-pub enum Settled {
-    /// The replacement was proven and is now the value in force.
-    #[serde(rename = "replaced")]
-    Replaced {
-        /// What the service did while proving it — an observation, never the value.
-        observed: String,
-    },
-    /// The service answered and refused the replacement. Nothing was changed.
-    #[serde(rename = "refused")]
-    Refused {
-        /// What the service said, with any credential in it withheld.
-        detail: String,
-    },
-    /// Nothing usable answered, so the replacement could not be proven. Nothing
-    /// was changed, because an unproven replacement is not a better one.
-    #[serde(rename = "unproven")]
-    Unproven {
-        /// Why nothing could be concluded.
-        detail: String,
-    },
-    /// The replacement is in force, and did not reach everything that reads it: the
-    /// service replaced the credential itself and the replacement did not answer, or a
-    /// file that names it could not be written.
-    ///
-    /// The one way of not landing that keeps nothing: a service asked to replace its
-    /// own key drops the old one the moment it makes the new one, and a value already
-    /// held cannot be called replaced while a copy of it was never written. What is owed
-    /// is the command that hands the new one out.
-    #[serde(rename = "replaced-unproven")]
-    ReplacedUnproven {
-        /// What did not answer, and what to run once it does.
-        detail: String,
-    },
-    /// Nothing was attempted, because this run only said what a rotation would do.
-    ///
-    /// Its own outcome rather than one of the refusals above, because it is not a
-    /// refusal: nothing went wrong, and what an operator is being told is what would
-    /// happen if they ran it again meaning it. Carrying its own three fields rather
-    /// than one sentence, because "it would rotate the administrator's password" is not a
-    /// report — where the value lives is what would be written over, and what is owed
-    /// afterwards is the half nobody finds out about until a consumer stops working.
-    ///
-    /// No value appears here and none is generated to put here. A replacement minted
-    /// to describe a rotation is a secret that exists because somebody asked a
-    /// question, and it would then have to be kept or thrown away — and one thrown
-    /// away may be one the service has already taken.
-    #[serde(rename = "rehearsed")]
-    Rehearsed {
-        /// What would still need doing before every consumer held the replacement.
-        afterwards: Vec<String>,
-        /// What a real run would do, step by step, in lemonfiber's own words.
-        detail: String,
-        /// Where the value that would be replaced is kept.
-        location: String,
-    },
-    /// Nothing in this stack holds a credential by that name.
-    #[serde(rename = "unknown")]
-    Unknown {
-        /// The names that would have been accepted.
-        known: Vec<String>,
-    },
-    /// A replacement for this one does not come from here.
-    ///
-    /// Either the operator's provider issued it, in which case inventing one would
-    /// produce a credential no service has ever heard of; or the service that holds
-    /// it offers no way to change it in place. Either way what is owed is a
-    /// sentence saying where a replacement does come from, not an attempt.
-    #[serde(rename = "elsewhere")]
-    Elsewhere {
-        /// Where a replacement comes from, and what to do once it exists.
-        detail: String,
-    },
 }

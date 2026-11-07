@@ -6,6 +6,7 @@ use serde_json::json;
 use super::{enveloped, problem, Outcome};
 use crate::contract::reads::{Held, HeldId, Services};
 use crate::contract::refusals::{NOT_ADMITTED, NO_SUCH_JOB};
+use crate::contract::{Appetite, CapabilityState, Chosen};
 use crate::envelope::raw;
 use crate::error::{Refusal, RefusedBecause};
 use crate::query::{located, segment};
@@ -493,4 +494,32 @@ fn every_error_says_what_happened_in_a_sentence() {
         crate::line::Asked::carrying(Method::Post, "/api/keys".to_owned(), unencodable),
         Err(Error::Unsendable(_))
     ));
+}
+
+#[test]
+fn a_value_a_read_answers_with_that_this_client_was_not_generated_with_is_kept() -> Outcome {
+    let state: CapabilityState = serde_json::from_value(json!("available"))?;
+    assert_eq!(state, CapabilityState::Available);
+    let newer = json!("something-newer");
+    let state: CapabilityState = serde_json::from_value(newer.clone())?;
+    assert_eq!(
+        state,
+        CapabilityState::Unrecognised("something-newer".to_owned())
+    );
+    assert_eq!(serde_json::to_value(&state)?, newer);
+    Ok(())
+}
+
+#[test]
+fn a_tagged_value_this_client_was_not_generated_with_keeps_all_it_carried() -> Outcome {
+    let newer = json!({ "chosen": "something-newer", "held": 1 });
+    let chosen: Chosen = serde_json::from_value(newer.clone())?;
+    assert_eq!(chosen, Chosen::Unrecognised(newer.clone()));
+    assert_eq!(serde_json::to_value(&chosen)?, newer);
+    Ok(())
+}
+
+#[test]
+fn a_value_a_request_sends_is_only_ever_one_the_contract_lists() {
+    assert!(serde_json::from_value::<Appetite>(json!("something-newer")).is_err());
 }

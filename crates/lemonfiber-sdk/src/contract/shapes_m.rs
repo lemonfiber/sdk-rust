@@ -4,6 +4,7 @@
 /// nothing is known about, and guessing at a manager is how a report comes to
 /// claim a platform it never asked.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Manager {
     /// macOS, through a launch agent in the operator's own login session.
     #[serde(rename = "launchd")]
@@ -14,6 +15,9 @@ pub enum Manager {
     /// A platform lemonfiber does not configure.
     #[serde(rename = "unsupported")]
     Unsupported,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// The kinds of thing a household holds.
@@ -29,6 +33,7 @@ pub enum Manager {
 /// reader comes to trust the wrong one. The contract flattens every type name into one
 /// namespace, so a clash there is a clash for anything reading it by name.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Medium {
     /// One film.
     #[serde(rename = "film")]
@@ -42,6 +47,9 @@ pub enum Medium {
     /// Something the server holds that is neither, and is not hidden for that.
     #[serde(rename = "other")]
     Other,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One entry in an archive's contents listing.
@@ -182,6 +190,7 @@ pub struct MemberRequest {
 /// password is wrong. What unlocks it is a reissue, which is the operator's to do, so the
 /// operator is the one who has to be able to see it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum MemberStanding {
     /// Offered, and the offer still stands: nobody has set a password yet.
     #[serde(rename = "invited")]
@@ -204,6 +213,9 @@ pub enum MemberStanding {
     /// it back on.
     #[serde(rename = "suspended")]
     Suspended,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One repair, and what became of it.
@@ -306,6 +318,7 @@ pub struct ModeReport {
 /// told a disk filled up and never told it was resolved goes on believing it — so
 /// resolution is an alert in its own right rather than the absence of one.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Moment {
     /// It started.
     #[serde(rename = "onset")]
@@ -313,6 +326,9 @@ pub enum Moment {
     /// It stopped, having previously started.
     #[serde(rename = "resolved")]
     Resolved,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// A move in place the bundle offers: the plugin and the stack's own service of its id it

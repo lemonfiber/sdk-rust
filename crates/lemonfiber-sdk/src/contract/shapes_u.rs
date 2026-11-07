@@ -186,6 +186,7 @@ pub struct UninstallManifest {
 /// pretending to be a value.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "state")]
+#[non_exhaustive]
 pub enum UninstallRemoval {
     /// Everything is enumerated with its size, and nothing has been removed.
     #[serde(rename = "surveyed")]
@@ -213,6 +214,9 @@ pub enum UninstallRemoval {
         /// What is still there, and how to remove it.
         left: Vec<super::UninstallLeft>,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// What is to happen to content the media server has no rating for.
@@ -233,6 +237,7 @@ pub enum UninstallRemoval {
 /// is made holding nothing back, so that is the state an account is found in rather
 /// than a decision anybody took.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Unrated {
     /// Content with no rating is held back.
     #[serde(rename = "held-back")]
@@ -240,6 +245,9 @@ pub enum Unrated {
     /// Content with no rating is let through.
     #[serde(rename = "let-through")]
     LetThrough,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Something lemonfiber cannot act on, named rather than passed over.
@@ -390,6 +398,7 @@ pub struct UpdateReport {
 /// backup is an evening. Offering the first where only the second can succeed is
 /// worse than offering nothing, because it is acted on.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum UpdateReversal {
     /// Nothing opened its state on the newer image, so the previous one runs again
     /// exactly as it did.
@@ -399,6 +408,9 @@ pub enum UpdateReversal {
     /// the backup is the only way back.
     #[serde(rename = "restore")]
     Restore,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where the stack stands against the versions this build pins.
@@ -407,6 +419,7 @@ pub enum UpdateReversal {
 /// "updates available, and also partly applied" would be reporting the question
 /// rather than the answer.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum UpdateState {
     /// Every service is standing on the version pinned for it.
     #[serde(rename = "current")]
@@ -423,6 +436,9 @@ pub enum UpdateState {
     /// Nothing was updated, and the run stopped where it did.
     #[serde(rename = "failed")]
     Failed,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One media type an upgrade covers: its chosen quality, that quality's cost, and —

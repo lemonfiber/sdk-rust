@@ -26,6 +26,8 @@ them. A client that disagrees with the contract is wrong.
 - **`crates/lemonfiber-sdk/src/contract/` is not edited by hand.** It is generated from
   the contract vendored under `contract/` (`ARCH-R56`, `ARCH-R58`). `just contract-check`
   fails on any difference, a file added or removed included.
+- **An enum an answer can carry stays open.** The generator marks it `#[non_exhaustive]`
+  and gives it an `Unrecognised` variant; an enum a request reaches stays closed.
 - **The workspace lints are the core's**: `unsafe_code` forbidden, `missing_docs` denied,
   clippy's pedantic set, and `unwrap`, `expect`, `panic` and indexing denied. No
   `#[allow]` is a fix.

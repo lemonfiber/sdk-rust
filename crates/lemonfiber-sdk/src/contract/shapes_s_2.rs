@@ -1,3 +1,84 @@
+/// What became of a rotation.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "settled")]
+#[non_exhaustive]
+pub enum Settled {
+    /// The replacement was proven and is now the value in force.
+    #[serde(rename = "replaced")]
+    Replaced {
+        /// What the service did while proving it — an observation, never the value.
+        observed: String,
+    },
+    /// The service answered and refused the replacement. Nothing was changed.
+    #[serde(rename = "refused")]
+    Refused {
+        /// What the service said, with any credential in it withheld.
+        detail: String,
+    },
+    /// Nothing usable answered, so the replacement could not be proven. Nothing
+    /// was changed, because an unproven replacement is not a better one.
+    #[serde(rename = "unproven")]
+    Unproven {
+        /// Why nothing could be concluded.
+        detail: String,
+    },
+    /// The replacement is in force, and did not reach everything that reads it: the
+    /// service replaced the credential itself and the replacement did not answer, or a
+    /// file that names it could not be written.
+    ///
+    /// The one way of not landing that keeps nothing: a service asked to replace its
+    /// own key drops the old one the moment it makes the new one, and a value already
+    /// held cannot be called replaced while a copy of it was never written. What is owed
+    /// is the command that hands the new one out.
+    #[serde(rename = "replaced-unproven")]
+    ReplacedUnproven {
+        /// What did not answer, and what to run once it does.
+        detail: String,
+    },
+    /// Nothing was attempted, because this run only said what a rotation would do.
+    ///
+    /// Its own outcome rather than one of the refusals above, because it is not a
+    /// refusal: nothing went wrong, and what an operator is being told is what would
+    /// happen if they ran it again meaning it. Carrying its own three fields rather
+    /// than one sentence, because "it would rotate the administrator's password" is not a
+    /// report — where the value lives is what would be written over, and what is owed
+    /// afterwards is the half nobody finds out about until a consumer stops working.
+    ///
+    /// No value appears here and none is generated to put here. A replacement minted
+    /// to describe a rotation is a secret that exists because somebody asked a
+    /// question, and it would then have to be kept or thrown away — and one thrown
+    /// away may be one the service has already taken.
+    #[serde(rename = "rehearsed")]
+    Rehearsed {
+        /// What would still need doing before every consumer held the replacement.
+        afterwards: Vec<String>,
+        /// What a real run would do, step by step, in lemonfiber's own words.
+        detail: String,
+        /// Where the value that would be replaced is kept.
+        location: String,
+    },
+    /// Nothing in this stack holds a credential by that name.
+    #[serde(rename = "unknown")]
+    Unknown {
+        /// The names that would have been accepted.
+        known: Vec<String>,
+    },
+    /// A replacement for this one does not come from here.
+    ///
+    /// Either the operator's provider issued it, in which case inventing one would
+    /// produce a credential no service has ever heard of; or the service that holds
+    /// it offers no way to change it in place. Either way what is owed is a
+    /// sentence saying where a replacement does come from, not an attempt.
+    #[serde(rename = "elsewhere")]
+    Elsewhere {
+        /// Where a replacement comes from, and what to do once it exists.
+        detail: String,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
+}
+
 /// One answer, tagged by the step it belongs to.
 ///
 /// Read back as well as built, because a surface that is not in this process
@@ -54,6 +135,7 @@ pub struct SetupGuarded {
 
 /// How a setup run ended.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum SetupOutcome {
     /// The reviewed answers were written.
     #[serde(rename = "applied")]
@@ -64,6 +146,9 @@ pub enum SetupOutcome {
     /// Nothing was asked, because this machine was already set up.
     #[serde(rename = "already-set-up")]
     AlreadySetUp,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// The way out of an interrupted apply a caller picked.
@@ -143,6 +228,7 @@ pub enum SetupVpnSaid {
 
 /// Which walkthrough this stack is offered.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Shape {
     /// The full walk: search, grab, download, import, and see it in the library.
     #[serde(rename = "pipeline")]
@@ -151,6 +237,9 @@ pub enum Shape {
     /// confirm the media server can see it.
     #[serde(rename = "library-only")]
     LibraryOnly,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// How the line is shared, and what that costs.
@@ -265,6 +354,7 @@ pub struct Snapshot {
 
 /// What sort of thing one line of a manifest is.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Sort {
     /// A container the engine is holding.
     #[serde(rename = "container")]
@@ -278,10 +368,14 @@ pub enum Sort {
     /// A directory or file on this machine.
     #[serde(rename = "path")]
     Path,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where a figure for the line came from.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Source {
     /// The operator gave it, presumably off the plan they pay for.
     #[serde(rename = "declared")]
@@ -290,11 +384,15 @@ pub enum Source {
     /// rather than what the line is sold as.
     #[serde(rename = "observed")]
     Observed,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What one line of the accounting is about.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "of")]
+#[non_exhaustive]
 pub enum SpaceCategory {
     /// One directory beneath the data root, named as the operator named it.
     ///
@@ -324,6 +422,9 @@ pub enum SpaceCategory {
     /// What the operator said to leave alone.
     #[serde(rename = "unmanaged")]
     Unmanaged,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// Something a cleanup could not take.
@@ -367,6 +468,7 @@ pub struct StackMoveTaken {
 /// reaches an operator. A profile left out of a closure is only half reported
 /// without the provider it wanted.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum StackProtocol {
     /// Needs a Usenet provider.
     #[serde(rename = "usenet")]
@@ -374,6 +476,9 @@ pub enum StackProtocol {
     /// Needs a VPN and a torrent client.
     #[serde(rename = "torrent")]
     Torrent,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What updating the stack would change, or what a run of it came to.
@@ -443,6 +548,7 @@ pub struct StackUpdateReport {
 /// A stage in an item's journey, ordered from "nobody asked for it" to "playable". The
 /// declaration order is the pipeline order, so one stage compares less than a later one.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Stage {
     /// Nobody has asked for it — no \*arr is monitoring it.
     #[serde(rename = "not-monitored")]
@@ -474,6 +580,9 @@ pub enum Stage {
     /// It is visible and playable in the media server.
     #[serde(rename = "available")]
     Available,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Why an item is not moving.
@@ -481,6 +590,7 @@ pub enum Stage {
 /// Ordered by how much of the operator's attention each deserves, worst first, so
 /// a summary that leads with the worst category needs no second ranking.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Stall {
     /// Fetched over and over: import is failing silently and being retried, which
     /// spends bandwidth and Usenet allowance indefinitely while looking normal.
@@ -510,10 +620,14 @@ pub enum Stall {
     /// intervention, and reporting the two alike is how a queue check gets muted.
     #[serde(rename = "slow")]
     Slow,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where a proposed change stands once it has been read against what is in force.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Stance {
     /// The setting already holds what was asked for. Nothing to apply, nothing to
     /// confirm, and the file is not touched — a write of the same value would move
@@ -534,6 +648,9 @@ pub enum Stance {
     /// Written.
     #[serde(rename = "applied")]
     Applied,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One Compose project on this machine that is not lemonfiber's.
@@ -547,6 +664,7 @@ pub struct StandingReport {
 
 /// Where a title a member's search found stands in the house.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Stands {
     /// All of it is here.
     #[serde(rename = "here")]
@@ -560,6 +678,9 @@ pub enum Stands {
     /// It may be asked for.
     #[serde(rename = "askable")]
     Askable,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Work that outlives the request that started it: its name, and what it was.
@@ -627,6 +748,7 @@ pub struct StatusReport {
 
 /// What one step of a recipe came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum StepCame {
     /// It was answered with what it should be, and took what it captures.
     #[serde(rename = "answered")]
@@ -656,6 +778,9 @@ pub enum StepCame {
     /// Its answer was larger than any answer a recipe reads.
     #[serde(rename = "oversized")]
     Oversized,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// A walkthrough that stopped: where, why, what the services were saying, and what to do.
@@ -730,6 +855,7 @@ pub struct StoredLeft {
 /// Whether anything was removed on this run, and what became of it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "state")]
+#[non_exhaustive]
 pub enum StoredRemoval {
     /// Nobody asked. This is a listing.
     #[serde(rename = "not-asked")]
@@ -745,6 +871,9 @@ pub enum StoredRemoval {
         /// What could not be removed, each with the reason.
         left: Vec<super::StoredLeft>,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
 
 /// Why playback here is likely to struggle, whatever app the household installs.
@@ -762,135 +891,4 @@ pub struct Straining {
     pub instead: String,
     /// The preset in force, under the name it was chosen by.
     pub preset: String,
-}
-
-/// Which stream a log line arrived on.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub enum Stream {
-    /// Standard output.
-    #[serde(rename = "stdout")]
-    Stdout,
-    /// Standard error.
-    #[serde(rename = "stderr")]
-    Stderr,
-}
-
-/// One thing that is wrong, and why.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Stuck {
-    /// What the service said was blocking it, in its own words, where it said
-    /// anything. A permission denial from an import log is worth more than any
-    /// interpretation of it, and it is the difference between "stuck" and
-    /// something an operator can fix.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub blocking: Option<String>,
-    /// How long it has been that way, in seconds — what turns "stuck" into a
-    /// sentence an operator can weigh.
-    pub held_for: u64,
-    /// How many items this stands for. One in the ordinary case; more where they
-    /// share a cause and the cause is what is wrong — twenty downloads stopped by
-    /// a full disk are one thing to fix, and twenty alerts about it are how an
-    /// operator learns to mute the queue check.
-    pub items: u64,
-    /// Which item — or, where several share one cause, that cause.
-    pub name: String,
-    /// What is wrong with it.
-    pub stall: super::Stall,
-}
-
-/// One stuck item queue health found, named so it links straight to its own trace.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct StuckEntry {
-    /// The curator whose queue is holding it.
-    pub service: String,
-    /// The stage its download is stuck at.
-    pub stage: super::Stage,
-    /// The item's title — the term a `trace` searches by.
-    pub title: String,
-}
-
-/// The items whose downloads are stuck, across the curators — the landing point for "N
-/// items stuck" that queue health reports, each entry naming the item so the operator
-/// goes straight to its per-item trace rather than to a count to investigate.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct StuckReport {
-    /// Whether a curator's queue could not be read, so the list may be short — reported
-    /// rather than read as "nothing stuck", the same honesty a trace keeps.
-    pub incomplete: bool,
-    /// The stuck items, each linkable to its trace.
-    pub items: Vec<super::StuckEntry>,
-}
-
-/// One service standing in for another, worked out before anything is written.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Substitution {
-    /// Every service that asks for it, so the reach of the change is visible.
-    pub asked_by: Vec<String>,
-    /// The capability whose filler changes.
-    pub capability: String,
-    /// Each kind of thing the part it stops holds that its replacement is not carried,
-    /// read from what each contract declares its filler holds.
-    pub leaves_behind: Vec<super::LeftBehind>,
-    /// What this would leave with nothing filling it, each naming what asked.
-    ///
-    /// The one thing an operator cannot find out afterwards. A service filling two
-    /// capabilities is replaced for one of them, and the other stops being filled —
-    /// which is a working stack becoming a broken one, on a change that reads as
-    /// swapping like for like.
-    pub leaves_unfilled: Vec<super::Unfilled>,
-    /// What would fill it.
-    pub now: String,
-    /// The setting the change writes.
-    pub setting: String,
-    /// Each part the change brings back to its form, started again.
-    pub starts: Vec<String>,
-    /// Each part the change takes out of its form, stopped with its configuration and
-    /// data kept where they are.
-    pub stops: Vec<String>,
-    /// What fills it now, where anything does.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub was: Option<String>,
-    /// What the operator said about the choice, where they said anything.
-    ///
-    /// Read back as the choice's own `why` wherever the choice is read, and absent
-    /// where nothing was said: nothing supplies a reason on the operator's behalf.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub why: Option<String>,
-}
-
-/// What substituting one service for another would come to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct SubstitutionReport {
-    /// What this reading names itself, so a choice answering it can say which reading
-    /// it answered.
-    ///
-    /// Named part by part — the choice itself, what fills the capability now, what asks
-    /// for it, and what the change would leave unfilled — so a choice refused because the
-    /// wiring moved is told which of those moved.
-    pub agreement: String,
-    /// Whether it was written, or only worked out.
-    ///
-    /// A run that only says what it would do writes nothing and reports the same
-    /// answer, so the two are told apart here rather than by the caller remembering
-    /// which flags it passed.
-    pub applied: bool,
-    /// Each of lemonfiber's own guards this act moved onto its plugin after its own
-    /// change, or on a reading would move, for good and with no yes of its own; one it
-    /// could not move stays on offer and says why.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub guards: Option<Vec<super::StackMoveTaken>>,
-    /// Whether this was a rehearsal: what would have happened, with none of it done.
-    ///
-    /// Said in a field of its own so that a rehearsal is never told from the real run by
-    /// its wording alone.
-    pub rehearsed: bool,
-    /// The change itself, and what it would leave with nothing filling it.
-    pub substitution: super::Substitution,
-    /// Each part the change was to stop or start and could not, with why.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub unran: Option<Vec<super::SubstitutionUnran>>,
-    /// The operator's overlay and every service it changes, where there is one: merged
-    /// over the project this choice would write, and held to nothing lemonfiber vets.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub unvetted: Option<super::Unvetted>,
 }

@@ -41,6 +41,7 @@ pub struct Opening {
 
 /// Who produced a credential, which decides what can be done about it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Origin {
     /// The operator supplied it, from an account they hold somewhere else.
     #[serde(rename = "operator")]
@@ -51,6 +52,9 @@ pub enum Origin {
     /// lemonfiber minted it, because the service offers nothing durable to read.
     #[serde(rename = "lemonfiber")]
     Lemonfiber,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One request lemonfiber makes, where it goes, and what refusing it costs.
@@ -104,6 +108,7 @@ pub struct Outbound {
 /// their search found, from the one catalogue address this build names, so their client
 /// draws it without ever being sent there.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum OutboundReach {
     /// Fetching the service images the stack runs.
     #[serde(rename = "registry")]
@@ -135,6 +140,9 @@ pub enum OutboundReach {
     /// Fetching the poster of a title a member's search found.
     #[serde(rename = "posters")]
     Posters,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Something an uninstall leaves behind, and how to remove it by hand.
@@ -167,6 +175,7 @@ pub struct Outsized {
 
 /// What a run's findings amount to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Overall {
     /// Everything that ran passed.
     #[serde(rename = "healthy")]
@@ -180,11 +189,15 @@ pub enum Overall {
     /// Something could not be determined, so health is not a settled fact.
     #[serde(rename = "unknown")]
     Unknown,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Whose a setting or a secret is.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "of")]
+#[non_exhaustive]
 pub enum Owner {
     /// The core's.
     #[serde(rename = "core")]
@@ -195,4 +208,7 @@ pub enum Owner {
         /// The namespace.
         namespace: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(serde_json::Value),
 }
