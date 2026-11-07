@@ -374,11 +374,11 @@ async fn work_is_read_as_running_finished_or_ended_by_its_status_and_kind() -> O
         Ok(reply(500, problem("STACK-2", "It broke."))),
     ]))?;
     assert!(matches!(
-        client.job("job-1").await?,
+        client.job_renamed("job-1").await?,
         JobStanding::Running(_)
     ));
     assert!(matches!(
-        client.job("job-1").await?,
+        client.job_renamed("job-1").await?,
         JobStanding::Finished(_)
     ));
     assert!(matches!(
@@ -386,18 +386,18 @@ async fn work_is_read_as_running_finished_or_ended_by_its_status_and_kind() -> O
         JobStanding::Ended(_)
     ));
     assert_eq!(
-        client.job("old").await,
+        client.job_renamed("old").await,
         Err(Error::NoSuchJob("old".to_owned()))
     );
     assert_eq!(
-        client.job("old").await,
+        client.job_renamed("old").await,
         Err(Error::NoSuchJob("old".to_owned()))
     );
     assert!(
-        matches!(client.job("job-1").await, Err(Error::Refused(refusal)) if refusal.because == crate::RefusedBecause::Missing)
+        matches!(client.job_renamed("job-1").await, Err(Error::Refused(refusal)) if refusal.because == crate::RefusedBecause::Missing)
     );
     assert!(
-        matches!(client.job("job-1").await, Err(Error::Refused(refusal)) if refusal.because == crate::RefusedBecause::Failed)
+        matches!(client.job_renamed("job-1").await, Err(Error::Refused(refusal)) if refusal.because == crate::RefusedBecause::Failed)
     );
     let sent = client_script.sent();
     assert_eq!(

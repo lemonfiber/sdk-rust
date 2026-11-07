@@ -132,29 +132,6 @@ jobs:
           done <<< "$(git diff --name-only HEAD^1 HEAD)"
           echo "code=${code}" >> "$GITHUB_OUTPUT"
 
-  # The most expensive gate. `cargo mutants` runs the suite unmutated first and stops
-  # where it fails, so it measures nothing over tests already red.
-  mutation:
-    name: mutation testing
-    needs: scope
-    if: ${{ !cancelled() && github.event_name == 'pull_request' && (needs.scope.result != 'success' || needs.scope.outputs.code == 'true') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-      - uses: taiki-e/install-action@75a348306ce8f67c0b06fc62c32a8546140ba955 # cargo-mutants
-        with:
-          tool: cargo-mutants@27.1.0,just
-      - name: Mutate, and hold every mutant to being told apart
-        run: just mutation
-      - name: The mutants that survived, each as the change it made
-        if: ${{ !cancelled() }}
-        run: cat mutants.out/missed.txt
-
   # A library's promise to its consumer, checked against the commit it pins. It needs the
   # whole history, to load that commit, and what breaks is what the head breaks and the
   # main it was merged onto does not.

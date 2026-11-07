@@ -316,7 +316,7 @@ impl Client {
     ///
     /// [`Error::NoSuchJob`] where this run issued no such name, and every [`Error`] a
     /// request can meet.
-    pub async fn job(&self, job: &str) -> Result<JobStanding, Error> {
+    pub async fn job_renamed(&self, job: &str) -> Result<JobStanding, Error> {
         self.standing(Method::Get, job).await
     }
 
@@ -355,7 +355,7 @@ impl Client {
     ) -> Result<JobStanding, Error> {
         let started = tokio::time::Instant::now();
         loop {
-            let standing = self.job(job).await?;
+            let standing = self.job_renamed(job).await?;
             if !matches!(standing, JobStanding::Running(_)) {
                 return Ok(standing);
             }
