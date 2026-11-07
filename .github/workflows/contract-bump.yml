@@ -1,0 +1,427 @@
+# Take the contract, so that nobody else has to.
+#
+# `contract-drift` runs on every pull request here and compares the vendored
+# artefact against what the server serves (`Q-R68`), so a contract change turns
+# every open pull request red, including ones that touch nothing near it. This
+# takes the contract instead, on a branch of its own, so an author who came to
+# fix a comment is not handed a contract sync.
+#
+# It merges itself only when the regeneration is clean. A contract that changes
+# a shape this package exposes is a change here rather than a bump, and that is
+# not a thing to merge unread.
+name: contract-bump
+
+on:
+  # How the server asks. `contract-moved` there dispatches this on `main`
+  # whenever the contract changes, so the cadence is the change rather than the
+  # calendar.
+  workflow_dispatch:
+  # The floor, for a dispatch that never arrived.
+  schedule:
+    - cron: "40 7 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  # One catch-up at a time, and the newest wins. Two runs racing would each
+  # reset the branch under the other, and a run still in flight when the server
+  # moves again is building a catch-up the next run replaces, so it is cancelled
+  # rather than left to push a head whose checks nobody will read.
+  #
+  # A run cancelled at any step leaves nothing the next one cannot finish. The
+  # scratch ref is reset before it is used and deleted by whichever run gets
+  # past it; the branch moves in one call or not at all; and a pull request left
+  # unopened or unarmed is not what the next run treats as already carried, so
+  # that run pushes and opens or arms it.
+  group: contract-bump
+  cancel-in-progress: true
+
+env:
+  BRANCH: chore/the-client-takes-the-contract
+  SERVER: lemonfiber/lemonfiber
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      branch: ${{ env.BRANCH }}
+      head: ${{ steps.commit.outputs.built }}
+      clean: ${{ steps.commit.outputs.clean }}
+      title: ${{ steps.said.outputs.title }}
+      body: ${{ steps.said.outputs.body }}
+    steps:
+      # `main` requires signed commits, and only a commit GitHub makes for an
+      # app is signed. This token writes that commit and reads whether the open
+      # pull request already carries it; the pull request is opened in the next
+      # job, with a token of its own.
+      - name: Mint a token that can commit here
+        id: token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.RELEASE_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          # The commit and the branch it moves, and the pull request it opens
+          # and arms; nothing the installation grants beyond that.
+          permission-contents: write
+          permission-pull-requests: read
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: taiki-e/install-action@75a348306ce8f67c0b06fc62c32a8546140ba955 # just
+        with:
+          tool: just
+
+      - name: Is the vendored contract behind at all
+        id: behind
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+        run: |
+          set -euo pipefail
+
+          # The contract decides, not the revision. `contract/VERSION` moves with
+          # every commit the server makes, so the files are taken at the server's
+          # main and compared with what is vendored; only a difference in them is
+          # something to take. Taking them is the one step that reaches the network.
+          pin="$(tr -d '[:space:]' < contract/VERSION)"
+          head="$(gh api "repos/${SERVER}/commits/main" --jq .sha)"
+          echo "pin=${pin}" >> "$GITHUB_OUTPUT"
+          echo "head=${head}" >> "$GITHUB_OUTPUT"
+          just sync "${head}"
+          moved="$(git status --porcelain --untracked-files=all -- contract/web-api)"
+          if [ -z "${moved}" ]; then
+            echo "moved=no" >> "$GITHUB_OUTPUT"
+            echo "The vendored contract matches the one ${head} serves; nothing to take."
+            echo "## The vendored contract is what the server describes" >>"${GITHUB_STEP_SUMMARY:-/dev/null}"
+          else
+            echo "moved=yes" >> "$GITHUB_OUTPUT"
+            echo "The contract has changed since ${pin}; the server's main is ${head}."
+          fi
+
+      - name: Take the contract and regenerate against it
+        id: build
+        if: steps.behind.outputs.moved == 'yes'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          # The sync above has taken the contract and regenerated; what is left is
+          # whether the client still builds, lints and passes against it.
+          just clippy
+          just test
+
+      - name: Put the change on the branch, signed
+        id: commit
+        if: steps.behind.outputs.moved == 'yes'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          PIN: ${{ steps.behind.outputs.pin }}
+          HEAD_SHA: ${{ steps.behind.outputs.head }}
+          CLEAN: ${{ steps.build.outcome }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          # What the sync and the generator wrote or removed, and nothing else.
+          # The build before this ran the suite, and this commit is made with a
+          # token that can write here, so any change outside `contract/` and the
+          # generated package refuses the whole commit rather than riding along
+          # with it; so does a rename, which syncing and generating never make.
+          # A removal is carried: a contract that changes layout removes the
+          # files of the old one, and a definition the server drops removes its
+          # file. Each line is `A <path>` for a file written and `D <path>` for
+          # one removed. Captured rather than piped onwards, so a refusal stops
+          # the step under `pipefail`.
+          changed=""
+          while IFS= read -r -d '' entry; do
+            state="${entry:0:2}"
+            path="${entry:3}"
+            case "${path}" in
+              contract/* | crates/lemonfiber-sdk/src/contract/*) ;;
+              *)
+                echo "::error::the bump changed ${path}, which syncing and generating never write"
+                exit 1
+                ;;
+            esac
+            case "${state}" in
+              " D" | "D ") changed="${changed}D ${path}"$'\n' ;;
+              "R"* | *"R") echo "::error::the bump renamed ${path}"; exit 1 ;;
+              *) changed="${changed}A ${path}"$'\n' ;;
+            esac
+          done < <(git status --porcelain=v1 -z --untracked-files=all)
+          changed="${changed%$'\n'}"
+          printf '%s\n' "$changed"
+
+          # Pushed only when the push would change something. Every push moves
+          # the pull request's head and runs its whole suite again, and a run
+          # that regenerated exactly what the open pull request already holds
+          # would spend that suite on nothing.
+          #
+          # Asked of the branch, not of `main`: while a pull request is open,
+          # `main` still holds what it replaces, so a comparison with `main`
+          # finds a change every time. What is compared is whole trees: the
+          # commit the branch was built on with this run's writes laid over it
+          # and its removals taken out, against the branch itself. That sees a
+          # file whose bytes differ, and also a file the branch carries that
+          # this run no longer writes, which comparing only the files written
+          # here would miss. A `main` that has
+          # moved on since is not a difference: the pull request's diff holds
+          # none of it either way.
+          #
+          # It says "carried" only on proof. A branch that does not exist, no
+          # open pull request on it, a tree too large to list, or any call that
+          # fails means a push, as does a clean build whose pull request has no
+          # auto-merge armed: that is what a run cancelled between moving the
+          # branch and arming it leaves, and the push is what arms it.
+          if CHANGED="$changed" python3 - >"${RUNNER_TEMP}/carried" <<'PY'
+          import hashlib
+          import json
+          import os
+          import subprocess
+          import sys
+
+          repo, branch = os.environ["REPO"], os.environ["BRANCH"]
+          changed = [line.split(" ", 1) for line in os.environ["CHANGED"].splitlines() if line]
+
+
+          def api(path):
+              done = subprocess.run(["gh", "api", path], capture_output=True, text=True)
+              if done.returncode != 0:
+                  sys.exit(f"pushing: {path} answered {done.stderr.strip() or done.returncode}")
+              return json.loads(done.stdout)
+
+
+          def blob(name):
+              # The id git gives these bytes, which is what a tree records for
+              # a file, so equal ids are equal bytes.
+              with open(name, "rb") as handle:
+                  data = handle.read()
+              return hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+
+
+          def blobs(commit):
+              tree = api(f"repos/{repo}/git/trees/{commit}?recursive=1")
+              if tree.get("truncated", True):
+                  sys.exit(f"pushing: the tree of {commit} is too large to list whole")
+              return {e["path"]: e["sha"] for e in tree["tree"] if e["type"] == "blob"}
+
+
+          head = api(f"repos/{repo}/git/ref/heads/{branch}")["object"]["sha"]
+          owner = repo.split("/")[0]
+          pulls = [
+              pull
+              for pull in api(f"repos/{repo}/pulls?head={owner}:{branch}&state=open")
+              if pull["head"]["ref"] == branch and pull["head"]["repo"]["full_name"] == repo
+          ]
+          if not pulls:
+              sys.exit(f"pushing: no pull request is open on {branch}")
+          pull = pulls[0]
+          if os.environ["CLEAN"] == "success" and not pull.get("auto_merge"):
+              sys.exit(f"pushing: #{pull['number']} has no auto-merge armed, which a clean run leaves")
+
+          base = api(f"repos/{repo}/compare/main...{head}")["merge_base_commit"]["sha"]
+          after = blobs(base)
+          for change, name in changed:
+              if change == "D":
+                  after.pop(name, None)
+              else:
+                  after[name] = blob(name)
+          carried = blobs(head)
+          differ = sorted(p for p in after.keys() | carried.keys() if after.get(p) != carried.get(p))
+          if differ:
+              sys.exit(f"pushing: {len(differ)} path(s) differ from {branch}, first {', '.join(differ[:5])}")
+          print(head, pull["number"])
+          PY
+          then
+            read -r carried pull <"${RUNNER_TEMP}/carried"
+            # A scratch ref a cancelled run left behind would otherwise wait for
+            # the next push to clear it.
+            gh api --method DELETE "repos/${REPO}/git/refs/heads/${BRANCH}-staging" >/dev/null 2>&1 || true
+            echo "carried=yes" >> "$GITHUB_OUTPUT"
+            echo "::notice::${BRANCH} already holds this at ${carried}; nothing pushed."
+            {
+              echo "## \`${BRANCH}\` already carries this"
+              echo ""
+              echo "Its head \`${carried}\` holds byte for byte what this run would commit, so nothing was pushed and #${pull} and its checks were left alone."
+            } >>"${GITHUB_STEP_SUMMARY:-/dev/null}"
+            exit 0
+          fi
+
+          # `main` requires signed commits, and only commits GitHub itself makes
+          # are signed here. `createCommitOnBranch` is that: it writes the files
+          # and signs the result, so the branch is mergeable rather than merely
+          # pushed.
+          base="$(gh api "repos/${REPO}/commits/main" --jq .sha)"
+
+          # Built on a scratch ref and moved across in one step, rather than
+          # resetting the pull request's own branch to main first.
+          #
+          # The branch is the bot's alone and is reset each run, so it never
+          # carries two catch-ups as one. Resetting it in place would leave it
+          # briefly identical to `main`, and GitHub closes a pull request whose
+          # branch holds no commits; moving it straight from the last commit to
+          # the new one keeps the pull request open.
+          staging="${BRANCH}-staging"
+          if gh api "repos/${REPO}/git/ref/heads/${staging}" >/dev/null 2>&1; then
+            gh api --method PATCH "repos/${REPO}/git/refs/heads/${staging}" \
+              -F sha="${base}" -F force=true >/dev/null
+          else
+            gh api --method POST "repos/${REPO}/git/refs" \
+              -f ref="refs/heads/${staging}" -f sha="${base}" >/dev/null
+          fi
+
+          if [ "$CLEAN" = "success" ]; then
+            body="Regenerated against the artefact; the types compile and the suite passes."
+          else
+            body="The regeneration did not come out clean, so this is a change here rather than a catch-up. Read it before merging."
+          fi
+
+          # The request goes in a file, not in an argument: the artefact and the
+          # generated module are large, and base64 of both on a command line
+          # exceeds the argument limit.
+          #
+          # Building the JSON in Python also means the message and the file
+          # contents are encoded rather than quoted into place by hand.
+          CHANGED="$changed" python3 - "$REPO" "$staging" "$base" "$HEAD_SHA" "$PIN" "$body" <<'PY' >"${RUNNER_TEMP}/request.json"
+          import base64
+          import json
+          import os
+          import sys
+
+          repo, branch, base, head, pin, note = sys.argv[1:7]
+          changed = [line.split(" ", 1) for line in os.environ["CHANGED"].splitlines()]
+
+          print(json.dumps({
+              "query": (
+                  "mutation($input: CreateCommitOnBranchInput!) "
+                  "{ createCommitOnBranch(input: $input) { commit { oid } } }"
+              ),
+              "variables": {
+                  "input": {
+                      "branch": {
+                          "repositoryNameWithOwner": repo,
+                          "branchName": branch,
+                      },
+                      "expectedHeadOid": base,
+                      "message": {
+                          "headline": f"chore(contract): take lemonfiber {head[:8]}",
+                          # commitlint, dco and spec-check each read this, and
+                          # spec-check closes a pull request whose citation it
+                          # cannot resolve.
+                          "body": (
+                              f"The shapes this package exposes are generated from a copy of the server's contract, so a copy it has not taken is a fact about this repository. {note}\n\n"
+                              f"Was {pin}.\n\n"
+                              "Signed-off-by: lemonfiber release <release@lemonfiber.app>\n"
+                              "Spec: Q-R68"
+                          ),
+                      },
+                      "fileChanges": {
+                          "additions": [
+                              {
+                                  "path": name,
+                                  "contents": base64.b64encode(
+                                      open(name, "rb").read()
+                                  ).decode(),
+                              }
+                              for change, name in changed
+                              if change == "A"
+                          ],
+                          "deletions": [
+                              {"path": name}
+                              for change, name in changed
+                              if change == "D"
+                          ],
+                      },
+                  }
+              },
+          }))
+          PY
+
+          built="$(gh api graphql --input "${RUNNER_TEMP}/request.json" --jq '.data.createCommitOnBranch.commit.oid')"
+
+          if ! printf '%s' "$built" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "::error::the commit was not created; got '${built}'"
+            exit 1
+          fi
+
+          # One move, so the branch goes from yesterday's commit to today's
+          # without ever being equal to `main`.
+          if gh api "repos/${REPO}/git/ref/heads/${BRANCH}" >/dev/null 2>&1; then
+            gh api --method PATCH "repos/${REPO}/git/refs/heads/${BRANCH}" \
+              -F sha="${built}" -F force=true >/dev/null
+          else
+            gh api --method POST "repos/${REPO}/git/refs" \
+              -f ref="refs/heads/${BRANCH}" -f sha="${built}" >/dev/null
+          fi
+
+          # The scratch ref has done its job. Left behind it would show up in
+          # the branch list as something a reader has to work out.
+          gh api --method DELETE "repos/${REPO}/git/refs/heads/${staging}" >/dev/null 2>&1 || true
+
+          echo "clean=${CLEAN}" >> "$GITHUB_OUTPUT"
+          echo "built=${built}" >> "$GITHUB_OUTPUT"
+
+      - name: What the pull request says
+        id: said
+        if: steps.behind.outputs.moved == 'yes' && steps.commit.outputs.carried != 'yes'
+        env:
+          PIN: ${{ steps.behind.outputs.pin }}
+          HEAD_SHA: ${{ steps.behind.outputs.head }}
+          CLEAN: ${{ steps.commit.outputs.clean }}
+        run: |
+          set -euo pipefail
+
+          if [ "$CLEAN" = "success" ]; then
+            verdict="**The types compile and the suite passes.** Nothing this package exposes changed shape."
+          else
+            verdict="**The regeneration did not come out clean.** The contract has changed a shape this package exposes, so taking it is a change here rather than a catch-up. Read the failing run before merging; do not force it green."
+          fi
+
+          # Handed to the next job, which opens or edits the pull request.
+          # The delimiter is random, so no line of the body can end the value.
+          delimiter="body_$(openssl rand -hex 16)"
+          {
+            echo "title=chore(contract): take lemonfiber ${HEAD_SHA:0:8}"
+            echo "body<<${delimiter}"
+            printf '%s\n' \
+              "\`contract-drift\` runs on every pull request here, and the vendored artefact was behind. This takes the contract so that the next author to open a pull request is not handed a sync they did not come for." \
+              "" \
+              "- was: \`${PIN}\`" \
+              "- now: \`${HEAD_SHA}\`" \
+              "" \
+              "${verdict}" \
+              "" \
+              "Opened by \`contract-bump\`, which the server's own \`contract-moved\` fires whenever the artefact changes." \
+              "" \
+              "Spec: Q-R68"
+            echo "${delimiter}"
+          } >> "$GITHUB_OUTPUT"
+
+  # The pull request is opened, or the open one edited, only where it is this
+  # bump's own: the release app opened it from this repository's branch and it
+  # is at the commit above (OPS-R87). It merges itself only where the
+  # regeneration was clean; otherwise any arming is switched off, because
+  # the change wants a person.
+  pull-request:
+    needs: bump
+    if: needs.bump.outputs.head != ''
+    permissions:
+      contents: read
+    uses: lemonfiber/spec/.github/workflows/rolling-pull-request.yml@c5e71bae1a1e2a7c499fa85a4679501d041eafaf # v1.0.136
+    with:
+      branch: ${{ needs.bump.outputs.branch }}
+      head: ${{ needs.bump.outputs.head }}
+      title: ${{ needs.bump.outputs.title }}
+      body: ${{ needs.bump.outputs.body }}
+      auto-merge: ${{ needs.bump.outputs.clean == 'success' }}
+      disarm: ${{ needs.bump.outputs.clean != 'success' }}
+    secrets:
+      RELEASE_APP_KEY: ${{ secrets.RELEASE_APP_KEY }}

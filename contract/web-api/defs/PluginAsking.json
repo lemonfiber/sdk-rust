@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One capability a placed service asks for.",
+  "type": "object",
+  "properties": {
+    "capability": {
+      "description": "The core capability asked for.",
+      "type": "string"
+    },
+    "each": {
+      "description": "Whether every service that fills it is reached rather than one.",
+      "type": "boolean",
+      "default": false
+    },
+    "files": {
+      "description": "The medium the filler it reaches files, where it narrows the ask to one.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "native": {
+      "description": "The upstream's own API it talks in, or every API it talks in any of, which it\nreaches in place of the adapter.",
+      "anyOf": [
+        {
+          "$ref": "Apis.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "capability"
+  ]
+}

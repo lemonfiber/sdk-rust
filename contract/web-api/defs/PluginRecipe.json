@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One recipe, as an operator agrees to what it does.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The recipe's id within the plugin.",
+      "type": "string"
+    },
+    "inputs": {
+      "description": "Every value it asks the operator for when it runs, in the order it declares them.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "PluginRecipeInput.json"
+      }
+    },
+    "on": {
+      "description": "When it runs: as part of an install and an update, or only when asked for by name.",
+      "$ref": "PluginRecipeOn.json",
+      "default": "install"
+    },
+    "pairs": {
+      "description": "Every value it could carry, and where to.",
+      "type": "array",
+      "items": {
+        "$ref": "PluginPair.json"
+      }
+    },
+    "steps": {
+      "description": "Every call, in the order the recipe makes them.",
+      "type": "array",
+      "items": {
+        "$ref": "PluginStep.json"
+      }
+    },
+    "title": {
+      "description": "What it accomplishes, in one line.",
+      "type": "string"
+    },
+    "why": {
+      "description": "Why it is worth running.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "why",
+    "steps",
+    "pairs"
+  ]
+}

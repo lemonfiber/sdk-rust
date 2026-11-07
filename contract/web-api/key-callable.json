@@ -1,0 +1,36 @@
+[
+  {
+    "action": "restart",
+    "disturbs": true,
+    "rehearsal": true,
+    "idempotent": true,
+    "moved": "LIFE-10"
+  },
+  {
+    "action": "diagnose",
+    "disturbs": true,
+    "rehearsal": false,
+    "idempotent": false
+  },
+  {
+    "action": "update",
+    "disturbs": true,
+    "rehearsal": true,
+    "idempotent": false,
+    "moved": "UPDATE-5"
+  },
+  {
+    "action": "downloads-pause",
+    "disturbs": false,
+    "rehearsal": true,
+    "idempotent": true,
+    "moved": "RATE-6"
+  },
+  {
+    "action": "downloads-resume",
+    "disturbs": false,
+    "rehearsal": true,
+    "idempotent": true,
+    "moved": "RATE-6"
+  }
+]

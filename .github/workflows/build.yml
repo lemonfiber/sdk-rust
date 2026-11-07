@@ -1,0 +1,100 @@
+# The workspace, checked on every change: format, lints, the contract, the reads the
+# client reaches against the contract page, the toolchain the crates promise, and the
+# dependency policy. The suite runs once, under coverage, in sonar.yml.
+name: build
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+# A pull request pushed again cancels the run on its old head, which nobody
+# will read and which holds runners the org shares (Q-R75). Every other event
+# is grouped by its own run, so it is never cancelled and never cancels.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: Format
+        run: cargo fmt --all --check
+      - name: Clippy
+        run: cargo clippy --all-targets --workspace --locked -- -D warnings
+
+  # The generated module is what the vendored artefact generates, and the reads the
+  # client reaches are the ones the contract page lists under `## Reading`, at the
+  # spec's `main` (ARCH-R66, ARCH-R159).
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check out the canonical spec
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: lemonfiber/spec
+          ref: main
+          path: .spec-canonical
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
+        with:
+          components: rustfmt
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: The generated module is what the contract generates
+        run: cargo run --quiet --locked -p lemonfiber-sdk-generate -- check
+      - name: The contract page names the reads this client reaches
+        run: cargo run --quiet --locked -p lemonfiber-sdk-generate -- reads --spec .spec-canonical
+
+  msrv:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: The version the workspace promises
+        id: promised
+        run: |
+          version="$(sed -n 's/^rust-version *= *"\([^"]*\)".*/\1/p' Cargo.toml | head -1)"
+          if [ -z "$version" ]; then
+            echo "::error file=Cargo.toml::no rust-version is declared, so there is no promise to collect on"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # 1.95.0
+        with:
+          toolchain: ${{ steps.promised.outputs.version }}
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: The workspace builds on the version it promises
+        env:
+          RUSTUP_TOOLCHAIN: ${{ steps.promised.outputs.version }}
+        run: cargo check --workspace --locked
+
+  # cargo-deny as a binary rather than through its action, which builds a Docker
+  # image from a Docker Hub base on every run and fails whenever Hub rate-limits
+  # the runners.
+  deny:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: taiki-e/install-action@75a348306ce8f67c0b06fc62c32a8546140ba955 # cargo-deny
+        with:
+          tool: cargo-deny@0.20.2
+      - name: The dependencies are allowed
+        run: cargo deny --log-level warn --manifest-path ./Cargo.toml --all-features check

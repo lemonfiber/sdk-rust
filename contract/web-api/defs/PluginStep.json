@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One call a recipe makes, in the order it makes them.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The step's id within its recipe.",
+      "type": "string"
+    },
+    "method": {
+      "description": "The HTTP method it calls with.",
+      "type": "string"
+    },
+    "native": {
+      "description": "The API the destination is reached in, as the installed plugin providing it\ndeclares it, or nothing where none does or it is a name outside the stack.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "path": {
+      "description": "The path it calls.",
+      "type": "string"
+    },
+    "to": {
+      "description": "Where it calls: a service of this stack's or the plugin's own, or a name outside\nboth, as the manifest wrote it. Never a resolved address.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "method",
+    "to",
+    "path"
+  ]
+}

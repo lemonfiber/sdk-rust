@@ -1,0 +1,46 @@
+# What this repository implements, one row per requirement (OPS-R74).
+#
+# `done` means the requirement is met in full by what is here, `partial` that this
+# repository holds its part and the rest lives elsewhere, `open` that nothing here
+# meets it yet. The release gate and the no-stubs gate read this file; a pull
+# request that changes whether a requirement is met changes its row.
+#
+# These are the client's requirements of the web API contract, and of the error
+# model a client follows. Where a requirement also binds the server, the artefact
+# the core publishes or every other surface, this client's half is here and the
+# row is partial.
+
+requirement = [
+  { id = "ARCH-R51", state = "done", evidence = ["crates/lemonfiber-sdk/src/stream.rs", "crates/lemonfiber-sdk/src/tests/stream.rs::a_broken_stream_says_so_cools_what_it_held_and_resumes_from_the_last_event"] },
+  { id = "ARCH-R52", state = "partial", evidence = ["crates/lemonfiber-sdk/src/credential.rs", "crates/lemonfiber-sdk/src/tests/client.rs::a_read_asks_for_its_path_carrying_the_token_in_its_header"] },
+  { id = "ARCH-R55", state = "done", evidence = ["crates/lemonfiber-sdk/src/envelope.rs", "crates/lemonfiber-sdk/src/tests/wire.rs::an_envelope_in_another_version_is_refused_naming_both", "crates/lemonfiber-sdk/src/tests/stream.rs::an_event_in_another_version_ends_the_stream_plainly"] },
+  { id = "ARCH-R58", state = "done", evidence = ["crates/lemonfiber-sdk/src/contract", "crates/lemonfiber-sdk-generate/src/tests.rs::the_vendored_artefact_generates_what_is_committed"] },
+  { id = "ARCH-R59", state = "done", evidence = ["crates/lemonfiber-sdk/src/credential.rs", "crates/lemonfiber-sdk/src/tests/client.rs::a_read_asks_for_its_path_carrying_the_token_in_its_header"] },
+  { id = "ARCH-R60", state = "done", evidence = ["crates/lemonfiber-sdk/src/address.rs", "crates/lemonfiber-sdk/src/tests/wire.rs::an_address_on_this_machine_needs_no_pin_and_any_other_needs_one", "crates/lemonfiber-sdk/src/tests/http.rs::a_name_is_reached_at_the_loopback_addresses_it_was_found_at"] },
+  { id = "ARCH-R61", state = "partial", evidence = ["crates/lemonfiber-sdk/src/stream.rs", "crates/lemonfiber-sdk/src/tests/stream.rs::a_broken_stream_says_so_cools_what_it_held_and_resumes_from_the_last_event"] },
+  { id = "ARCH-R62", state = "partial", evidence = ["crates/lemonfiber-sdk/src/stream.rs", "crates/lemonfiber-sdk/src/tests/stream.rs::a_broken_stream_says_so_cools_what_it_held_and_resumes_from_the_last_event"] },
+  { id = "ARCH-R63", state = "done", evidence = ["crates/lemonfiber-sdk/src/envelope.rs", "crates/lemonfiber-sdk/src/tests/wire.rs::an_envelope_carries_its_host_and_job_and_is_typed_by_its_kind"] },
+  { id = "ARCH-R64", state = "partial", evidence = ["contract/VERSION", "crates/lemonfiber-sdk-generate/src/vendor.rs", "crates/lemonfiber-sdk-generate/src/tests.rs::a_contract_is_taken_whole_from_what_was_extracted_with_its_revision"] },
+  { id = "ARCH-R65", state = "done", evidence = ["crates/lemonfiber-sdk-generate/src/artefact.rs", "crates/lemonfiber-sdk-generate/src/tests.rs::the_vendored_artefact_generates_what_is_committed"] },
+  { id = "ARCH-R66", state = "done", evidence = [".github/workflows/build.yml", "crates/lemonfiber-sdk-generate/src/tests.rs::what_is_generated_is_held_to_what_is_committed_file_by_file"] },
+  { id = "ARCH-R67", state = "done", evidence = ["crates/lemonfiber-sdk-generate/src/artefact.rs", "crates/lemonfiber-sdk-generate/src/tests.rs::a_version_this_does_not_implement_is_refused_naming_both_and_nothing_is_written"] },
+  { id = "ARCH-R73", state = "partial", evidence = ["crates/lemonfiber-sdk-generate/src/artefact.rs", "crates/lemonfiber-sdk-generate/src/tests.rs::a_reference_that_reaches_nothing_or_reads_two_ways_is_refused_naming_where"] },
+  { id = "ARCH-R78", state = "partial", evidence = ["crates/lemonfiber-sdk/src/capabilities.rs", "crates/lemonfiber-sdk/src/tests/client.rs::what_a_stack_can_do_is_read_for_the_credential_that_asked"] },
+  { id = "ARCH-R81", state = "done", evidence = ["crates/lemonfiber-sdk/src/capabilities.rs", "crates/lemonfiber-sdk/src/tests/client.rs::/api/something-newer"] },
+  { id = "ARCH-R99", state = "done", evidence = ["crates/lemonfiber-sdk/src/http.rs", "crates/lemonfiber-sdk/src/tests/http.rs::a_pinned_stack_is_reached_only_where_it_presents_the_pinned_certificate", "crates/lemonfiber-sdk/src/tests/client.rs::a_pinned_stack_is_reached_only_through_the_crate_s_own_transport"] },
+  { id = "ARCH-R129", state = "partial", evidence = ["crates/lemonfiber-sdk-generate/src/schema.rs", "crates/lemonfiber-sdk-generate/src/tests.rs::a_shape_this_cannot_write_is_refused_naming_it"] },
+  { id = "ARCH-R138", state = "partial", evidence = ["crates/lemonfiber-sdk/src/refusal.rs", "crates/lemonfiber-sdk/src/tests/wire.rs::a_refusal_is_read_by_its_status_and_its_code"] },
+  { id = "ARCH-R139", state = "partial", evidence = ["crates/lemonfiber-sdk/src/contract/refusal_list.rs", "crates/lemonfiber-sdk-generate/src/tests.rs::what_is_generated_is_held_to_what_is_committed_file_by_file"] },
+  { id = "ARCH-R163", state = "partial", evidence = ["crates/lemonfiber-sdk/src/capabilities.rs", "crates/lemonfiber-sdk/src/tests/client.rs::what_a_stack_can_do_is_read_for_the_credential_that_asked"] },
+  { id = "ARCH-R164", state = "partial", evidence = ["crates/lemonfiber-sdk/src/contract/key_callable.rs", "crates/lemonfiber-sdk-generate/src/tests.rs::what_is_generated_is_held_to_what_is_committed_file_by_file"] },
+  { id = "ARCH-R170", state = "done", evidence = ["crates/lemonfiber-sdk-generate/src/artefact.rs", "crates/lemonfiber-sdk-generate/src/tests.rs::a_reference_that_reaches_nothing_or_reads_two_ways_is_refused_naming_where"] },
+  { id = "ARCH-R179", state = "partial", evidence = ["crates/lemonfiber-sdk/src/capabilities.rs", "crates/lemonfiber-sdk/src/tests/client.rs::what_a_stack_can_do_is_read_for_the_credential_that_asked"] },
+  { id = "ARCH-R258", state = "partial", evidence = ["crates/lemonfiber-sdk/src/keys.rs", "crates/lemonfiber-sdk/src/tests/keys.rs::a_key_is_minted_with_its_secret_or_as_a_claim_and_a_device_key_is_registered"] },
+  { id = "ARCH-R259", state = "partial", evidence = ["crates/lemonfiber-sdk/src/keys.rs", "crates/lemonfiber-sdk/src/tests/client.rs::keys_and_device_keys_are_asked_for_at_their_own_doors"] },
+  { id = "ARCH-R260", state = "partial", evidence = ["crates/lemonfiber-sdk/src/keys.rs", "crates/lemonfiber-sdk/src/tests/client.rs::keys_and_device_keys_are_asked_for_at_their_own_doors"] },
+  { id = "ARCH-R261", state = "partial", evidence = ["crates/lemonfiber-sdk/src/keys.rs", "crates/lemonfiber-sdk/src/tests/keys.rs::a_device_key_signs_the_lines_of_one_mint_and_no_other"] },
+  { id = "ARCH-R293", state = "partial", evidence = ["crates/lemonfiber-sdk/src/contract/shapes_l.rs::proved_by"] },
+  { id = "C10-R18", state = "partial", evidence = ["crates/lemonfiber-sdk/src/keys.rs", "crates/lemonfiber-sdk/src/tests/keys.rs::a_key_is_minted_with_its_secret_or_as_a_claim_and_a_device_key_is_registered", "crates/lemonfiber-sdk/src/tests/keys.rs::a_key_link_is_read_as_a_claim_s_mint_writes_it"] },
+  { id = "C10-R20", state = "partial", evidence = ["crates/lemonfiber-sdk/src/door.rs", "crates/lemonfiber-sdk/src/tests/door.rs::a_claim_collects_its_key_once_with_the_claim_alone", "crates/lemonfiber-sdk/src/tests/http.rs::a_key_link_collects_its_key_over_the_tls_its_fingerprint_pins"] },
+  { id = "G4-R15", state = "partial", evidence = ["crates/lemonfiber-sdk/src/line.rs", "crates/lemonfiber-sdk/src/tests/client.rs::a_read_is_asked_again_after_a_passing_failure_and_an_action_never_is"] },
+]

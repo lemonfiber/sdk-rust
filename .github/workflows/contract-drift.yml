@@ -1,0 +1,27 @@
+# The vendored contract, held against the one lemonfiber's main serves. The comparison is spec's shared `upstream-drift` (Q-R68,
+# Q-R70), which writes what it found and the command that takes it to the run's
+# summary as well as the log.
+name: contract-drift
+on:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Weekly, as the floor: a pull request is what usually asks the question.
+    - cron: "20 7 * * 1"
+permissions:
+  contents: read
+# A pull request pushed again cancels the run on its old head, which nobody
+# will read and which holds runners the org shares (Q-R75). Every other event
+# is grouped by its own run, so it is never cancelled and never cancels.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  contract-drift:
+    uses: lemonfiber/spec/.github/workflows/upstream-drift.yml@679d0d4d8f7dd31771cd3d7333693069a27df7d1 # v1.0.138
+    with:
+      lock: "vendored"
+      upstream: "lemonfiber"
+      revision: "contract/VERSION"
+      copies: "contract/web-api:contract/web-api"
+      remedy: "run `just sync {head}` then `just generate`, and commit contract/ and crates/lemonfiber-sdk/src/contract"

@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "What a lifecycle command did, or would have done.",
+  "type": "object",
+  "properties": {
+    "action": {
+      "description": "The Compose subcommand that was run.",
+      "type": "string"
+    },
+    "command": {
+      "description": "The exact command, so what happened is never a matter of trust.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "condition": {
+      "description": "What those services amount to, as one word.",
+      "anyOf": [
+        {
+          "$ref": "Condition.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fencing": {
+      "description": "Why the addresses of the engine's host were not asked or not kept for a fence, where\na service is fenced and they were not. Absent for every other action.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "forwarding": {
+      "description": "What starting the stack did about the VPN's forwarded port, where it did\nanything. Absent in the ordinary case — the client was already on it, or\nthere is no tunnel to forward through — and a sentence where the client was\nmoved, or could not be.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "guards": {
+      "description": "Each of lemonfiber's own guards this act moved onto its plugin, or on a rehearsal\nwould move, for good and with no yes of its own; one it could not move stays on\noffer and says why.",
+      "type": "array",
+      "items": {
+        "$ref": "StackMoveTaken.json"
+      }
+    },
+    "held": {
+      "description": "Why nothing was run, where a start declined to run anything.\n\nAbsent for every ordinary command, which is what makes it readable: a\nlifecycle report with an empty plan and a status of nothing is a report of\nsomething that did not happen, and without this there is nowhere to say\nwhether that was a fault or the correct answer. A start at a login declines\nfor three reasons the operator would each act on differently — the stack was\nstopped on purpose, autostart was never asked for, or this machine is on its\nbattery and nobody said to start anyway — and a run nobody is watching has to\nleave the reason somewhere a reader finds later.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "installing": {
+      "description": "Each part this build carries that the forms hold and this machine has never run,\noffered as an install from the build, offline, before anything of the forms is\nwritten or started; answered by [`Self::offer`].",
+      "type": "array",
+      "items": {
+        "$ref": "UpInstallOffered.json"
+      }
+    },
+    "moves": {
+      "description": "Each part this release installs as a plugin that the stack still runs as its own\nservice: a move in place on offer, named by every start and taken by none.",
+      "type": "array",
+      "items": {
+        "$ref": "MoveOffered.json"
+      }
+    },
+    "offer": {
+      "description": "The offer a restart answers: the services it would restart, named so that a\nrestart carrying it back is carried out against those services or refused.\nAbsent for every other action.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "passing": {
+      "description": "Why the pass service is left out of the project a start writes, where the stream\nguard is filled and it is. Absent for every other action.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "plan": {
+      "description": "What the named forms came to: the profiles, the services they hold, and\nwhat the configuration left out.\n\nThe resolved plan itself rather than a copy of its parts, because it is\nstated to the operator before the command runs and read out of the\nreport afterwards — two accounts of one run, and a second shape for it\nwould be a way for them to differ.",
+      "$ref": "Plan.json"
+    },
+    "port_conflicts": {
+      "description": "Host ports this start wants that another Compose project on this machine\nalready answers on, each named on both sides.\n\nEmpty for every action that starts nothing, and empty on a machine running one\nstack. Reported rather than refused: a port somebody deliberately shares is\ntheir business, and the start goes ahead — what this changes is whether an\noperator meeting a bind failure knows who is holding the port.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "ConflictReport.json"
+      }
+    },
+    "rehearsed": {
+      "description": "Whether this was a rehearsal.",
+      "type": "boolean"
+    },
+    "rendering": {
+      "description": "Why the group owning the render devices of the engine's host was not asked or not\nkept, where a service takes `render` and it was not. Absent for every other action.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "secured": {
+      "description": "What asking the egress guard to hold its control server to the credential its\nadapter was handed came to, where it was more than held at once: the guard\nrestarted to take it up, or why it did not. Absent where it held it at once or no\nguard speaks its contract.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "services": {
+      "description": "What each service ended up doing, where the action waited to find out, or\nwhere a start did not complete, read once when it ended.\n\nEmpty for actions that do not wait. Stopping is finished when Compose\nsays it is, and surveying afterwards would only report the absence it\nwas asked to produce. A start that failed is not waited on, and names every\nservice it addressed and those they depend on as the engine had them then.",
+      "type": "array",
+      "items": {
+        "$ref": "Service.json"
+      }
+    },
+    "stack_edits": {
+      "description": "Stack files the operator has edited, left as they set them rather than\noverwritten with lemonfiber's own. Empty in the ordinary case; a named entry\nwarns that an upgrade would change a file they changed, and shows the diff.",
+      "type": "array",
+      "items": {
+        "$ref": "StackEdit.json"
+      }
+    },
+    "status": {
+      "description": "The exit status, absent for a rehearsal or a signalled process.",
+      "type": [
+        "integer",
+        "null"
+      ],
+      "format": "int32"
+    },
+    "swept": {
+      "description": "Every network the engine holds for the project that the project no longer\ndeclares, by the engine's name: disconnected and taken away before a start, or\nnamed and left by a rehearsal. Empty for every other action.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "switched": {
+      "description": "What narrowing moved, where the command was a switch. Absent for every\nother action, which is what tells a reader that nothing was left running\non purpose.",
+      "anyOf": [
+        {
+          "$ref": "Switched.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "unfenced": {
+      "description": "Each fenced service a start holds back because no fence can be written for it, in\nwords naming it and why. Empty for every other action.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unrendered": {
+      "description": "Each service taking `render` a start writes without the host's render devices, in\nwords naming it. Empty for every other action.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unvetted": {
+      "description": "The operator's overlay and every service it changes, where there is one: merged\nover the project this run starts, and held to nothing lemonfiber vets.",
+      "anyOf": [
+        {
+          "$ref": "Unvetted.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "action",
+    "plan",
+    "command",
+    "rehearsed",
+    "services",
+    "stack_edits"
+  ]
+}

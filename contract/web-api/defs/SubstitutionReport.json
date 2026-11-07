@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "What substituting one service for another would come to.",
+  "type": "object",
+  "properties": {
+    "agreement": {
+      "description": "What this reading names itself, so a choice answering it can say which reading\nit answered.\n\nNamed part by part — the choice itself, what fills the capability now, what asks\nfor it, and what the change would leave unfilled — so a choice refused because the\nwiring moved is told which of those moved.",
+      "type": "string"
+    },
+    "applied": {
+      "description": "Whether it was written, or only worked out.\n\nA run that only says what it would do writes nothing and reports the same\nanswer, so the two are told apart here rather than by the caller remembering\nwhich flags it passed.",
+      "type": "boolean"
+    },
+    "guards": {
+      "description": "Each of lemonfiber's own guards this act moved onto its plugin after its own\nchange, or on a reading would move, for good and with no yes of its own; one it\ncould not move stays on offer and says why.",
+      "type": "array",
+      "items": {
+        "$ref": "StackMoveTaken.json"
+      }
+    },
+    "rehearsed": {
+      "description": "Whether this was a rehearsal: what would have happened, with none of it done.\n\nSaid in a field of its own so that a rehearsal is never told from the real run by\nits wording alone.",
+      "type": "boolean"
+    },
+    "substitution": {
+      "description": "The change itself, and what it would leave with nothing filling it.",
+      "$ref": "Substitution.json"
+    },
+    "unran": {
+      "description": "Each part the change was to stop or start and could not, with why.",
+      "type": "array",
+      "items": {
+        "$ref": "SubstitutionUnran.json"
+      }
+    },
+    "unvetted": {
+      "description": "The operator's overlay and every service it changes, where there is one: merged\nover the project this choice would write, and held to nothing lemonfiber vets.",
+      "anyOf": [
+        {
+          "$ref": "Unvetted.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "substitution",
+    "applied",
+    "agreement",
+    "rehearsed"
+  ]
+}
