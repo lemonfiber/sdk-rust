@@ -21,6 +21,7 @@ pub struct HandoffClient {
 /// control. A sentence written here would have to pick one of them, and every other
 /// surface would then be showing somebody an instruction it cannot carry out.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum HandoffRemedy {
     /// Invite them, which makes the account and is where what they may watch is chosen.
     #[serde(rename = "invite")]
@@ -35,6 +36,9 @@ pub enum HandoffRemedy {
     /// Record the address the household reaches this machine at.
     #[serde(rename = "record-address")]
     RecordAddress,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where one person's hand-off stands, and what to hand them.
@@ -109,6 +113,7 @@ pub struct HandoffSession {
 /// is the server's to say, and a copy kept here would go on saying it after the person
 /// signed out.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum HandoffState {
     /// Nobody by that name holds an account yet, so there is nothing to sign in to.
     ///
@@ -136,6 +141,9 @@ pub enum HandoffState {
     /// The hand-off could not go ahead, for the reason given beside it.
     #[serde(rename = "failed")]
     Failed,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where a finished walkthrough leaves the operator.
@@ -148,6 +156,7 @@ pub struct Handover {
 /// Whether imports are hardlinking or copying — the difference between an import
 /// that is free and one that doubles the disk it uses.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Hardlink {
     /// Imports hardlink, as they should.
     #[serde(rename = "linking")]
@@ -158,6 +167,9 @@ pub enum Hardlink {
     /// It could not be established which.
     #[serde(rename = "unknown")]
     Unknown,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What the stack amounts to.
@@ -165,6 +177,7 @@ pub enum Hardlink {
 /// Ordered from best to worst, so the worst of several is a `max` and there is no
 /// second place to encode the ranking.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum HealthStanding {
     /// Nothing is wrong.
     #[serde(rename = "healthy")]
@@ -190,6 +203,9 @@ pub enum HealthStanding {
     /// It could not be established. Never reported as healthy.
     #[serde(rename = "unknown")]
     Unknown,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// The one-line summary, and what it expands to.
@@ -332,6 +348,7 @@ pub struct HostedCommand {
 /// requirement names, and a reading that spelled them differently would be a
 /// second vocabulary for one set of facts.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Hosting {
     /// Nothing is installed; it runs only while a terminal holds it.
     #[serde(rename = "not-hosted")]
@@ -351,6 +368,9 @@ pub enum Hosting {
     /// This platform has no service manager lemonfiber configures.
     #[serde(rename = "unsupported")]
     Unsupported,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What this machine keeps running on lemonfiber's behalf.

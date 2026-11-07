@@ -57,6 +57,7 @@ pub struct Letting {
 
 /// Where a volume stands.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Level {
     /// Usage cannot be determined.
     ///
@@ -80,6 +81,9 @@ pub enum Level {
     /// Full; acquisitions halted.
     #[serde(rename = "exhausted")]
     Exhausted,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// How the operator wants their existing and downloaded media served, where they
@@ -244,6 +248,7 @@ pub struct LifecycleReport {
 /// How much of the line something may take.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "as")]
+#[non_exhaustive]
 pub enum Limit {
     /// Nothing holds it back.
     #[serde(rename = "unlimited")]
@@ -260,6 +265,14 @@ pub enum Limit {
         /// The `at` field.
         at: u64,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Limit, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Limit {
+    const TAG: Option<&str> = Some("as");
+    const KNOWN: &[&str] = &["unlimited", "share", "absolute"];
 }
 
 /// One narrated line: a step, and what was specifically true of it.
@@ -277,6 +290,7 @@ pub struct Line {
 /// What the import did with the finished download — the difference between one copy of a
 /// file and two.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Link {
     /// The library entry and the download are the same file under two names, which is
     /// what a correctly-shared volume allows and what costs no extra disk.
@@ -286,6 +300,9 @@ pub enum Link {
     /// size again and seeding a torrent holds the second copy for as long as it seeds.
     #[serde(rename = "copied")]
     Copied,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Whether the request service has been given an account for the household yet.
@@ -299,6 +316,7 @@ pub enum Link {
 /// invites somebody during an outage has still invited them, and what they cannot do
 /// yet is worth one line rather than a refusal.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Linked {
     /// It holds an account for everybody the media server does.
     #[serde(rename = "made")]
@@ -314,6 +332,9 @@ pub enum Linked {
     /// what separates it from `NotYet`.
     #[serde(rename = "not-tried")]
     NotTried,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What an existing layout costs, where it cannot hold a hardlink.
@@ -400,6 +421,7 @@ pub struct Listing {
 /// on, and a seventh that only one of them writes would be a level nobody could filter
 /// by across the stack.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum LogLevel {
     /// Detail a developer asked for.
     #[serde(rename = "trace")]
@@ -419,6 +441,9 @@ pub enum LogLevel {
     /// Something that failed and stopped the service.
     #[serde(rename = "fatal")]
     Fatal,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One line of output from one service, and how bad it says it is.

@@ -17,6 +17,7 @@ mod http;
 mod jobs;
 mod keys;
 mod line;
+mod open;
 mod query;
 mod refusal;
 mod setup;

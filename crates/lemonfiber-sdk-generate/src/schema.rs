@@ -8,6 +8,8 @@ use crate::Refused;
 
 pub const WRITTEN: &[&str] = &["Payload"];
 
+pub const UNRECOGNISED: &str = "Unrecognised";
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ty {
     Str,
@@ -79,6 +81,7 @@ pub struct Shaped {
     pub kinds: BTreeMap<String, Ty>,
     pub actions: Vec<ShapedAction>,
     pub bodies: Vec<(String, String)>,
+    pub asked: BTreeSet<String>,
 }
 
 struct Shaper {
@@ -432,6 +435,72 @@ fn direct(ty: &Ty, into: &mut Vec<String>) {
     }
 }
 
+fn named_in(ty: &Ty, into: &mut Vec<String>) {
+    match ty {
+        Ty::Named(name) => into.push(name.clone()),
+        Ty::Opt(inner) | Ty::Boxed(inner) | Ty::List(inner) | Ty::Map(inner) => {
+            named_in(inner, into);
+        }
+        Ty::Tuple(places) => {
+            for place in places {
+                named_in(place, into);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn asked_of(
+    shapes: &BTreeMap<String, Shape>,
+    bodies: &[(String, String)],
+    actions: &[ShapedAction],
+) -> BTreeSet<String> {
+    let mut waiting: Vec<String> = bodies.iter().map(|(_, name)| name.clone()).collect();
+    for field in actions.iter().flat_map(|action| &action.fields) {
+        named_in(&field.ty, &mut waiting);
+    }
+    let mut asked = BTreeSet::new();
+    while let Some(name) = waiting.pop() {
+        let fresh = asked.insert(name.clone());
+        let held = shapes
+            .get(&name)
+            .filter(|_| fresh)
+            .map(|shape| types_of(&shape.body))
+            .unwrap_or_default();
+        for ty in held {
+            named_in(ty, &mut waiting);
+        }
+    }
+    asked
+}
+
+fn taken_names(shapes: &BTreeMap<String, Shape>, asked: &BTreeSet<String>) -> Vec<String> {
+    shapes
+        .values()
+        .filter(|shape| {
+            !asked.contains(&shape.name)
+                && variants_of(&shape.body)
+                    .iter()
+                    .any(|variant| variant.name == UNRECOGNISED)
+        })
+        .map(|shape| {
+            format!(
+                "{} holds a variant named {UNRECOGNISED}, the name this generator writes for a value it was not generated with",
+                shape.name
+            )
+        })
+        .collect()
+}
+
+fn variants_of(body: &Body) -> &[Variant] {
+    match body {
+        Body::External(variants) | Body::Untagged(variants) | Body::Tagged { variants, .. } => {
+            variants
+        }
+        Body::Struct(_) | Body::Alias(_) => &[],
+    }
+}
+
 fn held_types(variants: &[Variant]) -> Vec<&Ty> {
     variants
         .iter()
@@ -596,12 +665,15 @@ pub fn shaped(artefact: &Artefact) -> Result<Shaped, Refused> {
     }
     let mut written = shaper.shapes;
     boxed(&mut written);
+    let asked = asked_of(&written, &bodies, &actions);
+    shaper.problems.extend(taken_names(&written, &asked));
     if shaper.problems.is_empty() {
         Ok(Shaped {
             shapes: written,
             kinds,
             actions,
             bodies,
+            asked,
         })
     } else {
         Err(Refused::listing(

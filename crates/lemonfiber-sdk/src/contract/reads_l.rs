@@ -18,6 +18,7 @@ pub struct Logs {
 /// What `GET /api/logs` answers with, by its kind.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "kind", content = "data")]
+#[non_exhaustive]
 pub enum LogsAnswer {
     /// The `job` kind.
     #[serde(rename = "job")]

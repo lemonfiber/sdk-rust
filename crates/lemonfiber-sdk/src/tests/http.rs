@@ -266,3 +266,25 @@ async fn an_answer_cut_short_is_unreachable_and_a_stream_cut_short_is_a_gap() ->
     ));
     Ok(())
 }
+
+#[tokio::test]
+async fn an_answer_may_be_as_large_as_allowed_and_one_declared_larger_is_not_read() -> Outcome {
+    let at = plain(vec![
+        ok(b"0123456789"),
+        ok(b"01"),
+        b"HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n0123456789".to_vec(),
+        b"HTTP/1.1 200 OK\r\nContent-Length: 1000\r\nConnection: close\r\n\r\n".to_vec(),
+    ])
+    .await?;
+    let address = Address::new(&format!("http://{at}"), None)?;
+    let http = Http::for_address(&address)?;
+    for held in [&b"0123456789"[..], b"01", b"0123456789"] {
+        let answered = http.send(get(address.url("/"), Some(10))).await?;
+        assert_eq!(answered.body, held);
+    }
+    assert_eq!(
+        http.send(get(address.url("/"), Some(10))).await,
+        Err(Failure::TooLarge)
+    );
+    Ok(())
+}

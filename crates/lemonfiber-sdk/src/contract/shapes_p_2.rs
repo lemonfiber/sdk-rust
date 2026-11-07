@@ -1,3 +1,77 @@
+/// A recording an assertion fails on, the one constraint of its expectation that fails
+/// there, and why.
+///
+/// For an assertion whose passing state nobody can record, such as a check that a server
+/// has an owner where claiming one needs an account the plugin's CI does not hold: the
+/// state it exists to find can be recorded, and the declaration says which constraint
+/// tells the two states apart. It changes the verdict on that recording and on nothing
+/// else — the live service and every other recording are held to the expectation as it
+/// is written.
+///
+/// It names a constraint rather than only a recording, because a recording that began
+/// failing for another reason — a truncated file, an error recorded by mistake — would
+/// otherwise read as failing as declared, excusing a failure nobody had looked at.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginExpectedFailure {
+    /// The key of the expectation that fails on the recording, and one it carries.
+    pub constraint: super::PluginConstraint,
+    /// The recording the assertion fails on. It may be the assertion's own `fixture`.
+    pub fixture: String,
+    /// Where within that constraint it fails, written exactly as the expectation writes
+    /// it. Present for a key-wise constraint and absent for one about the whole answer.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub place: Option<String>,
+    /// Why this recording is one the assertion fails on. Reported with the verdict every
+    /// time.
+    pub reason: String,
+    /// `fails`, and nothing else: passing is what the expectation already says, and
+    /// could-not-run is never excused.
+    pub verdict: super::PluginDeclaredVerdict,
+}
+
+/// One recording an assertion fails on as its manifest declares.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginFailingAsDeclared {
+    /// The constraint of the expectation that fails there.
+    pub constraint: super::PluginConstraint,
+    /// The recording.
+    pub fixture: String,
+    /// What the recording held there.
+    pub held: String,
+    /// Where within that constraint, for one that looks at places.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub place: Option<String>,
+    /// Why the manifest says this recording is one the assertion fails on.
+    pub reason: String,
+}
+
+/// A credential of another service the operator granted a third-party plugin, named by
+/// the setting it is held under and never by its value.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginGrant {
+    /// When the operator approved it, as the record stamps every change.
+    pub at: String,
+    /// The setting the credential is held under, as the credentials read names it.
+    pub credential: String,
+    /// The capability of the plugin's own it was granted to fill.
+    pub r#for: String,
+    /// The service whose credential it is.
+    pub of: String,
+}
+
+/// One credential that would cross to a plugin, as the reading states it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginGranting {
+    /// What approving it is written as, apart from the offer.
+    pub approval: String,
+    /// The setting the credential is held under, as the credentials read names it.
+    pub credential: String,
+    /// The capability of the plugin's own it would be granted to fill.
+    pub r#for: String,
+    /// The service whose credential it is.
+    pub of: String,
+}
+
 /// What an install came to, and what it took to get there.
 ///
 /// **The three lists below are stated whether the run wrote anything or not, and that
@@ -421,6 +495,7 @@ pub struct PluginPlaceholder {
 
 /// The form a placeholder asks its secret to be written in.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum PluginPlaceholderForm {
     /// The value itself.
     #[serde(rename = "plain")]
@@ -429,6 +504,9 @@ pub enum PluginPlaceholderForm {
     /// hash of its password reads it.
     #[serde(rename = "pbkdf2")]
     Pbkdf2,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One proof that has to hold before a plugin is reported installed.
@@ -462,6 +540,7 @@ pub struct PluginProving {
 
 /// What an install puts at one path.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum PluginPuts {
     /// A directory brought into being, which is where one service keeps its own
     /// configuration.
@@ -486,6 +565,9 @@ pub enum PluginPuts {
     /// their values never shown.
     #[serde(rename = "upstream")]
     Upstream,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// How an installed service is reached, where it is reached at all.
@@ -508,6 +590,7 @@ pub enum PluginPuts {
 /// of the system rather than a request a plugin made.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "tier")]
+#[non_exhaustive]
 pub enum PluginReached {
     /// From this machine and nowhere else. No route, and no label to route to.
     #[serde(rename = "loopback")]
@@ -529,6 +612,17 @@ pub enum PluginReached {
         /// The port the service listens on.
         port: u16,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PluginReached, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PluginReached {
+    const TAG: Option<&str> = Some("tier");
+    const KNOWN: &[&str] = &["loopback", "household"];
 }
 
 /// One recipe, as an operator agrees to what it does.
@@ -568,6 +662,7 @@ pub struct PluginRecipeInput {
 
 /// When a recipe runs.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum PluginRecipeOn {
     /// During an install and an update, after the plugin's proofs and the stack's checks
     /// hold and before the install is recorded. What a recipe that says nothing does,
@@ -577,6 +672,9 @@ pub enum PluginRecipeOn {
     /// Only when the operator asks for it by name, with approvals of its own.
     #[serde(rename = "demand")]
     Demand,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What one recipe came to.
@@ -787,6 +885,7 @@ pub struct PluginSecret {
 
 /// A privileged shape lemonfiber writes for a service.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum PluginShape {
     /// `NET_ADMIN` and the tunnel device.
     #[serde(rename = "egress-guard")]
@@ -794,92 +893,7 @@ pub enum PluginShape {
     /// The host's render devices and the group that owns them.
     #[serde(rename = "render")]
     Render,
-}
-
-/// An adapter that writes the files of the service it fronts, through that service's
-/// whole configuration directory mounted into it.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginSharing {
-    /// The adapter.
-    pub adapter: String,
-    /// Where that service's configuration directory lands inside the adapter.
-    pub at: String,
-    /// The service whose files it writes.
-    pub upstream: String,
-}
-
-/// Whether one installed plugin's source can still be fetched.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginSource {
-    /// The source the record says it came from.
-    pub from: String,
-    /// The plugin, by its id.
-    pub plugin: String,
-    /// What asking it came to.
-    pub standing: super::PluginSourceStanding,
-}
-
-/// What asking a plugin's source came to.
-///
-/// **Unreachable is not untrusted.** A plugin whose source has gone keeps running as it
-/// was installed; what it loses is the way to a newer version, and that is said now
-/// rather than found out at the next update.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "standing")]
-pub enum PluginSourceStanding {
-    /// It answered, so the plugin can be updated from it.
-    #[serde(rename = "reachable")]
-    Reachable,
-    /// It did not answer, or is no longer there, so the plugin cannot be updated from it.
-    #[serde(rename = "unreachable")]
-    Unreachable {
-        /// What asking it said.
-        why: String,
-    },
-    /// Nothing was asked, so nothing is known either way.
-    #[serde(rename = "unasked")]
-    Unasked {
-        /// Why nothing was asked.
-        why: String,
-    },
-}
-
-/// One call a recipe makes, in the order it makes them.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginStep {
-    /// The step's id within its recipe.
-    pub id: String,
-    /// The HTTP method it calls with.
-    pub method: String,
-    /// The API the destination is reached in, as the installed plugin providing it
-    /// declares it, or nothing where none does or it is a name outside the stack.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub native: Option<String>,
-    /// The path it calls.
-    pub path: String,
-    /// Where it calls: a service of this stack's or the plugin's own, or a name outside
-    /// both, as the manifest wrote it. Never a resolved address.
-    pub to: String,
-}
-
-/// What one step came to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginStepRan {
-    /// What it came to.
-    pub came: super::StepCame,
-    /// Whether it reached somewhere other than this plugin's own services, which an
-    /// install going back cannot undo.
-    pub landed: bool,
-    /// The status its last answer carried, where anything answered.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub status: Option<u16>,
-    /// The step's id.
-    pub step: String,
-    /// Where it calls, by the name the manifest gives it.
-    pub to: String,
-    /// How many times it was made.
-    pub tries: u32,
-    /// Why it came to what it did, where that wants saying.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub why: Option<String>,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }

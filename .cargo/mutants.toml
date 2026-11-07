@@ -1,0 +1,8 @@
+# What `just mutation` mutates: the written client. The generated contract is held to
+# what the artefact generates instead.
+exclude_globs = ["crates/lemonfiber-sdk/src/contract/**"]
+# The shifted parts of a base64 group share no bits, so `|` and `^` are one program.
+exclude_re = ["replace \\| with \\^ in base64url"]
+test_workspace = false
+cap_lints = true
+minimum_test_timeout = 60.0

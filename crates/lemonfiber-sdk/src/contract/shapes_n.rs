@@ -43,6 +43,7 @@ pub struct NewsCheck {
 
 /// One of the three kinds of thing a surface can mark as new.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum NewsKind {
     /// Releases of lemonfiber.
     #[serde(rename = "updates")]
@@ -53,6 +54,9 @@ pub enum NewsKind {
     /// Checks found wrong.
     #[serde(rename = "problems")]
     Problems,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One check found wrong, by the check and when it went wrong.
@@ -91,6 +95,7 @@ pub struct NewsUpdate {
 
 /// One thing to do next.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Next {
     /// Add more content, now that the shape of it is understood.
     #[serde(rename = "more-content")]
@@ -101,6 +106,9 @@ pub enum Next {
     /// Watch it somewhere other than the machine it is running on.
     #[serde(rename = "client-apps")]
     ClientApps,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What a surface shows about the record, given the version asking.

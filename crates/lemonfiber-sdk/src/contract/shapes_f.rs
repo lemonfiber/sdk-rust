@@ -1,5 +1,6 @@
 /// What a service published to the local network is to the people in the house.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Facing {
     /// Where asking for something begins, and where what was asked for is followed.
     /// It links onward to the library, which is what makes it a place to start
@@ -24,6 +25,9 @@ pub enum Facing {
     /// Published to the household, and nothing here says what it is to them.
     #[serde(rename = "unstated")]
     Unstated,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Whether media filenames are shown as they are.
@@ -209,6 +213,7 @@ pub struct FormsReport {
 /// How much a reading can be relied on.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "as")]
+#[non_exhaustive]
 pub enum Freshness {
     /// Read off a local disk, so it is true as of now.
     #[serde(rename = "live")]
@@ -221,6 +226,17 @@ pub enum Freshness {
         /// The `at` field.
         at: u64,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<Freshness, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Freshness {
+    const TAG: Option<&str> = Some("as");
+    const KNOWN: &[&str] = &["live", "as_of"];
 }
 
 /// A service the household can reach that is not the front door, and why it is not.
@@ -287,6 +303,7 @@ pub struct FrontDoorReport {
 
 /// Where the household's one front door stands.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum FrontDoorStanding {
     /// The door is the request surface, and it is running.
     #[serde(rename = "established")]
@@ -315,4 +332,7 @@ pub enum FrontDoorStanding {
     /// Nothing at all is published to the household: an operator-only configuration.
     #[serde(rename = "none")]
     None,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }

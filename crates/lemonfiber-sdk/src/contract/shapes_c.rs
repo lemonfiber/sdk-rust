@@ -39,6 +39,7 @@ pub struct Capabilities {
 
 /// What one capability comes to for the credential that asked.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum CapabilityState {
     /// This stack can do it, and this credential may.
     #[serde(rename = "available")]
@@ -50,6 +51,9 @@ pub enum CapabilityState {
     /// The stack has it, and this credential may not ask for it.
     #[serde(rename = "unpermitted")]
     Unpermitted,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What the line was measured to carry.
@@ -201,6 +205,7 @@ pub struct ChangeReport {
 /// be one of three: a surface that lays out a history branches on it, and a set the
 /// contract names is one a generated reader can match exhaustively.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum ChangeReversal {
     /// It can be put back exactly.
     #[serde(rename = "whole")]
@@ -211,6 +216,9 @@ pub enum ChangeReversal {
     /// None of it can.
     #[serde(rename = "none")]
     None,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What one run of this command did to the machine.
@@ -234,6 +242,7 @@ pub struct Changed {
 /// the one worth keeping: being behind the tags is a lag, and contradicting them is
 /// a fault.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum ChangelogState {
     /// The record holds this build's release, and claims nothing later.
     #[serde(rename = "current")]
@@ -244,6 +253,9 @@ pub enum ChangelogState {
     /// The record and what this build could have shipped disagree.
     #[serde(rename = "stale")]
     Stale,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What to do about an interrupted apply, once one is found.
@@ -284,6 +296,7 @@ pub struct Choosable {
 /// How the front door came to be the one it is.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "chosen")]
+#[non_exhaustive]
 pub enum Chosen {
     /// Worked out from what the stack declares, which is what a stack whose
     /// operator has named nothing answers.
@@ -303,6 +316,14 @@ pub enum Chosen {
         /// The `door` field.
         door: super::Refusal,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Chosen, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Chosen {
+    const TAG: Option<&str> = Some("chosen");
+    const KNOWN: &[&str] = &["derived", "named", "refused"];
 }
 
 /// A stable identifier for a kind of problem.
@@ -323,6 +344,7 @@ pub struct Coming {
 
 /// What a whole set of services amounts to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Condition {
     /// Nothing is running.
     #[serde(rename = "inactive")]
@@ -336,6 +358,9 @@ pub enum Condition {
     /// Everything expected is up and answering.
     #[serde(rename = "active")]
     Active,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// The difference between the configuration in force and the one proposed.
@@ -478,6 +503,7 @@ pub struct Contribution {
 
 /// What changing a decision costs.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Cost {
     /// Applied with a restart of the services it affects, and nothing else moves.
     #[serde(rename = "cheap")]
@@ -486,6 +512,9 @@ pub enum Cost {
     /// paths, or take a service away.
     #[serde(rename = "consequential")]
     Consequential,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One of the two counts the request service keeps, and what it has left.
@@ -576,6 +605,7 @@ pub struct CredentialHeld {
 /// How far a rotation reached one consumer.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "reach")]
+#[non_exhaustive]
 pub enum CredentialReach {
     /// It now holds the replacement.
     #[serde(rename = "updated")]
@@ -596,6 +626,17 @@ pub enum CredentialReach {
         /// Why it could not be.
         detail: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<CredentialReach, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for CredentialReach {
+    const TAG: Option<&str> = Some("reach");
+    const KNOWN: &[&str] = &["updated", "pending", "failed"];
 }
 
 /// What revoking one grant came to, or would come to.
@@ -619,6 +660,7 @@ pub struct CredentialRevoked {
 /// Said rather than left to be inferred from which requests are permitted: a client
 /// guessing a member from a missing read would guess wrong the day that read moves.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum CredentialScope {
     /// The operator: the password's session, or the token printed at this machine.
     #[serde(rename = "operator")]
@@ -632,6 +674,9 @@ pub enum CredentialScope {
     /// A household member: their own session, or a key scoped to them.
     #[serde(rename = "member")]
     Member,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where a credential stands, as far as lemonfiber can tell without spending it.
@@ -641,6 +686,7 @@ pub enum CredentialScope {
 /// invalid one is one to replace, and the two rotation states exist so a run
 /// interrupted half-way through a replacement is legible rather than mysterious.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum CredentialState {
     /// Required by what this stack runs, and not supplied.
     #[serde(rename = "absent")]
@@ -660,6 +706,9 @@ pub enum CredentialState {
     /// Replaced. What is left is the old value, waiting to be destroyed.
     #[serde(rename = "superseded")]
     Superseded,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// How much a service's absence costs.
@@ -668,6 +717,7 @@ pub enum CredentialState {
 /// report that says a service is down without saying whether that matters
 /// leaves them to guess, and the manifest already holds the answer.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Criticality {
     /// Its failure has consequences outside the machine.
     #[serde(rename = "critical")]
@@ -684,4 +734,7 @@ pub enum Criticality {
     /// Nice to have.
     #[serde(rename = "optional")]
     Optional,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }

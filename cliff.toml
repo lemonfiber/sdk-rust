@@ -5,14 +5,14 @@ header = "# Changelog\n\nGenerated from the commit history by [git-cliff](https:
 body = """
 {% set repo = "https://github.com/lemonfiber/sdk-rust" %}\
 {% for group, commits in commits | group_by(attribute="group") %}
-### {{ group | striptags | upper_first }}
+## {{ group | striptags | upper_first }}
+
 {% for commit in commits %}\
 - {% if commit.scope and commit.scope is matching("[a-zA-Z]") %}*({{ commit.scope }})* {% endif %}\
 {{ commit.message | split(pat="\n") | first | upper_first }}\
 {% if commit.breaking %} **(breaking)**{% endif %}\
 {% if commit.id %} ([`{{ commit.id | truncate(length=7, end="") }}`]({{ repo }}/commit/{{ commit.id }})){% endif %}
-{% endfor %}
-{% endfor %}
+{% endfor %}{% endfor %}
 """
 trim = true
 

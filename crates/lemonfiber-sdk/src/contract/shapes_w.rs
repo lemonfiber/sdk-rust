@@ -43,6 +43,7 @@ pub struct WalkthroughReport {
 
 /// What has become of a walkthrough.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum WalkthroughState {
     /// Presented at the end of setup, not yet answered.
     #[serde(rename = "offered")]
@@ -72,10 +73,14 @@ pub enum WalkthroughState {
     /// The operator left part-way. Whatever was in flight stays in flight.
     #[serde(rename = "abandoned")]
     Abandoned,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One step of the walk, ordered from picking something to watching it play.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum WalkthroughStep {
     /// Picking something to add, and confirming it is not already here.
     #[serde(rename = "choosing")]
@@ -98,11 +103,15 @@ pub enum WalkthroughStep {
     /// It is in the library and playable.
     #[serde(rename = "available")]
     Available,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One thing a service waits for, never with its value.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "kind")]
+#[non_exhaustive]
 pub enum Wanted {
     /// A setting only the operator holds, or one holding a value outside its choices.
     #[serde(rename = "setting")]
@@ -125,6 +134,14 @@ pub enum Wanted {
         /// That service.
         service: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Wanted, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Wanted {
+    const TAG: Option<&str> = Some("kind");
+    const KNOWN: &[&str] = &["setting", "secret", "service"];
 }
 
 /// A player's report of how far a member got, as the media server now holds it.
@@ -142,6 +159,7 @@ pub struct WatchedReport {
 
 /// What to do when a declared cap is reached.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum WhenExceeded {
     /// Stop fetching until the month turns over.
     #[serde(rename = "pause")]
@@ -152,10 +170,14 @@ pub enum WhenExceeded {
     /// Carry on. Some caps cost money and some only cost speed.
     #[serde(rename = "continue")]
     Continue,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Who settled a contest between claimants.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Whose {
     /// The stack shipped the choice, in the file the operator can read.
     #[serde(rename = "stack")]
@@ -163,6 +185,9 @@ pub enum Whose {
     /// The operator chose, and the change is in the journal.
     #[serde(rename = "operator")]
     Operator,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One of the stack's links, answered.
@@ -217,6 +242,7 @@ pub struct WiringReport {
 /// How an ask was settled.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "settled")]
+#[non_exhaustive]
 pub enum WiringSettled {
     /// One claimant, and nothing to settle.
     #[serde(rename = "outright")]
@@ -247,6 +273,17 @@ pub enum WiringSettled {
     /// Nothing claims it. What asked is named beside this, which is the point.
     #[serde(rename = "unfilled")]
     Unfilled,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<WiringSettled, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for WiringSettled {
+    const TAG: Option<&str> = Some("settled");
+    const KNOWN: &[&str] = &["outright", "each", "contested", "chosen", "unfilled"];
 }
 
 /// Where a setup run stands, and what it is still asking for.
@@ -314,6 +351,7 @@ pub struct WizardReport {
 /// here yet: they arrive with the features they drive, and this machine covers
 /// the read-only phase that precedes them.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum WizardStep {
     /// States what is about to happen and roughly how long it takes. Informs.
     #[serde(rename = "welcome")]
@@ -360,4 +398,7 @@ pub enum WizardStep {
     /// The complete summary, before anything is written. Informs.
     #[serde(rename = "review")]
     Review,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }

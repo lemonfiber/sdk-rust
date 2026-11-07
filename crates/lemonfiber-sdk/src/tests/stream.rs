@@ -3,6 +3,7 @@ use std::time::Duration;
 use serde_json::json;
 
 use super::{client, enveloped, problem, stream_of, Opening, Outcome, Scripted};
+use crate::stream::MOST_SAID;
 use crate::transport::Failure;
 use crate::{Arrival, Break, Error, Following};
 
@@ -159,5 +160,44 @@ async fn an_opening_that_never_answers_counts_as_one_that_failed() -> Outcome {
         ..quick()
     });
     assert_eq!(stream.next().await, Err(Error::StreamLost(1)));
+    Ok(())
+}
+
+#[tokio::test(start_paused = true)]
+async fn each_opening_that_fails_waits_twice_as_long_as_the_one_before() -> Outcome {
+    let (client, _) = client(Scripted::default())?;
+    let started = tokio::time::Instant::now();
+    let following = Following {
+        first_pause: Duration::from_secs(1),
+        reconnects: 3,
+        ..Following::default()
+    };
+    assert_eq!(
+        client.events(following).next().await,
+        Err(Error::StreamLost(3))
+    );
+    let waited = started.elapsed();
+    assert!(waited >= Duration::from_secs(7) && waited < Duration::from_millis(7100));
+    Ok(())
+}
+
+#[tokio::test]
+async fn a_refused_opening_is_read_up_to_its_limit_and_past_it_by_one_chunk() -> Outcome {
+    assert_eq!(MOST_SAID, 65_536);
+    let sentence = "x".repeat(MOST_SAID + 1024);
+    let body = String::from_utf8(problem("PLAY-9", &sentence))?;
+    let (first, rest) = body.split_at(MOST_SAID);
+    let short = String::from_utf8(problem("PLAY-9", "Short."))?;
+    let (opening, closing) = short.split_at(8);
+    let (client, _) = client(Scripted::opening(vec![
+        Ok(stream_of(403, &[first, rest], false)),
+        Ok(stream_of(403, &[opening, closing], false)),
+    ]))?;
+    assert!(
+        matches!(client.events(quick()).next().await, Err(Error::Refused(refusal)) if refusal.sentence == sentence)
+    );
+    assert!(
+        matches!(client.events(quick()).next().await, Err(Error::Refused(refusal)) if refusal.sentence == "Short.")
+    );
     Ok(())
 }

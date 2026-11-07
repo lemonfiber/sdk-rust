@@ -1,3 +1,103 @@
+/// An adapter that writes the files of the service it fronts, through that service's
+/// whole configuration directory mounted into it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginSharing {
+    /// The adapter.
+    pub adapter: String,
+    /// Where that service's configuration directory lands inside the adapter.
+    pub at: String,
+    /// The service whose files it writes.
+    pub upstream: String,
+}
+
+/// Whether one installed plugin's source can still be fetched.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginSource {
+    /// The source the record says it came from.
+    pub from: String,
+    /// The plugin, by its id.
+    pub plugin: String,
+    /// What asking it came to.
+    pub standing: super::PluginSourceStanding,
+}
+
+/// What asking a plugin's source came to.
+///
+/// **Unreachable is not untrusted.** A plugin whose source has gone keeps running as it
+/// was installed; what it loses is the way to a newer version, and that is said now
+/// rather than found out at the next update.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "standing")]
+#[non_exhaustive]
+pub enum PluginSourceStanding {
+    /// It answered, so the plugin can be updated from it.
+    #[serde(rename = "reachable")]
+    Reachable,
+    /// It did not answer, or is no longer there, so the plugin cannot be updated from it.
+    #[serde(rename = "unreachable")]
+    Unreachable {
+        /// What asking it said.
+        why: String,
+    },
+    /// Nothing was asked, so nothing is known either way.
+    #[serde(rename = "unasked")]
+    Unasked {
+        /// Why nothing was asked.
+        why: String,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PluginSourceStanding, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PluginSourceStanding {
+    const TAG: Option<&str> = Some("standing");
+    const KNOWN: &[&str] = &["reachable", "unreachable", "unasked"];
+}
+
+/// One call a recipe makes, in the order it makes them.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginStep {
+    /// The step's id within its recipe.
+    pub id: String,
+    /// The HTTP method it calls with.
+    pub method: String,
+    /// The API the destination is reached in, as the installed plugin providing it
+    /// declares it, or nothing where none does or it is a name outside the stack.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub native: Option<String>,
+    /// The path it calls.
+    pub path: String,
+    /// Where it calls: a service of this stack's or the plugin's own, or a name outside
+    /// both, as the manifest wrote it. Never a resolved address.
+    pub to: String,
+}
+
+/// What one step came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginStepRan {
+    /// What it came to.
+    pub came: super::StepCame,
+    /// Whether it reached somewhere other than this plugin's own services, which an
+    /// install going back cannot undo.
+    pub landed: bool,
+    /// The status its last answer carried, where anything answered.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status: Option<u16>,
+    /// The step's id.
+    pub step: String,
+    /// Where it calls, by the name the manifest gives it.
+    pub to: String,
+    /// How many times it was made.
+    pub tries: u32,
+    /// Why it came to what it did, where that wants saying.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub why: Option<String>,
+}
+
 /// A capability the operator chose one of a plugin's services to fill.
 ///
 /// The only way anything a plugin brought comes to fill what the stack asks for in
@@ -95,6 +195,7 @@ pub struct PluginUpdate {
 /// What one assertion came to, whatever answered it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "outcome")]
+#[non_exhaustive]
 pub enum PluginVerdict {
     /// The recording answers what the binding declares.
     #[serde(rename = "passed")]
@@ -136,6 +237,23 @@ pub enum PluginVerdict {
         /// The part, and the code its claim takes.
         why: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PluginVerdict, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PluginVerdict {
+    const TAG: Option<&str> = Some("outcome");
+    const KNOWN: &[&str] = &[
+        "passed",
+        "failed",
+        "unproven",
+        "failing-as-declared",
+        "open",
+    ];
 }
 
 /// What the stack's own checks made of an install.
@@ -167,6 +285,7 @@ pub struct PluginVerification {
 /// member rather than for the house, which is why what a surface offers is a policy and,
 /// separately, who it is for.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Policy {
     /// Everything asked for arrives, and nothing is counted against anybody.
     #[serde(rename = "trusted")]
@@ -178,6 +297,9 @@ pub enum Policy {
     /// Everything asked for waits for the operator to rule on it.
     #[serde(rename = "everything-waits")]
     EverythingWaits,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One preset in force, and what it means for the media it applies to — the
@@ -255,6 +377,7 @@ pub struct Problem {
 /// Four levels, deliberately. More would not be applied consistently, and
 /// inconsistent severity is worse than coarse severity.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum ProblemSeverity {
     /// Informational; nothing is required.
     #[serde(rename = "advisory")]
@@ -268,10 +391,14 @@ pub enum ProblemSeverity {
     /// Consequences outside the machine, or data at risk.
     #[serde(rename = "critical")]
     Critical,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where a problem stands with respect to being fixed.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum ProblemState {
     /// A remedy is available here.
     #[serde(rename = "actionable")]
@@ -288,6 +415,9 @@ pub enum ProblemState {
     /// Acknowledged, and not re-shown until it recurs.
     #[serde(rename = "suppressed")]
     Suppressed,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What one step of a run that stopped part-way came to.
@@ -383,6 +513,7 @@ pub struct Provider {
 /// a different question and a client held to a crawl is not a client that stopped.
 /// A word that named both would be the vocabulary this whole path exists to avoid.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Pulling {
     /// It is fetching, or would start on the next thing handed to it.
     #[serde(rename = "fetching")]
@@ -390,4 +521,7 @@ pub enum Pulling {
     /// Nothing is moving and nothing new would start.
     #[serde(rename = "stopped")]
     Stopped,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }

@@ -12,7 +12,7 @@ use crate::contract::{CapabilityState, CredentialScope, Payload};
 use crate::transport::{Failure, Method, Response};
 use crate::{
     Acted, Action, Address, CapabilitySet, CertificatePin, Client, Credential, Error,
-    IdempotencyKey, JobStanding, Logged, Read, PICTURE_MOST,
+    IdempotencyKey, JobStanding, Logged, Read, PICTURE_MOST, PICTURE_TYPES,
 };
 
 fn playing() -> Vec<u8> {
@@ -89,7 +89,39 @@ async fn a_read_is_asked_again_after_a_passing_failure_and_an_action_never_is() 
             .await,
         Err(Error::Unreachable(_))
     ));
-    assert_eq!(client_script.sent().len(), 4);
+    let sent = client_script.sent();
+    assert_eq!(sent.len(), 4);
+    assert!(sent.last().is_some_and(|action| action
+        .headers
+        .contains(&("Content-Type", "application/json".to_owned()))));
+    Ok(())
+}
+
+#[tokio::test(start_paused = true)]
+async fn a_second_attempt_waits_twice_as_long_as_the_first() -> Outcome {
+    let (client, _) = client(Scripted::answering(vec![
+        Ok(reply(503, Vec::new())),
+        Ok(reply(503, Vec::new())),
+        Ok(reply(200, playing())),
+    ]))?;
+    let started = tokio::time::Instant::now();
+    client.read(&Playing::default()).await?;
+    let waited = started.elapsed();
+    assert!(waited >= Duration::from_millis(750) && waited < Duration::from_millis(760));
+    Ok(())
+}
+
+#[tokio::test(start_paused = true)]
+async fn asking_where_work_stands_is_asked_again_and_letting_it_go_never_is() -> Outcome {
+    let (client, client_script) = client(Scripted::answering(vec![
+        Ok(reply(503, Vec::new())),
+        Ok(reply(200, started("job-1"))),
+        Ok(reply(503, Vec::new())),
+    ]))?;
+    client.job("job-1").await?;
+    assert_eq!(client_script.sent().len(), 2);
+    assert!(client.release("job-1").await.is_err());
+    assert_eq!(client_script.sent().len(), 3);
     Ok(())
 }
 
@@ -205,6 +237,7 @@ async fn a_picture_is_a_raster_image_of_at_most_its_size() -> Outcome {
             body: b"\x89PNG".to_vec(),
         })
     };
+    assert_eq!(PICTURE_MOST, 2_097_152);
     let (client, client_script) = client(Scripted::answering(vec![
         labelled("image/PNG; charset=binary"),
         labelled("image/svg+xml"),
@@ -235,6 +268,9 @@ async fn a_picture_is_a_raster_image_of_at_most_its_size() -> Outcome {
         sent.first().and_then(|request| request.most),
         Some(PICTURE_MOST)
     );
+    assert!(client_script.sent().first().is_some_and(|asked| asked
+        .headers
+        .contains(&("Accept", PICTURE_TYPES.join(", ")))));
     Ok(())
 }
 

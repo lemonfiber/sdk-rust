@@ -4,6 +4,7 @@
 /// one branches on a word rather than on which keys are present.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "does")]
+#[non_exhaustive]
 pub enum Action {
     /// Remove the resource that was created.
     #[serde(rename = "remove")]
@@ -251,6 +252,37 @@ pub enum Action {
         /// The overlay.
         path: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Action, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Action {
+    const TAG: Option<&str> = Some("does");
+    const KNOWN: &[&str] = &[
+        "remove",
+        "restore",
+        "delete",
+        "withdraw",
+        "rewind",
+        "reseed",
+        "move-back",
+        "rename-back",
+        "keep-copy",
+        "repin",
+        "reconfigure",
+        "revoke",
+        "reinstate",
+        "revoke-device",
+        "reinstate-device",
+        "resettle",
+        "regrant",
+        "rehold",
+        "unreplaced",
+        "unmoved",
+        "run",
+        "leave",
+    ];
 }
 
 /// One download still coming down when a reduction was asked for.
@@ -427,6 +459,7 @@ pub struct AlertReport {
 /// How one download client answered about the limits on it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "answered")]
+#[non_exhaustive]
 pub enum Answer {
     /// It answered, in both directions.
     #[serde(rename = "held")]
@@ -450,16 +483,27 @@ pub enum Answer {
         /// What went wrong, in the words of whatever refused.
         said: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Answer, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Answer {
+    const TAG: Option<&str> = Some("answered");
+    const KNOWN: &[&str] = &["held", "silent"];
 }
 
 /// The `Apis` shape.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum Apis {
     /// The `Text` variant.
     Text(String),
     /// The `List` variant.
     List(Vec<String>),
+    /// A value this client was not generated with, as it arrived.
+    Unrecognised(serde_json::Value),
 }
 
 /// How much an operator wants to be told.
@@ -543,6 +587,7 @@ pub struct AskedReport {
 /// out has been told too late to do anything but wait, which is the answer this whole
 /// feature exists to avoid handing anybody.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum AskingStanding {
     /// Nothing is counted against them.
     #[serde(rename = "unlimited")]
@@ -556,11 +601,15 @@ pub enum AskingStanding {
     /// Nothing is left, so the next thing they ask for is refused as they ask.
     #[serde(rename = "quota-exhausted")]
     QuotaExhausted,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Whether a pass could assess drift — whether it had the record of what lemonfiber
 /// last wrote to compare against.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Assessment {
     /// The expected-state record was read, or genuinely absent as on a first seed,
     /// so each connection was judged against it.
@@ -570,6 +619,9 @@ pub enum Assessment {
     /// not be judged this pass, and re-baselining from the current state is offered.
     #[serde(rename = "unassessable")]
     Unassessable,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What an operation with no bound on it is waiting for.
@@ -579,6 +631,7 @@ pub enum Assessment {
 /// a phrase carried here instead would be a phrase every later surface had to
 /// parse back into the fact it came from.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Awaiting {
     /// Everything still coming down has finished arriving.
     #[serde(rename = "downloads")]
@@ -586,4 +639,7 @@ pub enum Awaiting {
     /// A form's images have come down the line.
     #[serde(rename = "images")]
     Images,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }

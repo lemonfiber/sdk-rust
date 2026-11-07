@@ -68,6 +68,7 @@ pub struct PairingMaterial {
 /// zero — and the panels beside it stay live.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
+#[non_exhaustive]
 pub enum PanelArrayOfDownloader {
     /// The source answered; here is the panel.
     #[serde(rename = "ready")]
@@ -81,6 +82,17 @@ pub enum PanelArrayOfDownloader {
         /// The `data` field.
         data: super::PanelArrayOfDownloaderUnavailableData,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelArrayOfDownloader, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelArrayOfDownloader {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelArrayOfDownloaderUnavailableData` shape.
@@ -98,6 +110,7 @@ pub struct PanelArrayOfDownloaderUnavailableData {
 /// zero — and the panels beside it stay live.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
+#[non_exhaustive]
 pub enum PanelArrayOfQueue {
     /// The source answered; here is the panel.
     #[serde(rename = "ready")]
@@ -111,6 +124,17 @@ pub enum PanelArrayOfQueue {
         /// The `data` field.
         data: super::PanelArrayOfQueueUnavailableData,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelArrayOfQueue, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelArrayOfQueue {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelArrayOfQueueUnavailableData` shape.
@@ -128,6 +152,7 @@ pub struct PanelArrayOfQueueUnavailableData {
 /// zero — and the panels beside it stay live.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
+#[non_exhaustive]
 pub enum PanelArrayOfService {
     /// The source answered; here is the panel.
     #[serde(rename = "ready")]
@@ -141,6 +166,17 @@ pub enum PanelArrayOfService {
         /// The `data` field.
         data: super::PanelArrayOfServiceUnavailableData,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelArrayOfService, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelArrayOfService {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelArrayOfServiceUnavailableData` shape.
@@ -158,6 +194,7 @@ pub struct PanelArrayOfServiceUnavailableData {
 /// zero — and the panels beside it stay live.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
+#[non_exhaustive]
 pub enum PanelArrayOfTransfer {
     /// The source answered; here is the panel.
     #[serde(rename = "ready")]
@@ -171,6 +208,17 @@ pub enum PanelArrayOfTransfer {
         /// The `data` field.
         data: super::PanelArrayOfTransferUnavailableData,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelArrayOfTransfer, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelArrayOfTransfer {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelArrayOfTransferUnavailableData` shape.
@@ -188,6 +236,7 @@ pub struct PanelArrayOfTransferUnavailableData {
 /// zero — and the panels beside it stay live.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
+#[non_exhaustive]
 pub enum PanelFrontDoorReport {
     /// The source answered; here is the panel.
     #[serde(rename = "ready")]
@@ -201,6 +250,17 @@ pub enum PanelFrontDoorReport {
         /// The `data` field.
         data: super::PanelFrontDoorReportUnavailableData,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelFrontDoorReport, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelFrontDoorReport {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelFrontDoorReportUnavailableData` shape.
@@ -218,6 +278,7 @@ pub struct PanelFrontDoorReportUnavailableData {
 /// zero — and the panels beside it stay live.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
+#[non_exhaustive]
 pub enum PanelHouseholdReport {
     /// The source answered; here is the panel.
     #[serde(rename = "ready")]
@@ -231,6 +292,17 @@ pub enum PanelHouseholdReport {
         /// The `data` field.
         data: super::PanelHouseholdReportUnavailableData,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelHouseholdReport, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelHouseholdReport {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelHouseholdReportUnavailableData` shape.
@@ -248,6 +320,7 @@ pub struct PanelHouseholdReportUnavailableData {
 /// zero — and the panels beside it stay live.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
+#[non_exhaustive]
 pub enum PanelStorage {
     /// The source answered; here is the panel.
     #[serde(rename = "ready")]
@@ -261,6 +334,17 @@ pub enum PanelStorage {
         /// The `data` field.
         data: super::PanelStorageUnavailableData,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelStorage, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelStorage {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelStorageUnavailableData` shape.
@@ -278,6 +362,7 @@ pub struct PanelStorageUnavailableData {
 /// zero — and the panels beside it stay live.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
+#[non_exhaustive]
 pub enum PanelVpn {
     /// The source answered; here is the panel.
     #[serde(rename = "ready")]
@@ -291,6 +376,17 @@ pub enum PanelVpn {
         /// The `data` field.
         data: super::PanelVpnUnavailableData,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelVpn, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelVpn {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelVpnUnavailableData` shape.
@@ -400,6 +496,7 @@ pub struct PausedClient {
 
 /// Which of the two was asked for.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Pausing {
     /// Stop every download client fetching.
     #[serde(rename = "pause")]
@@ -407,6 +504,9 @@ pub enum Pausing {
     /// Let every download client fetch again.
     #[serde(rename = "resume")]
     Resume,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What pausing or resuming every download client came to.
@@ -431,6 +531,7 @@ pub struct PausingReport {
 
 /// Which side of the household's day a moment falls on.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Period {
     /// People are up and using the line, so the stack is held back.
     #[serde(rename = "active")]
@@ -438,6 +539,9 @@ pub enum Period {
     /// The house is asleep and the line is the stack's.
     #[serde(rename = "quiet")]
     Quiet,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where an in-flight or finished setup stands in its lifecycle.
@@ -448,6 +552,7 @@ pub enum Period {
 /// mid-write — are read off the world rather than trusted from a file (see
 /// [`Status`]).
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Phase {
     /// Still gathering answers. Resumable, and nothing has touched disk.
     #[serde(rename = "in-progress")]
@@ -462,6 +567,9 @@ pub enum Phase {
     /// Configuration written and valid.
     #[serde(rename = "applied")]
     Applied,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One file inside a bundle: the name it will carry, and what it holds.
@@ -641,6 +749,7 @@ pub struct PluginChangedCheck {
 /// written: a declaration that an assertion fails on a recording names the one of these
 /// that fails there.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum PluginConstraint {
     /// The status alone.
     #[serde(rename = "status")]
@@ -675,6 +784,9 @@ pub enum PluginConstraint {
     /// What a run's standard output begins with.
     #[serde(rename = "stdout_starts_with")]
     StdoutStartsWith,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What a plugin declared about itself, as its install read it.
@@ -719,10 +831,14 @@ pub struct PluginDeclaration {
 
 /// The one verdict a declaration may name.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum PluginDeclaredVerdict {
     /// The assertion fails on the recording, on the constraint the declaration names.
     #[serde(rename = "fails")]
     Fails,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What asking for one of an installed plugin's demand recipes came to.
@@ -749,6 +865,7 @@ pub struct PluginDemand {
 /// passes. Naming the axis now is what made the second kind of evidence a change the
 /// compiler walked somebody through rather than one they had to remember.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum PluginEvidence {
     /// The recordings the plugin ships. No service was asked anything.
     #[serde(rename = "recordings")]
@@ -762,78 +879,7 @@ pub enum PluginEvidence {
     /// weaker claim any more than the weaker may be read as this.
     #[serde(rename = "service")]
     Service,
-}
-
-/// A recording an assertion fails on, the one constraint of its expectation that fails
-/// there, and why.
-///
-/// For an assertion whose passing state nobody can record, such as a check that a server
-/// has an owner where claiming one needs an account the plugin's CI does not hold: the
-/// state it exists to find can be recorded, and the declaration says which constraint
-/// tells the two states apart. It changes the verdict on that recording and on nothing
-/// else — the live service and every other recording are held to the expectation as it
-/// is written.
-///
-/// It names a constraint rather than only a recording, because a recording that began
-/// failing for another reason — a truncated file, an error recorded by mistake — would
-/// otherwise read as failing as declared, excusing a failure nobody had looked at.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginExpectedFailure {
-    /// The key of the expectation that fails on the recording, and one it carries.
-    pub constraint: super::PluginConstraint,
-    /// The recording the assertion fails on. It may be the assertion's own `fixture`.
-    pub fixture: String,
-    /// Where within that constraint it fails, written exactly as the expectation writes
-    /// it. Present for a key-wise constraint and absent for one about the whole answer.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub place: Option<String>,
-    /// Why this recording is one the assertion fails on. Reported with the verdict every
-    /// time.
-    pub reason: String,
-    /// `fails`, and nothing else: passing is what the expectation already says, and
-    /// could-not-run is never excused.
-    pub verdict: super::PluginDeclaredVerdict,
-}
-
-/// One recording an assertion fails on as its manifest declares.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginFailingAsDeclared {
-    /// The constraint of the expectation that fails there.
-    pub constraint: super::PluginConstraint,
-    /// The recording.
-    pub fixture: String,
-    /// What the recording held there.
-    pub held: String,
-    /// Where within that constraint, for one that looks at places.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub place: Option<String>,
-    /// Why the manifest says this recording is one the assertion fails on.
-    pub reason: String,
-}
-
-/// A credential of another service the operator granted a third-party plugin, named by
-/// the setting it is held under and never by its value.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginGrant {
-    /// When the operator approved it, as the record stamps every change.
-    pub at: String,
-    /// The setting the credential is held under, as the credentials read names it.
-    pub credential: String,
-    /// The capability of the plugin's own it was granted to fill.
-    pub r#for: String,
-    /// The service whose credential it is.
-    pub of: String,
-}
-
-/// One credential that would cross to a plugin, as the reading states it.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginGranting {
-    /// What approving it is written as, apart from the offer.
-    pub approval: String,
-    /// The setting the credential is held under, as the credentials read names it.
-    pub credential: String,
-    /// The capability of the plugin's own it would be granted to fill.
-    pub r#for: String,
-    /// The service whose credential it is.
-    pub of: String,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }

@@ -7,8 +7,9 @@ hooks:
     git config core.hooksPath .githooks
     @echo "hooks on: .githooks/commit-msg, .githooks/pre-push"
 
-# What the `check`, `deny` and `contract` jobs and the coverage gate run. The read
-# list needs a spec checkout (`just reads ../spec`), and the shared workflows are CI's.
+# What the `check`, `deny` and `contract` jobs and the coverage gate run. The read list
+# needs a spec checkout (`just reads ../spec`). Mutation testing, backward compatibility
+# and the shared workflows are CI's.
 ci: hooks fmt clippy contract-check deny coverage
 
 # Formatting, changing nothing.
@@ -57,6 +58,26 @@ sync revision:
         | tar -xz -C "${taken}"
     cargo run --quiet --locked -p lemonfiber-sdk-generate -- take "${taken}"/*/contract/web-api "{{revision}}"
     just generate
+
+# The public surface against the commit the core pins. Needs `cargo-semver-checks` and `gh`.
+bc base="origin/main" title="":
+    scripts/backward_compat.sh {{quote(base)}} {{quote(title)}}
+
+# Mutation testing: no mutant survives, and a run that mutated nothing fails. Slow: CI runs
+# it on every pull request that changes code.
+mutation:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    cargo mutants --package lemonfiber-sdk --no-shuffle --colors never --jobs "$(nproc)"
+    status=$?
+    if [ ! -f mutants.out/outcomes.json ] || { [ "${status}" -ne 0 ] && [ "${status}" -ne 2 ] && [ "${status}" -ne 3 ]; }; then
+      echo "cargo mutants stopped with ${status}, before it judged the mutants."
+      exit 1
+    fi
+    missed="$(jq '.missed' mutants.out/outcomes.json)"
+    judged="$(jq '.caught + .timeout' mutants.out/outcomes.json)"
+    echo "${judged} mutants told apart, ${missed} survived."
+    [ "${missed}" -eq 0 ] && [ "${judged}" -gt 0 ]
 
 # Rewrite CHANGELOG.md from the commit history.
 changelog:

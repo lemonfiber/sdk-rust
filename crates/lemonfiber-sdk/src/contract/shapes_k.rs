@@ -47,6 +47,7 @@ pub struct KeyListing {
 /// A label and nothing more. The core cannot tell what a program does with a key, so the
 /// listing shows this as the minter's own declaration rather than as anything verified.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum KeyPurpose {
     /// Home Assistant.
     #[serde(rename = "home-assistant")]
@@ -57,10 +58,14 @@ pub enum KeyPurpose {
     /// Anything else.
     #[serde(rename = "other")]
     Other,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where a key stands.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum KeyState {
     /// Admitted within its scope.
     #[serde(rename = "active")]
@@ -79,6 +84,9 @@ pub enum KeyState {
     /// A member's key whose account the media server could not be asked about just now.
     #[serde(rename = "unconfirmed")]
     Unconfirmed,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What a mint is asked with.

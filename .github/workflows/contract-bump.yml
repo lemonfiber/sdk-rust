@@ -71,6 +71,7 @@ jobs:
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
@@ -79,7 +80,7 @@ jobs:
 
       - uses: taiki-e/install-action@75a348306ce8f67c0b06fc62c32a8546140ba955 # just
         with:
-          tool: just
+          tool: just,cargo-semver-checks@0.51.0
 
       - name: Is the vendored contract behind at all
         id: behind
@@ -117,6 +118,21 @@ jobs:
           # whether the client still builds, lints and passes against it.
           just clippy
           just test
+
+      # The bump's title declares what it breaks, as `backward compatibility` asks of any
+      # pull request here. A comparison that could not finish is declared too, and the
+      # pull request's own run says why.
+      - name: What the regenerated surface breaks
+        id: breaks
+        if: steps.behind.outputs.moved == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if scripts/backward_compat.sh HEAD; then
+            echo "mark=" >> "$GITHUB_OUTPUT"
+          else
+            echo "mark=!" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Put the change on the branch, signed
         id: commit
@@ -376,11 +392,14 @@ jobs:
           PIN: ${{ steps.behind.outputs.pin }}
           HEAD_SHA: ${{ steps.behind.outputs.head }}
           CLEAN: ${{ steps.commit.outputs.clean }}
+          MARK: ${{ steps.breaks.outputs.mark }}
         run: |
           set -euo pipefail
 
-          if [ "$CLEAN" = "success" ]; then
-            verdict="**The types compile and the suite passes.** Nothing this package exposes changed shape."
+          if [ "$CLEAN" = "success" ] && [ -n "$MARK" ]; then
+            verdict="**The types compile and the suite passes.** The surface this package exposes breaks what the core pins, so the title declares it."
+          elif [ "$CLEAN" = "success" ]; then
+            verdict="**The types compile and the suite passes.** Nothing this package exposes breaks what the core pins."
           else
             verdict="**The regeneration did not come out clean.** The contract has changed a shape this package exposes, so taking it is a change here rather than a catch-up. Read the failing run before merging; do not force it green."
           fi
@@ -389,7 +408,7 @@ jobs:
           # The delimiter is random, so no line of the body can end the value.
           delimiter="body_$(openssl rand -hex 16)"
           {
-            echo "title=chore(contract): take lemonfiber ${HEAD_SHA:0:8}"
+            echo "title=chore(contract)${MARK}: take lemonfiber ${HEAD_SHA:0:8}"
             echo "body<<${delimiter}"
             printf '%s\n' \
               "\`contract-drift\` runs on every pull request here, and the vendored artefact was behind. This takes the contract so that the next author to open a pull request is not handed a sync they did not come for." \

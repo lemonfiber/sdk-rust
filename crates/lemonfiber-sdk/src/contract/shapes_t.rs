@@ -20,6 +20,7 @@ pub struct Taken {
 /// that handles only the first does not compile.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "bound")]
+#[non_exhaustive]
 pub enum TakesAway {
     /// It ends, and this is the longest the run is held to.
     #[serde(rename = "bounded")]
@@ -37,6 +38,17 @@ pub enum TakesAway {
         /// What has to happen before it ends.
         until: super::Awaiting,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<TakesAway, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for TakesAway {
+    const TAG: Option<&str> = Some("bound");
+    const KNOWN: &[&str] = &["bounded", "open-ended"];
 }
 
 /// What a set of files occupies, counted both ways.
@@ -61,6 +73,7 @@ pub struct Tally {
 /// directions: a healthy stack can be shown through half-failing telemetry, and a
 /// perfectly refreshing screen can be reporting a stack that is on fire.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Telemetry {
     /// Telemetry is current and refreshing normally.
     #[serde(rename = "live")]
@@ -77,6 +90,9 @@ pub enum Telemetry {
     /// No configuration; setup is offered instead.
     #[serde(rename = "unconfigured")]
     Unconfigured,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// A word this product uses, and what somebody meeting it needs to know.
@@ -123,6 +139,7 @@ pub struct Terms {
 
 /// Which of the four removals was asked for.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Tier {
     /// Nothing removed. The services are stopped and everything stays where it is.
     #[serde(rename = "stop")]
@@ -137,6 +154,9 @@ pub enum Tier {
     /// The library and the downloads.
     #[serde(rename = "media")]
     Media,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What one title is, as a member's own account reads it.
@@ -194,6 +214,7 @@ pub struct Title {
 /// The web surface's own name for [`Kind`], whose name an SDK already gives to the kinds
 /// of envelope: the same two words on the wire, under a name nothing else takes.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum TitleKind {
     /// A series.
     #[serde(rename = "tv")]
@@ -201,6 +222,9 @@ pub enum TitleKind {
     /// A film.
     #[serde(rename = "movies")]
     Movies,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One title, as the member it was asked for may see it.
@@ -220,6 +244,7 @@ pub struct TitleReport {
 /// How sure the correlation behind a trace is — a release renamed between services can
 /// only be matched fuzzily, and a guess presented as fact is worse than a marked one.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum TraceConfidence {
     /// Joined on identifiers the services agree on.
     #[serde(rename = "certain")]
@@ -227,6 +252,9 @@ pub enum TraceConfidence {
     /// Joined by fuzzy matching; the trace may not be the item asked for.
     #[serde(rename = "uncertain")]
     Uncertain,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One moment in a traced item's history: what happened and when. Where [`TraceStage`]
@@ -247,6 +275,7 @@ pub struct TraceMoment {
 /// tried again, a file imported and later removed. Repeated failed grabs are a pattern
 /// worth seeing, not something a single furthest-stage reading can show.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum TraceOutcome {
     /// A release was sent to the download client.
     #[serde(rename = "grabbed")]
@@ -260,6 +289,9 @@ pub enum TraceOutcome {
     /// The item's file was removed.
     #[serde(rename = "removed")]
     Removed,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where one item is in the pipeline: how far it got, why it stopped if it did, and the
@@ -352,6 +384,7 @@ pub struct Tree {
 /// What became of asking one service to re-search its existing content.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "state")]
+#[non_exhaustive]
 pub enum Triggered {
     /// The re-search was accepted and now runs in the service's background.
     #[serde(rename = "started")]
@@ -366,6 +399,17 @@ pub enum Triggered {
         /// The service's own account of why.
         detail: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<Triggered, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Triggered {
+    const TAG: Option<&str> = Some("state");
+    const KNOWN: &[&str] = &["started", "not-started", "failed"];
 }
 
 /// Something somebody reports, and what is likely behind it.

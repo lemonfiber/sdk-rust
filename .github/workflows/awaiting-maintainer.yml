@@ -8,9 +8,9 @@
 #
 #   gates   gates / gates
 #   pin-only pin-only / pin-only
-#   ci               checks, tests and coverage, mutation testing,
+#   build            check, contract, msrv, deny, mutation testing,
 #                    backward compatibility
-#   sonar            gate / gate
+#   sonar            coverage, sonar, gate / gate
 #   contract-drift   contract-drift / drift
 #
 # `SonarCloud Code Analysis` is required too and is posted by the SonarCloud app
@@ -25,7 +25,7 @@
 name: awaiting-maintainer
 on:
   workflow_run:
-    workflows: [gates, pin-only, ci, sonar, contract-drift, codeql]
+    workflows: [gates, pin-only, build, sonar, contract-drift, codeql]
     types: [completed]
   pull_request_review:
     types: [submitted]

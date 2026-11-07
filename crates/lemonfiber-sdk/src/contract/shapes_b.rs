@@ -83,6 +83,7 @@ pub struct BandwidthReading {
 
 /// What became of one limit, in one direction, on one client.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum BandwidthVerdict {
     /// Nothing was asked for, so there is nothing to hold to.
     #[serde(rename = "unasked")]
@@ -102,10 +103,14 @@ pub enum BandwidthVerdict {
     /// It reports the right figure and is moving faster than it.
     #[serde(rename = "overrunning")]
     Overrunning,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What asking for a title came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Became {
     /// Asked for, and on its way without anybody saying yes first.
     #[serde(rename = "asked")]
@@ -116,6 +121,9 @@ pub enum Became {
     /// Somebody already asked for it, so nothing new was asked for.
     #[serde(rename = "on-its-way")]
     OnItsWay,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What standing lemonfiber beside an existing setup came to, or would come to.

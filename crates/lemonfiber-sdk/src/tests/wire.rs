@@ -6,11 +6,13 @@ use serde_json::json;
 use super::{enveloped, problem, Outcome};
 use crate::contract::reads::{Held, HeldId, Services};
 use crate::contract::refusals::{NOT_ADMITTED, NO_SUCH_JOB};
+use crate::contract::{Appetite, CapabilityState, Chosen};
 use crate::envelope::raw;
 use crate::error::{Refusal, RefusedBecause};
+use crate::open::kept;
 use crate::query::{located, segment};
 use crate::refusal::refusal_of;
-use crate::sse::Parser;
+use crate::sse::{Parser, LARGEST};
 use crate::transport::{Failure, Method, Request, Response};
 use crate::{Address, CertificatePin, Credential, Error, File, Picture, RefusalCode, Resolve};
 
@@ -48,6 +50,10 @@ fn what_is_not_an_envelope_is_unreadable_and_quotes_nothing_of_it() {
         (b"[]", "it is not an envelope"),
         (br#"{"kind": "status"}"#, "it carries no api_version"),
         (br#"{"api_version": 1, "data": {}}"#, "it names no kind"),
+        (
+            br#"{"api_version": 1, "kind": "", "data": {}}"#,
+            "it names no kind",
+        ),
         (
             br#"{"api_version": 1, "kind": "status"}"#,
             "it carries no data",
@@ -298,6 +304,14 @@ fn the_stream_is_read_whatever_way_its_lines_end_and_however_it_is_cut() -> Outc
     let mut parser = Parser::new(12);
     assert!(matches!(parser.push(b"data: 1234"), Ok(events) if events.is_empty()));
     assert!(matches!(parser.push(b"56789"), Err(Error::Unreadable(_))));
+    assert_eq!(LARGEST, 16_777_216);
+    let mut parser = Parser::new(8);
+    assert!(matches!(parser.push(b"data: 12"), Ok(events) if events.is_empty()));
+    let events = parser.push(b"345678\n\n")?;
+    assert_eq!(
+        events.first().map(|event| event.data.as_str()),
+        Some("12345678")
+    );
     Ok(())
 }
 
@@ -364,6 +378,8 @@ fn an_address_lemonfiber_does_not_print_is_refused() -> Outcome {
         ("not an address", None),
         ("ftp://127.0.0.1", None),
         ("http://user:pass@127.0.0.1", None),
+        ("http://user@127.0.0.1", None),
+        ("http://:pass@127.0.0.1", None),
         ("http://127.0.0.1/?token=x", None),
         ("http://127.0.0.1/#x", None),
         ("http://192.0.2.1", None),
@@ -392,10 +408,8 @@ fn an_address_lemonfiber_does_not_print_is_refused() -> Outcome {
 
 #[test]
 fn the_system_resolver_finds_this_machine() {
-    assert!(crate::SystemResolver
-        .resolve("localhost")
-        .iter()
-        .all(IpAddr::is_loopback));
+    let found = crate::SystemResolver.resolve("localhost");
+    assert!(!found.is_empty() && found.iter().all(IpAddr::is_loopback));
     assert!(crate::SystemResolver.resolve("name.invalid").is_empty());
 }
 
@@ -493,4 +507,69 @@ fn every_error_says_what_happened_in_a_sentence() {
         crate::line::Asked::carrying(Method::Post, "/api/keys".to_owned(), unencodable),
         Err(Error::Unsendable(_))
     ));
+}
+
+#[test]
+fn a_value_a_read_answers_with_that_this_client_was_not_generated_with_is_kept() -> Outcome {
+    let state: CapabilityState = serde_json::from_value(json!("available"))?;
+    assert_eq!(state, CapabilityState::Available);
+    let newer = json!("something-newer");
+    let state: CapabilityState = serde_json::from_value(newer.clone())?;
+    assert_eq!(
+        state,
+        CapabilityState::Unrecognised("something-newer".to_owned())
+    );
+    assert_eq!(serde_json::to_value(&state)?, newer);
+    Ok(())
+}
+
+#[test]
+fn a_tag_this_client_does_not_know_keeps_all_it_carried() -> Outcome {
+    let newer = json!({ "chosen": "something-newer", "held": 1 });
+    let chosen: Chosen = serde_json::from_value(newer.clone())?;
+    assert_eq!(chosen, Chosen::Unrecognised(newer.clone()));
+    assert_eq!(serde_json::to_value(&chosen)?, newer);
+    Ok(())
+}
+
+#[test]
+fn a_tag_this_client_knows_reads_as_that_tag_or_not_at_all() -> Outcome {
+    let named: Chosen = serde_json::from_value(json!({ "chosen": "named", "door": "caddy" }))?;
+    assert_eq!(
+        named,
+        Chosen::Named {
+            door: "caddy".to_owned()
+        }
+    );
+    assert!(serde_json::from_value::<Chosen>(json!({ "chosen": "named" })).is_err());
+    assert!(serde_json::from_value::<Chosen>(json!({ "chosen": "named", "door": 1 })).is_err());
+    Ok(())
+}
+
+#[test]
+fn a_value_naming_no_tag_is_not_kept() {
+    assert!(serde_json::from_value::<Chosen>(json!({ "held": 1 })).is_err());
+    assert!(serde_json::from_value::<Chosen>(json!({ "chosen": 1 })).is_err());
+}
+
+#[test]
+fn only_a_key_this_client_does_not_know_is_kept_of_a_keyed_value() {
+    let known = ["none", "custom"];
+    for newer in [json!("newer"), json!({ "newer": 1 })] {
+        assert_eq!(kept(newer.clone(), None, &known), Ok(newer));
+    }
+    for refused in [
+        json!("none"),
+        json!({ "custom": "held" }),
+        json!({ "newer": 1, "newest": 2 }),
+        json!({}),
+        json!(1),
+    ] {
+        assert!(kept(refused, None, &known).is_err());
+    }
+}
+
+#[test]
+fn a_value_a_request_sends_is_only_ever_one_the_contract_lists() {
+    assert!(serde_json::from_value::<Appetite>(json!("something-newer")).is_err());
 }

@@ -107,8 +107,10 @@ mod shapes_p_3;
 pub use shapes_p_3::*;
 mod shapes_q;
 pub use shapes_q::*;
-mod shapes_r;
-pub use shapes_r::*;
+mod shapes_r_1;
+pub use shapes_r_1::*;
+mod shapes_r_2;
+pub use shapes_r_2::*;
 mod shapes_s_1;
 pub use shapes_s_1::*;
 mod shapes_s_2;
@@ -298,6 +300,7 @@ pub const KINDS: &[&str] = &[
 /// The data of an envelope, typed by its kind.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "kind", content = "data")]
+#[non_exhaustive]
 pub enum Payload {
     /// The `admission` kind.
     #[serde(rename = "admission")]

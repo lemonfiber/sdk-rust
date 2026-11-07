@@ -1,6 +1,7 @@
 # The workspace, checked on every change: format, lints, the contract, the reads the
-# client reaches against the contract page, the toolchain the crates promise, and the
-# dependency policy. The suite runs once, under coverage, in sonar.yml.
+# client reaches against the contract page, the toolchain the crates promise, the
+# dependency policy, and on a pull request that changes code, mutation testing and the
+# surface a consumer pins. The suite runs once, under coverage, in sonar.yml.
 name: build
 on:
   pull_request:
@@ -98,3 +99,83 @@ jobs:
           tool: cargo-deny@0.20.2
       - name: The dependencies are allowed
         run: cargo deny --log-level warn --manifest-path ./Cargo.toml --all-features check
+
+  # Which of the two pull-request gates below are worth running at all. Documentation
+  # starts no toolchain. A failure here leaves no output, and no output is not a "no":
+  # each gate asks the result as well, so it runs rather than being skipped.
+  scope:
+    name: what changed
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: diff
+        run: |
+          set -euo pipefail
+          # The checkout is the merge of the head onto main, and its first parent the
+          # main it was merged onto. Anything that is not documentation is code, so a
+          # new kind of file runs the gates. Under `.github/`, only this file runs them.
+          code=false
+          while IFS= read -r path; do
+            case "${path}" in
+            '' | docs/* | *.md | LICENSE) ;;
+            .github/workflows/build.yml) code=true ;;
+            .github/*) ;;
+            *) code=true ;;
+            esac
+          done <<< "$(git diff --name-only HEAD^1 HEAD)"
+          echo "code=${code}" >> "$GITHUB_OUTPUT"
+
+  # The most expensive gate. `cargo mutants` runs the suite unmutated first and stops
+  # where it fails, so it measures nothing over tests already red.
+  mutation:
+    name: mutation testing
+    needs: scope
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && (needs.scope.result != 'success' || needs.scope.outputs.code == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: taiki-e/install-action@75a348306ce8f67c0b06fc62c32a8546140ba955 # cargo-mutants
+        with:
+          tool: cargo-mutants@27.1.0,just
+      - name: Mutate, and hold every mutant to being told apart
+        run: just mutation
+      - name: The mutants that survived, each as the change it made
+        if: ${{ !cancelled() }}
+        run: cat mutants.out/missed.txt
+
+  # A library's promise to its consumer, checked against the commit it pins. It needs the
+  # whole history, to load that commit, and what breaks is what the head breaks and the
+  # main it was merged onto does not.
+  backward-compatibility:
+    name: backward compatibility
+    needs: scope
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && (needs.scope.result != 'success' || needs.scope.outputs.code == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: taiki-e/install-action@75a348306ce8f67c0b06fc62c32a8546140ba955 # cargo-semver-checks
+        with:
+          tool: cargo-semver-checks@0.51.0
+      - name: Compare against the commit the core pins
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: ${{ github.event.pull_request.title }}
+        run: scripts/backward_compat.sh HEAD^1 "${TITLE}"

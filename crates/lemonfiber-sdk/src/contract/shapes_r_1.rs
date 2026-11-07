@@ -33,6 +33,7 @@ pub struct Rated {
 
 /// Where a month stands against a declared cap.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Reached {
     /// Comfortably inside it.
     #[serde(rename = "within")]
@@ -43,11 +44,15 @@ pub enum Reached {
     /// Reached, and the declared behaviour applies.
     #[serde(rename = "exceeded")]
     Exceeded,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What one link reaches, and how that was settled.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "how")]
+#[non_exhaustive]
 pub enum Reaches {
     /// An ask for a capability.
     #[serde(rename = "asked")]
@@ -81,6 +86,14 @@ pub enum Reaches {
         /// Why it is by name.
         why: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Reaches, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Reaches {
+    const TAG: Option<&str> = Some("how");
+    const KNOWN: &[&str] = &["asked", "by-name"];
 }
 
 /// One service reading a setting or a secret.
@@ -102,6 +115,7 @@ pub struct Reader {
 
 /// Why a walkthrough could not go on.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Reason {
     /// No indexer is configured, so there is nothing to search. Not a failure of the
     /// walk — a reason not to offer it at all.
@@ -137,6 +151,9 @@ pub enum Reason {
     /// It was imported, the media server was told, and it still cannot be found there.
     #[serde(rename = "not-visible")]
     NotVisible,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Where the disk stands, what is on it, and what could be got back.
@@ -181,6 +198,7 @@ pub struct Reckoning {
 
 /// What getting a line's room back costs.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Reclaim {
     /// Only by deciding to lose something you chose to keep.
     #[serde(rename = "by_losing_content")]
@@ -203,6 +221,9 @@ pub enum Reclaim {
     /// No, because you said so.
     #[serde(rename = "you_said_not")]
     YouSaidNot,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What became of an answered cleanup.
@@ -234,6 +255,7 @@ pub struct RecordReport {
 /// party, or, written `"minted"`, a value made for that run alone.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum RecordedWith {
     /// A string.
     Text(String),
@@ -241,6 +263,8 @@ pub enum RecordedWith {
     Integer(i64),
     /// A boolean.
     Boolean(bool),
+    /// A value this client was not generated with, as it arrived.
+    Unrecognised(serde_json::Value),
 }
 
 /// A named front door that is not one, and why it is not.
@@ -422,6 +446,7 @@ pub struct Repair {
 /// that cannot tell them apart will eventually report the first as the second.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "outcome")]
+#[non_exhaustive]
 pub enum RepairOutcome {
     /// It ran, and the check now passes.
     #[serde(rename = "fixed")]
@@ -454,6 +479,24 @@ pub enum RepairOutcome {
     /// for a change they did not make.
     #[serde(rename = "unmanaged")]
     Unmanaged,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<RepairOutcome, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for RepairOutcome {
+    const TAG: Option<&str> = Some("outcome");
+    const KNOWN: &[&str] = &[
+        "fixed",
+        "fix_failed",
+        "stopped",
+        "declined",
+        "would_overwrite",
+        "unmanaged",
+    ];
 }
 
 /// What a repairing run offered, and what it did.
@@ -519,6 +562,7 @@ pub struct ReplaceReport {
 /// that a release was grabbed but not imported, only that it is on its way. The trace is
 /// where that detail stays, and a request names the item so it can be asked for.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum RequestState {
     /// Asked for, and nobody has approved or refused it yet.
     #[serde(rename = "waiting-for-approval")]
@@ -541,6 +585,9 @@ pub enum RequestState {
     /// It was here and has since been removed.
     #[serde(rename = "gone")]
     Gone,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One requirement, and every release that shipped something citing it.
@@ -587,6 +634,7 @@ pub struct ResetReport {
 /// What a limit comes to once it is weighed against a measured line.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "is")]
+#[non_exhaustive]
 pub enum Resolved {
     /// Nothing holds it back.
     #[serde(rename = "unlimited")]
@@ -604,11 +652,23 @@ pub enum Resolved {
     /// operator believes is in force while the stack takes the whole line.
     #[serde(rename = "unmeasured")]
     Unmeasured,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<Resolved, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Resolved {
+    const TAG: Option<&str> = Some("is");
+    const KNOWN: &[&str] = &["unlimited", "at", "unmeasured"];
 }
 
 /// Where a respite stands against the clock.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "standing")]
+#[non_exhaustive]
 pub enum RespiteStanding {
     /// None was asked for.
     #[serde(rename = "none")]
@@ -625,6 +685,17 @@ pub enum RespiteStanding {
         /// The `seconds` field.
         seconds: u64,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<RespiteStanding, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for RespiteStanding {
+    const TAG: Option<&str> = Some("standing");
+    const KNOWN: &[&str] = &["none", "in-force", "expired"];
 }
 
 /// What a restore said: what it would overwrite, and whether it did.
@@ -662,6 +733,7 @@ pub struct RestoreReport {
 
 /// Where the line stands.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Restraint {
     /// Nothing is configured.
     #[serde(rename = "unlimited")]
@@ -684,6 +756,9 @@ pub enum Restraint {
     /// The cap has been reached and the declared behaviour applies.
     #[serde(rename = "cap-exceeded")]
     CapExceeded,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// What one member is held to, in the words a household would use.
@@ -694,6 +769,7 @@ pub enum Restraint {
 /// watch something but can pull it into the library has parents who set a limit and got
 /// half of one.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Restriction {
     /// Nothing is held back from them.
     #[serde(rename = "unrestricted")]
@@ -710,6 +786,9 @@ pub enum Restriction {
     /// What they may watch is limited and what they may ask for is not.
     #[serde(rename = "inconsistent")]
     Inconsistent,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One stored value, handed back because the operator asked for it and said so.
@@ -764,6 +843,7 @@ pub struct Review {
 /// they can do nothing either way, and a failure at the second leaves an account that
 /// cannot sign in rather than somebody who can still watch.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Revoked {
     /// Both, which is what removal means.
     #[serde(rename = "everywhere")]
@@ -778,6 +858,9 @@ pub enum Revoked {
     /// Nothing was removed, because nothing was confirmed.
     #[serde(rename = "nothing")]
     Nothing,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// The hours the household is awake, declared once for every download client.
@@ -791,6 +874,7 @@ pub struct Rhythm {
 
 /// Which of the two volumes a reading is about.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Role {
     /// Where the media and the downloads live.
     #[serde(rename = "data")]
@@ -798,6 +882,9 @@ pub enum Role {
     /// Where the services keep their own configuration and databases.
     #[serde(rename = "services")]
     Services,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// A directory everything lemonfiber keeps sits under.
@@ -807,18 +894,4 @@ pub struct Root {
     pub at: String,
     /// What lives under it, and what losing it would cost.
     pub what: String,
-}
-
-/// What one rotation came to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Rotation {
-    /// Every consumer, and how far the rotation reached it.
-    pub consumers: Vec<super::Propagation>,
-    /// Which credential was to be replaced.
-    pub credential: String,
-    /// The offer a replacement that takes one answers, where this reading named one.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub offer: Option<String>,
-    /// What became of the replacement.
-    pub settled: super::Settled,
 }

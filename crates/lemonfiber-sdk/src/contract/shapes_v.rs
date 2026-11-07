@@ -7,6 +7,7 @@
 /// answer carries the step it belongs to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "outcome")]
+#[non_exhaustive]
 pub enum Validation {
     /// Proven working, carrying the capability observed while proving it.
     #[serde(rename = "valid")]
@@ -33,6 +34,17 @@ pub enum Validation {
         /// What it can no longer do, and why where the service says.
         detail: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<Validation, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Validation {
+    const TAG: Option<&str> = Some("outcome");
+    const KNOWN: &[&str] = &["valid", "rejected", "unreachable", "degraded"];
 }
 
 /// Where a value in force came from.
@@ -44,6 +56,7 @@ pub enum Validation {
 /// true, and neither of which the additive-only surface check would refuse.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "origin")]
+#[non_exhaustive]
 pub enum ValueOrigin {
     /// This build's own, out of what lemonfiber ships rather than out of a choice.
     #[serde(rename = "bundled")]
@@ -83,6 +96,24 @@ pub enum ValueOrigin {
         /// Which plugin set it.
         named: String,
     },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<ValueOrigin, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for ValueOrigin {
+    const TAG: Option<&str> = Some("origin");
+    const KNOWN: &[&str] = &[
+        "bundled",
+        "operator",
+        "plugin",
+        "unknown",
+        "overridden",
+        "orphaned",
+    ];
 }
 
 /// The value a plugin's change replaced, and where that value came from.

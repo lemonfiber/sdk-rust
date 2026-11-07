@@ -5,6 +5,7 @@
 /// the work that breaks configurations, and the two behind it are where it puts the
 /// work that does not.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Jump {
     /// The first number moved.
     #[serde(rename = "major")]
@@ -18,4 +19,7 @@ pub enum Jump {
     /// One of the tags is not a run of numbers, so the size of the step is unknown.
     #[serde(rename = "untellable")]
     Untellable,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }

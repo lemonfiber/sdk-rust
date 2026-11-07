@@ -44,6 +44,7 @@ pub struct Elsewhere {
 
 /// How one service's update ended.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum Ending {
     /// Updated, and answering again afterwards.
     #[serde(rename = "updated")]
@@ -57,6 +58,9 @@ pub enum Ending {
     /// The run halted before reaching it, so it is standing where it was.
     #[serde(rename = "not-reached")]
     NotReached,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// One change, as a reader meets it.
@@ -200,6 +204,7 @@ pub struct Expect {
 /// rather than the value growing to match.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
+#[non_exhaustive]
 pub enum Expected {
     /// A true or a false.
     Boolean(bool),
@@ -207,6 +212,8 @@ pub enum Expected {
     Integer(i64),
     /// A word.
     Text(String),
+    /// A value this client was not generated with, as it arrived.
+    Unrecognised(serde_json::Value),
 }
 
 /// The kind of value a key must hold.
@@ -221,6 +228,7 @@ pub enum Expected {
 /// contract describes is keyed by its `kind`, so the union of them is a `Kind` too, and
 /// two of them in one module is a definition nothing can be compiled against.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
 pub enum ExpectedKind {
     /// A true or a false.
     #[serde(rename = "bool")]
@@ -237,4 +245,7 @@ pub enum ExpectedKind {
     /// An object.
     #[serde(rename = "dict")]
     Dict,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }

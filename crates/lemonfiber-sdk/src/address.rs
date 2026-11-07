@@ -144,10 +144,7 @@ impl Address {
             .trim_end_matches(']')
             .parse::<IpAddr>()
             .ok();
-        let host = match literal {
-            Some(IpAddr::V6(address)) => format!("[{address}]"),
-            _ => named.to_owned(),
-        };
+        let host = named.to_owned();
         let port = parsed.port_or_known_default().unwrap_or_default();
         let reached = match (&pin, literal) {
             (Some(_), _) => Vec::new(),
