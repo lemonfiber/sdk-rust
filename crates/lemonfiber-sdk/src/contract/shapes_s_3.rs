@@ -1,3 +1,61 @@
+/// Something a removal could not take away.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct StoredLeft {
+    /// The path that is still there.
+    pub at: String,
+    /// What the machine said about it, so it can be finished by hand.
+    pub why: String,
+}
+
+/// Whether anything was removed on this run, and what became of it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "state")]
+#[non_exhaustive]
+pub enum StoredRemoval {
+    /// Nobody asked. This is a listing.
+    #[serde(rename = "not-asked")]
+    NotAsked,
+    /// Asked for without the agreement it takes, so nothing was touched.
+    #[serde(rename = "unconfirmed")]
+    Unconfirmed,
+    /// Carried out.
+    #[serde(rename = "done")]
+    Done {
+        /// The directories that are gone.
+        gone: Vec<String>,
+        /// What could not be removed, each with the reason.
+        left: Vec<super::StoredLeft>,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<StoredRemoval, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for StoredRemoval {
+    const TAG: Option<&str> = Some("state");
+    const KNOWN: &[&str] = &["not-asked", "unconfirmed", "done"];
+}
+
+/// Why playback here is likely to struggle, whatever app the household installs.
+///
+/// Present only where the preset in force asks for transcoding this platform cannot
+/// do in hardware. It belongs to the guidance rather than to any one device: the
+/// preset and the platform decide it between them, and every device in the table
+/// meets it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Straining {
+    /// What that preset asks of this machine, and what playback does where this
+    /// machine cannot give it.
+    pub caution: String,
+    /// What makes it stop.
+    pub instead: String,
+    /// The preset in force, under the name it was chosen by.
+    pub preset: String,
+}
+
 /// Which stream a log line arrived on.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]

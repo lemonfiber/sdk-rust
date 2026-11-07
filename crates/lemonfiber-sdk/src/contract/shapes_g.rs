@@ -76,8 +76,16 @@ pub enum GuardQuestion {
         why: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<GuardQuestion, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for GuardQuestion {
+    const TAG: Option<&str> = Some("asks");
+    const KNOWN: &[&str] = &["choice", "value", "secret"];
 }
 
 /// The guidance in full, for a surface that shows all of it.

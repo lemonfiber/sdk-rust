@@ -269,6 +269,43 @@ fn a_command_this_does_not_know_is_refused_naming_every_one_it_does() {
 }
 
 #[test]
+fn an_enum_an_answer_can_carry_is_open_and_one_a_request_reaches_is_closed() -> Outcome {
+    let root = laid_out(&tree())?;
+    run(&words(&["generate"]), root.path())?;
+    let generated = root.path().join(GENERATED);
+    let shapes = fs::read_to_string(generated.join("shapes_s.rs"))?;
+    let module = fs::read_to_string(generated.join("mod.rs"))?;
+    let open = "#[non_exhaustive]";
+    let panel = fs::read_to_string(generated.join("shapes_p.rs"))?;
+    assert!(panel.contains(&format!(
+        "#[serde(tag = \"panel\")]\n{open}\npub enum Panel"
+    )));
+    assert!(panel.contains(
+        "#[serde(untagged, deserialize_with = \"crate::open::unrecognised::<Panel, _>\")]\n    Unrecognised(serde_json::Value),"
+    ));
+    assert!(panel.contains("const TAG: Option<&str> = Some(\"panel\");"));
+    assert!(panel.contains("const KNOWN: &[&str] = &[\"ready\", \"empty\"];"));
+    let choice = fs::read_to_string(generated.join("shapes_c.rs"))?;
+    assert!(choice.contains(&format!("{open}\npub enum Choice")));
+    assert!(choice.contains(
+        "#[serde(untagged, deserialize_with = \"crate::open::unrecognised::<Choice, _>\")]\n    Unrecognised(serde_json::Value),"
+    ));
+    assert!(choice.contains("const TAG: Option<&str> = None;"));
+    let value = fs::read_to_string(generated.join("shapes_v.rs"))?;
+    assert!(value.contains(&format!("#[serde(untagged)]\n{open}\npub enum Value")));
+    assert!(value.contains("    Unrecognised(serde_json::Value),"));
+    let level = fs::read_to_string(generated.join("shapes_l.rs"))?;
+    assert!(level.contains("pub enum Level") && !level.contains(open));
+    assert!(!level.contains("Unrecognised"));
+    let side = fs::read_to_string(generated.join("shapes_s.rs"))?;
+    assert!(side.contains("pub enum Side") && !side.contains(&format!("{open}\npub enum Side")));
+    assert!(shapes.contains(&format!("{open}\npub enum StatusOfThingsMode")));
+    assert!(shapes.contains("#[serde(untagged)]\n    Unrecognised(String),"));
+    assert!(module.contains(&format!("{open}\npub enum Payload")));
+    Ok(())
+}
+
+#[test]
 fn what_is_generated_is_held_to_what_is_committed_file_by_file() -> Outcome {
     let root = laid_out(&tree())?;
     let said = run(&words(&["generate"]), root.path())?;
@@ -298,26 +335,6 @@ fn what_is_generated_is_held_to_what_is_committed_file_by_file() -> Outcome {
     }
     let module = fs::read_to_string(generated.join("mod.rs"))?;
     assert!(module.contains("Pull(Box<String>)") && module.contains("Status(Box<StatusOfThings>)"));
-    let open = "#[non_exhaustive]";
-    let panel = fs::read_to_string(generated.join("shapes_p.rs"))?;
-    assert!(panel.contains(&format!(
-        "#[serde(tag = \"panel\")]\n{open}\npub enum Panel"
-    )));
-    assert!(panel.contains("#[serde(untagged)]\n    Unrecognised(serde_json::Value),"));
-    let choice = fs::read_to_string(generated.join("shapes_c.rs"))?;
-    assert!(choice.contains(&format!("{open}\npub enum Choice")));
-    assert!(choice.contains("#[serde(untagged)]\n    Unrecognised(serde_json::Value),"));
-    let value = fs::read_to_string(generated.join("shapes_v.rs"))?;
-    assert!(value.contains(&format!("#[serde(untagged)]\n{open}\npub enum Value")));
-    assert!(value.contains("    Unrecognised(serde_json::Value),"));
-    let level = fs::read_to_string(generated.join("shapes_l.rs"))?;
-    assert!(level.contains("pub enum Level") && !level.contains(open));
-    assert!(!level.contains("Unrecognised"));
-    let side = fs::read_to_string(generated.join("shapes_s.rs"))?;
-    assert!(side.contains("pub enum Side") && !side.contains(&format!("{open}\npub enum Side")));
-    assert!(shapes.contains(&format!("{open}\npub enum StatusOfThingsMode")));
-    assert!(shapes.contains("#[serde(untagged)]\n    Unrecognised(String),"));
-    assert!(module.contains(&format!("{open}\npub enum Payload")));
     for declared in [
         "mod refusals_life;",
         "pub use super::refusals_life::*;",

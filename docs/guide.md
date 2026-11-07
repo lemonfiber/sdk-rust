@@ -96,8 +96,9 @@ or `..`, is `Error::Unsendable` and nothing is sent. The other fields are the qu
 
 Every enum an answer can carry is `#[non_exhaustive]` and has an `Unrecognised` variant,
 holding a value this crate was not generated with as it arrived, so a stack newer than
-the crate still answers. Match it with a `_` arm. Enums a request sends list only what
-the contract lists.
+the crate still answers. Match it with a `_` arm. Only a tag this crate does not know
+arrives there: a tag it knows with data that does not read as that tag is
+`Error::Unreadable`. Enums a request sends list only what the contract lists.
 
 Some reads are not a single envelope:
 

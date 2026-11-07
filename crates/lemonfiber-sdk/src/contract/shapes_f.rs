@@ -227,8 +227,16 @@ pub enum Freshness {
         at: u64,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<Freshness, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Freshness {
+    const TAG: Option<&str> = Some("as");
+    const KNOWN: &[&str] = &["live", "as_of"];
 }
 
 /// A service the household can reach that is not the front door, and why it is not.

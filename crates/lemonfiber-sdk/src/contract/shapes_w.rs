@@ -135,8 +135,13 @@ pub enum Wanted {
         service: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Wanted, _>")]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Wanted {
+    const TAG: Option<&str> = Some("kind");
+    const KNOWN: &[&str] = &["setting", "secret", "service"];
 }
 
 /// A player's report of how far a member got, as the media server now holds it.
@@ -269,8 +274,16 @@ pub enum WiringSettled {
     #[serde(rename = "unfilled")]
     Unfilled,
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<WiringSettled, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for WiringSettled {
+    const TAG: Option<&str> = Some("settled");
+    const KNOWN: &[&str] = &["outright", "each", "contested", "chosen", "unfilled"];
 }
 
 /// Where a setup run stands, and what it is still asking for.

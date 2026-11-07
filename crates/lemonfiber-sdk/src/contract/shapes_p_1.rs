@@ -83,8 +83,16 @@ pub enum PanelArrayOfDownloader {
         data: super::PanelArrayOfDownloaderUnavailableData,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelArrayOfDownloader, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelArrayOfDownloader {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelArrayOfDownloaderUnavailableData` shape.
@@ -117,8 +125,16 @@ pub enum PanelArrayOfQueue {
         data: super::PanelArrayOfQueueUnavailableData,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelArrayOfQueue, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelArrayOfQueue {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelArrayOfQueueUnavailableData` shape.
@@ -151,8 +167,16 @@ pub enum PanelArrayOfService {
         data: super::PanelArrayOfServiceUnavailableData,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelArrayOfService, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelArrayOfService {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelArrayOfServiceUnavailableData` shape.
@@ -185,8 +209,16 @@ pub enum PanelArrayOfTransfer {
         data: super::PanelArrayOfTransferUnavailableData,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelArrayOfTransfer, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelArrayOfTransfer {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelArrayOfTransferUnavailableData` shape.
@@ -219,8 +251,16 @@ pub enum PanelFrontDoorReport {
         data: super::PanelFrontDoorReportUnavailableData,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelFrontDoorReport, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelFrontDoorReport {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelFrontDoorReportUnavailableData` shape.
@@ -253,8 +293,16 @@ pub enum PanelHouseholdReport {
         data: super::PanelHouseholdReportUnavailableData,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelHouseholdReport, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelHouseholdReport {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelHouseholdReportUnavailableData` shape.
@@ -287,8 +335,16 @@ pub enum PanelStorage {
         data: super::PanelStorageUnavailableData,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelStorage, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelStorage {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelStorageUnavailableData` shape.
@@ -321,8 +377,16 @@ pub enum PanelVpn {
         data: super::PanelVpnUnavailableData,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PanelVpn, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PanelVpn {
+    const TAG: Option<&str> = Some("panel");
+    const KNOWN: &[&str] = &["ready", "unavailable"];
 }
 
 /// The `PanelVpnUnavailableData` shape.
@@ -818,78 +882,4 @@ pub enum PluginEvidence {
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
-}
-
-/// A recording an assertion fails on, the one constraint of its expectation that fails
-/// there, and why.
-///
-/// For an assertion whose passing state nobody can record, such as a check that a server
-/// has an owner where claiming one needs an account the plugin's CI does not hold: the
-/// state it exists to find can be recorded, and the declaration says which constraint
-/// tells the two states apart. It changes the verdict on that recording and on nothing
-/// else — the live service and every other recording are held to the expectation as it
-/// is written.
-///
-/// It names a constraint rather than only a recording, because a recording that began
-/// failing for another reason — a truncated file, an error recorded by mistake — would
-/// otherwise read as failing as declared, excusing a failure nobody had looked at.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginExpectedFailure {
-    /// The key of the expectation that fails on the recording, and one it carries.
-    pub constraint: super::PluginConstraint,
-    /// The recording the assertion fails on. It may be the assertion's own `fixture`.
-    pub fixture: String,
-    /// Where within that constraint it fails, written exactly as the expectation writes
-    /// it. Present for a key-wise constraint and absent for one about the whole answer.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub place: Option<String>,
-    /// Why this recording is one the assertion fails on. Reported with the verdict every
-    /// time.
-    pub reason: String,
-    /// `fails`, and nothing else: passing is what the expectation already says, and
-    /// could-not-run is never excused.
-    pub verdict: super::PluginDeclaredVerdict,
-}
-
-/// One recording an assertion fails on as its manifest declares.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginFailingAsDeclared {
-    /// The constraint of the expectation that fails there.
-    pub constraint: super::PluginConstraint,
-    /// The recording.
-    pub fixture: String,
-    /// What the recording held there.
-    pub held: String,
-    /// Where within that constraint, for one that looks at places.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub place: Option<String>,
-    /// Why the manifest says this recording is one the assertion fails on.
-    pub reason: String,
-}
-
-/// A credential of another service the operator granted a third-party plugin, named by
-/// the setting it is held under and never by its value.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginGrant {
-    /// When the operator approved it, as the record stamps every change.
-    pub at: String,
-    /// The setting the credential is held under, as the credentials read names it.
-    pub credential: String,
-    /// The capability of the plugin's own it was granted to fill.
-    pub r#for: String,
-    /// The service whose credential it is.
-    pub of: String,
-}
-
-/// One credential that would cross to a plugin, as the reading states it.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginGranting {
-    /// What approving it is written as, apart from the offer.
-    pub approval: String,
-    /// The setting the credential is held under, as the credentials read names it.
-    pub credential: String,
-    /// The capability of the plugin's own it would be granted to fill.
-    pub r#for: String,
-    /// The service whose credential it is.
-    pub of: String,
 }

@@ -35,8 +35,13 @@ pub enum Scope {
         trees: Vec<super::Tree>,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Scope, _>")]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Scope {
+    const TAG: Option<&str> = Some("scope");
+    const KNOWN: &[&str] = &["whole_stack", "service", "existing"];
 }
 
 /// What a search that could tell this trace's stall apart would spend, and what it covers.
@@ -166,8 +171,16 @@ pub enum SeedSeverity {
         remediation: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<SeedSeverity, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for SeedSeverity {
+    const TAG: Option<&str> = Some("severity");
+    const KNOWN: &[&str] = &["informational", "warning"];
 }
 
 /// How one connection turned out after a seed pass.
@@ -320,8 +333,33 @@ pub enum SeedState {
         reason: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<SeedState, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for SeedState {
+    const TAG: Option<&str> = Some("state");
+    const KNOWN: &[&str] = &[
+        "wired",
+        "restarted",
+        "already-wired",
+        "drifted",
+        "kept",
+        "stale",
+        "conflicted",
+        "adopted",
+        "unmanaged",
+        "would-wire",
+        "would-adopt",
+        "observed",
+        "unmatched",
+        "skipped",
+        "failed",
+        "refused",
+    ];
 }
 
 /// Where one completed download stands.
@@ -350,8 +388,16 @@ pub enum SeedingStanding {
     #[serde(rename = "left_alone")]
     LeftAlone,
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<SeedingStanding, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for SeedingStanding {
+    const TAG: Option<&str> = Some("standing");
+    const KNOWN: &[&str] = &["never_imported", "seeding", "left_alone"];
 }
 
 /// Where a copy of lemonfiber stands, in the words the specification uses.
@@ -827,30 +873,4 @@ pub struct SettingReport {
     pub secret: bool,
     /// Its value, or a note that it is set and withheld.
     pub value: String,
-}
-
-/// Every setting and secret the stack's services read, and what changing a setting came to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct SettingsReport {
-    /// The change asked for, where one was.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub change: Option<super::SettingChange>,
-    /// Each of lemonfiber's own guards this act moved onto its plugin after its own
-    /// change, or on a reading would move, for good and with no yes of its own; one it
-    /// could not move stays on offer and says why.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub guards: Option<Vec<super::StackMoveTaken>>,
-    /// Whether this was a rehearsal.
-    pub rehearsed: bool,
-    /// Every secret a service's environment names, in name order, never with its value.
-    pub secrets: Vec<super::SecretRead>,
-    /// Every setting, in name order.
-    pub settings: Vec<super::SettingRead>,
-    /// The operator's overlay and every service it changes, where there is one: merged
-    /// over the project this run would start, and held to nothing lemonfiber vets.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub unvetted: Option<super::Unvetted>,
-    /// The services held back until the operator gives what they need to start, each
-    /// with what it waits for, as status names them.
-    pub waiting: Vec<super::Waiting>,
 }

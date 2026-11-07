@@ -39,8 +39,16 @@ pub enum TakesAway {
         until: super::Awaiting,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<TakesAway, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for TakesAway {
+    const TAG: Option<&str> = Some("bound");
+    const KNOWN: &[&str] = &["bounded", "open-ended"];
 }
 
 /// What a set of files occupies, counted both ways.
@@ -392,8 +400,16 @@ pub enum Triggered {
         detail: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<Triggered, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Triggered {
+    const TAG: Option<&str> = Some("state");
+    const KNOWN: &[&str] = &["started", "not-started", "failed"];
 }
 
 /// Something somebody reports, and what is likely behind it.

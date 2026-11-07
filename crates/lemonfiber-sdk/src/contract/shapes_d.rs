@@ -42,8 +42,16 @@ pub enum DashboardReading {
     #[serde(rename = "unknown")]
     Unknown,
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<DashboardReading, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for DashboardReading {
+    const TAG: Option<&str> = Some("reading");
+    const KNOWN: &[&str] = &["known", "stale", "unknown"];
 }
 
 /// A kind of device somebody in the house might watch on.
@@ -365,8 +373,16 @@ pub enum DoctorVerdict {
         reason: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<DoctorVerdict, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for DoctorVerdict {
+    const TAG: Option<&str> = Some("outcome");
+    const KNOWN: &[&str] = &["pass", "warn", "fail", "unverified", "skipped"];
 }
 
 /// One download client, and whether it is paused.

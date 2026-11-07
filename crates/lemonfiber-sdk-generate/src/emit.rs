@@ -223,14 +223,23 @@ fn shape_of(shape: &Shape, open: bool) -> String {
             let plain = variants
                 .iter()
                 .all(|variant| variant.holds == Holds::Nothing);
-            let held = if plain { "String" } else { JSON };
-            let last = open.then(|| unrecognised("#[serde(untagged)]\n", held));
-            enum_of(&mut text, &shape.name, "", last, variants);
+            if plain {
+                let last = open.then(|| unrecognised("#[serde(untagged)]\n", "String"));
+                enum_of(&mut text, &shape.name, "", last, variants);
+            } else {
+                tagged_enum(&mut text, &shape.name, "", None, open, variants);
+            }
         }
         Body::Tagged { tag, variants } => {
             let attribute = format!("#[serde(tag = {})]\n", literal(tag));
-            let last = open.then(|| unrecognised("#[serde(untagged)]\n", JSON));
-            enum_of(&mut text, &shape.name, &attribute, last, variants);
+            tagged_enum(
+                &mut text,
+                &shape.name,
+                &attribute,
+                Some(tag),
+                open,
+                variants,
+            );
         }
         Body::Untagged(variants) => {
             let last = open.then(|| unrecognised("", JSON));
@@ -247,6 +256,41 @@ fn shape_of(shape: &Shape, open: bool) -> String {
         }
     }
     text
+}
+
+fn tagged_enum(
+    text: &mut String,
+    name: &str,
+    attribute: &str,
+    tag: Option<&str>,
+    open: bool,
+    variants: &[Variant],
+) {
+    let told = format!(
+        "#[serde(untagged, deserialize_with = \"crate::open::unrecognised::<{name}, _>\")]\n"
+    );
+    enum_of(
+        text,
+        name,
+        attribute,
+        open.then(|| unrecognised(&told, JSON)),
+        variants,
+    );
+    if open {
+        let wires: Vec<&str> = variants
+            .iter()
+            .map(|variant| variant.wire.as_deref().unwrap_or(&variant.name))
+            .collect();
+        let tag = tag.map_or_else(
+            || "None".to_owned(),
+            |tag| format!("Some({})", literal(tag)),
+        );
+        let _ = write!(
+            text,
+            "impl crate::open::Tags for {name} {{\nconst TAG: Option<&str> = {tag};\nconst KNOWN: &[&str] = &[{}];\n}}\n\n",
+            listed(&wires)
+        );
+    }
 }
 
 fn unrecognised(attribute: &str, held: &str) -> String {

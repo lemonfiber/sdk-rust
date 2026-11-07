@@ -266,8 +266,13 @@ pub enum Limit {
         at: u64,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Limit, _>")]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Limit {
+    const TAG: Option<&str> = Some("as");
+    const KNOWN: &[&str] = &["unlimited", "share", "absolute"];
 }
 
 /// One narrated line: a step, and what was specifically true of it.

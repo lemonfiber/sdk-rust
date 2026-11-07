@@ -9,6 +9,7 @@ use crate::contract::refusals::{NOT_ADMITTED, NO_SUCH_JOB};
 use crate::contract::{Appetite, CapabilityState, Chosen};
 use crate::envelope::raw;
 use crate::error::{Refusal, RefusedBecause};
+use crate::open::kept;
 use crate::query::{located, segment};
 use crate::refusal::refusal_of;
 use crate::sse::Parser;
@@ -511,12 +512,49 @@ fn a_value_a_read_answers_with_that_this_client_was_not_generated_with_is_kept()
 }
 
 #[test]
-fn a_tagged_value_this_client_was_not_generated_with_keeps_all_it_carried() -> Outcome {
+fn a_tag_this_client_does_not_know_keeps_all_it_carried() -> Outcome {
     let newer = json!({ "chosen": "something-newer", "held": 1 });
     let chosen: Chosen = serde_json::from_value(newer.clone())?;
     assert_eq!(chosen, Chosen::Unrecognised(newer.clone()));
     assert_eq!(serde_json::to_value(&chosen)?, newer);
     Ok(())
+}
+
+#[test]
+fn a_tag_this_client_knows_reads_as_that_tag_or_not_at_all() -> Outcome {
+    let named: Chosen = serde_json::from_value(json!({ "chosen": "named", "door": "caddy" }))?;
+    assert_eq!(
+        named,
+        Chosen::Named {
+            door: "caddy".to_owned()
+        }
+    );
+    assert!(serde_json::from_value::<Chosen>(json!({ "chosen": "named" })).is_err());
+    assert!(serde_json::from_value::<Chosen>(json!({ "chosen": "named", "door": 1 })).is_err());
+    Ok(())
+}
+
+#[test]
+fn a_value_naming_no_tag_is_not_kept() {
+    assert!(serde_json::from_value::<Chosen>(json!({ "held": 1 })).is_err());
+    assert!(serde_json::from_value::<Chosen>(json!({ "chosen": 1 })).is_err());
+}
+
+#[test]
+fn only_a_key_this_client_does_not_know_is_kept_of_a_keyed_value() {
+    let known = ["none", "custom"];
+    for newer in [json!("newer"), json!({ "newer": 1 })] {
+        assert_eq!(kept(newer.clone(), None, &known), Ok(newer));
+    }
+    for refused in [
+        json!("none"),
+        json!({ "custom": "held" }),
+        json!({ "newer": 1, "newest": 2 }),
+        json!({}),
+        json!(1),
+    ] {
+        assert!(kept(refused, None, &known).is_err());
+    }
 }
 
 #[test]

@@ -1,3 +1,81 @@
+/// An adapter that writes the files of the service it fronts, through that service's
+/// whole configuration directory mounted into it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginSharing {
+    /// The adapter.
+    pub adapter: String,
+    /// Where that service's configuration directory lands inside the adapter.
+    pub at: String,
+    /// The service whose files it writes.
+    pub upstream: String,
+}
+
+/// Whether one installed plugin's source can still be fetched.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginSource {
+    /// The source the record says it came from.
+    pub from: String,
+    /// The plugin, by its id.
+    pub plugin: String,
+    /// What asking it came to.
+    pub standing: super::PluginSourceStanding,
+}
+
+/// What asking a plugin's source came to.
+///
+/// **Unreachable is not untrusted.** A plugin whose source has gone keeps running as it
+/// was installed; what it loses is the way to a newer version, and that is said now
+/// rather than found out at the next update.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "standing")]
+#[non_exhaustive]
+pub enum PluginSourceStanding {
+    /// It answered, so the plugin can be updated from it.
+    #[serde(rename = "reachable")]
+    Reachable,
+    /// It did not answer, or is no longer there, so the plugin cannot be updated from it.
+    #[serde(rename = "unreachable")]
+    Unreachable {
+        /// What asking it said.
+        why: String,
+    },
+    /// Nothing was asked, so nothing is known either way.
+    #[serde(rename = "unasked")]
+    Unasked {
+        /// Why nothing was asked.
+        why: String,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PluginSourceStanding, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PluginSourceStanding {
+    const TAG: Option<&str> = Some("standing");
+    const KNOWN: &[&str] = &["reachable", "unreachable", "unasked"];
+}
+
+/// One call a recipe makes, in the order it makes them.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginStep {
+    /// The step's id within its recipe.
+    pub id: String,
+    /// The HTTP method it calls with.
+    pub method: String,
+    /// The API the destination is reached in, as the installed plugin providing it
+    /// declares it, or nothing where none does or it is a name outside the stack.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub native: Option<String>,
+    /// The path it calls.
+    pub path: String,
+    /// Where it calls: a service of this stack's or the plugin's own, or a name outside
+    /// both, as the manifest wrote it. Never a resolved address.
+    pub to: String,
+}
+
 /// What one step came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct PluginStepRan {
@@ -160,8 +238,22 @@ pub enum PluginVerdict {
         why: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<PluginVerdict, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for PluginVerdict {
+    const TAG: Option<&str> = Some("outcome");
+    const KNOWN: &[&str] = &[
+        "passed",
+        "failed",
+        "unproven",
+        "failing-as-declared",
+        "open",
+    ];
 }
 
 /// What the stack's own checks made of an install.

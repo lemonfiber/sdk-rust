@@ -215,8 +215,16 @@ pub enum UninstallRemoval {
         left: Vec<super::UninstallLeft>,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<UninstallRemoval, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for UninstallRemoval {
+    const TAG: Option<&str> = Some("state");
+    const KNOWN: &[&str] = &["surveyed", "confirmed", "complete", "partial"];
 }
 
 /// What is to happen to content the media server has no rating for.

@@ -87,8 +87,13 @@ pub enum Reaches {
         why: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Reaches, _>")]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Reaches {
+    const TAG: Option<&str> = Some("how");
+    const KNOWN: &[&str] = &["asked", "by-name"];
 }
 
 /// One service reading a setting or a secret.
@@ -475,8 +480,23 @@ pub enum RepairOutcome {
     #[serde(rename = "unmanaged")]
     Unmanaged,
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<RepairOutcome, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for RepairOutcome {
+    const TAG: Option<&str> = Some("outcome");
+    const KNOWN: &[&str] = &[
+        "fixed",
+        "fix_failed",
+        "stopped",
+        "declined",
+        "would_overwrite",
+        "unmanaged",
+    ];
 }
 
 /// What a repairing run offered, and what it did.
@@ -633,8 +653,16 @@ pub enum Resolved {
     #[serde(rename = "unmeasured")]
     Unmeasured,
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<Resolved, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Resolved {
+    const TAG: Option<&str> = Some("is");
+    const KNOWN: &[&str] = &["unlimited", "at", "unmeasured"];
 }
 
 /// Where a respite stands against the clock.
@@ -658,8 +686,16 @@ pub enum RespiteStanding {
         seconds: u64,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<RespiteStanding, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for RespiteStanding {
+    const TAG: Option<&str> = Some("standing");
+    const KNOWN: &[&str] = &["none", "in-force", "expired"];
 }
 
 /// What a restore said: what it would overwrite, and whether it did.
@@ -858,18 +894,4 @@ pub struct Root {
     pub at: String,
     /// What lives under it, and what losing it would cost.
     pub what: String,
-}
-
-/// What one rotation came to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Rotation {
-    /// Every consumer, and how far the rotation reached it.
-    pub consumers: Vec<super::Propagation>,
-    /// Which credential was to be replaced.
-    pub credential: String,
-    /// The offer a replacement that takes one answers, where this reading named one.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub offer: Option<String>,
-    /// What became of the replacement.
-    pub settled: super::Settled,
 }

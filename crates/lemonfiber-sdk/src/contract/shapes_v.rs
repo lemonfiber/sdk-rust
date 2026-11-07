@@ -35,8 +35,16 @@ pub enum Validation {
         detail: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<Validation, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Validation {
+    const TAG: Option<&str> = Some("outcome");
+    const KNOWN: &[&str] = &["valid", "rejected", "unreachable", "degraded"];
 }
 
 /// Where a value in force came from.
@@ -89,8 +97,23 @@ pub enum ValueOrigin {
         named: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<ValueOrigin, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for ValueOrigin {
+    const TAG: Option<&str> = Some("origin");
+    const KNOWN: &[&str] = &[
+        "bundled",
+        "operator",
+        "plugin",
+        "unknown",
+        "overridden",
+        "orphaned",
+    ];
 }
 
 /// The value a plugin's change replaced, and where that value came from.

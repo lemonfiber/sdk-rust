@@ -1,3 +1,29 @@
+/// Every setting and secret the stack's services read, and what changing a setting came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SettingsReport {
+    /// The change asked for, where one was.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub change: Option<super::SettingChange>,
+    /// Each of lemonfiber's own guards this act moved onto its plugin after its own
+    /// change, or on a reading would move, for good and with no yes of its own; one it
+    /// could not move stays on offer and says why.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub guards: Option<Vec<super::StackMoveTaken>>,
+    /// Whether this was a rehearsal.
+    pub rehearsed: bool,
+    /// Every secret a service's environment names, in name order, never with its value.
+    pub secrets: Vec<super::SecretRead>,
+    /// Every setting, in name order.
+    pub settings: Vec<super::SettingRead>,
+    /// The operator's overlay and every service it changes, where there is one: merged
+    /// over the project this run would start, and held to nothing lemonfiber vets.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unvetted: Option<super::Unvetted>,
+    /// The services held back until the operator gives what they need to start, each
+    /// with what it waits for, as status names them.
+    pub waiting: Vec<super::Waiting>,
+}
+
 /// What became of a rotation.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "settled")]
@@ -75,8 +101,21 @@ pub enum Settled {
         detail: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Settled, _>")]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Settled {
+    const TAG: Option<&str> = Some("settled");
+    const KNOWN: &[&str] = &[
+        "replaced",
+        "refused",
+        "unproven",
+        "replaced-unproven",
+        "rehearsed",
+        "unknown",
+        "elsewhere",
+    ];
 }
 
 /// One answer, tagged by the step it belongs to.
@@ -423,8 +462,24 @@ pub enum SpaceCategory {
     #[serde(rename = "unmanaged")]
     Unmanaged,
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<SpaceCategory, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for SpaceCategory {
+    const TAG: Option<&str> = Some("of");
+    const KNOWN: &[&str] = &[
+        "tree",
+        "landing",
+        "seeding",
+        "orphaned",
+        "extracted",
+        "services",
+        "unmanaged",
+    ];
 }
 
 /// Something a cleanup could not take.
@@ -841,54 +896,4 @@ pub struct StoredBeside {
     pub what: String,
     /// Whose it is, and why it is not lemonfiber's to take away.
     pub why: String,
-}
-
-/// Something a removal could not take away.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct StoredLeft {
-    /// The path that is still there.
-    pub at: String,
-    /// What the machine said about it, so it can be finished by hand.
-    pub why: String,
-}
-
-/// Whether anything was removed on this run, and what became of it.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "state")]
-#[non_exhaustive]
-pub enum StoredRemoval {
-    /// Nobody asked. This is a listing.
-    #[serde(rename = "not-asked")]
-    NotAsked,
-    /// Asked for without the agreement it takes, so nothing was touched.
-    #[serde(rename = "unconfirmed")]
-    Unconfirmed,
-    /// Carried out.
-    #[serde(rename = "done")]
-    Done {
-        /// The directories that are gone.
-        gone: Vec<String>,
-        /// What could not be removed, each with the reason.
-        left: Vec<super::StoredLeft>,
-    },
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(serde_json::Value),
-}
-
-/// Why playback here is likely to struggle, whatever app the household installs.
-///
-/// Present only where the preset in force asks for transcoding this platform cannot
-/// do in hardware. It belongs to the guidance rather than to any one device: the
-/// preset and the platform decide it between them, and every device in the table
-/// meets it.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Straining {
-    /// What that preset asks of this machine, and what playback does where this
-    /// machine cannot give it.
-    pub caution: String,
-    /// What makes it stop.
-    pub instead: String,
-    /// The preset in force, under the name it was chosen by.
-    pub preset: String,
 }

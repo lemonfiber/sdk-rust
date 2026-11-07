@@ -209,6 +209,11 @@ pub enum Owner {
         namespace: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Owner, _>")]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Owner {
+    const TAG: Option<&str> = Some("of");
+    const KNOWN: &[&str] = &["core", "namespace"];
 }

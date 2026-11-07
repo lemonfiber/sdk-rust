@@ -317,8 +317,13 @@ pub enum Chosen {
         door: super::Refusal,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Chosen, _>")]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Chosen {
+    const TAG: Option<&str> = Some("chosen");
+    const KNOWN: &[&str] = &["derived", "named", "refused"];
 }
 
 /// A stable identifier for a kind of problem.
@@ -622,8 +627,16 @@ pub enum CredentialReach {
         detail: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<CredentialReach, _>"
+    )]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for CredentialReach {
+    const TAG: Option<&str> = Some("reach");
+    const KNOWN: &[&str] = &["updated", "pending", "failed"];
 }
 
 /// What revoking one grant came to, or would come to.

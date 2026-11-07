@@ -253,8 +253,36 @@ pub enum Action {
         path: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Action, _>")]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Action {
+    const TAG: Option<&str> = Some("does");
+    const KNOWN: &[&str] = &[
+        "remove",
+        "restore",
+        "delete",
+        "withdraw",
+        "rewind",
+        "reseed",
+        "move-back",
+        "rename-back",
+        "keep-copy",
+        "repin",
+        "reconfigure",
+        "revoke",
+        "reinstate",
+        "revoke-device",
+        "reinstate-device",
+        "resettle",
+        "regrant",
+        "rehold",
+        "unreplaced",
+        "unmoved",
+        "run",
+        "leave",
+    ];
 }
 
 /// One download still coming down when a reduction was asked for.
@@ -456,8 +484,13 @@ pub enum Answer {
         said: String,
     },
     /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Answer, _>")]
     Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Answer {
+    const TAG: Option<&str> = Some("answered");
+    const KNOWN: &[&str] = &["held", "silent"];
 }
 
 /// The `Apis` shape.
