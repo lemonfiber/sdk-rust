@@ -187,13 +187,17 @@ async fn a_refused_opening_is_read_up_to_its_limit_and_past_it_by_one_chunk() ->
     let sentence = "x".repeat(MOST_SAID + 1024);
     let body = String::from_utf8(problem("PLAY-9", &sentence))?;
     let (first, rest) = body.split_at(MOST_SAID);
-    let (client, _) = client(Scripted::opening(vec![Ok(stream_of(
-        403,
-        &[first, rest],
-        false,
-    ))]))?;
+    let short = String::from_utf8(problem("PLAY-9", "Short."))?;
+    let (opening, closing) = short.split_at(8);
+    let (client, _) = client(Scripted::opening(vec![
+        Ok(stream_of(403, &[first, rest], false)),
+        Ok(stream_of(403, &[opening, closing], false)),
+    ]))?;
     assert!(
         matches!(client.events(quick()).next().await, Err(Error::Refused(refusal)) if refusal.sentence == sentence)
+    );
+    assert!(
+        matches!(client.events(quick()).next().await, Err(Error::Refused(refusal)) if refusal.sentence == "Short.")
     );
     Ok(())
 }

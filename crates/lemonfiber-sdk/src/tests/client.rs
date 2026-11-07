@@ -12,7 +12,7 @@ use crate::contract::{CapabilityState, CredentialScope, Payload};
 use crate::transport::{Failure, Method, Response};
 use crate::{
     Acted, Action, Address, CapabilitySet, CertificatePin, Client, Credential, Error,
-    IdempotencyKey, JobStanding, Logged, Read, PICTURE_MOST,
+    IdempotencyKey, JobStanding, Logged, Read, PICTURE_MOST, PICTURE_TYPES,
 };
 
 fn playing() -> Vec<u8> {
@@ -268,6 +268,9 @@ async fn a_picture_is_a_raster_image_of_at_most_its_size() -> Outcome {
         sent.first().and_then(|request| request.most),
         Some(PICTURE_MOST)
     );
+    assert!(client_script.sent().first().is_some_and(|asked| asked
+        .headers
+        .contains(&("Accept", PICTURE_TYPES.join(", ")))));
     Ok(())
 }
 
