@@ -51,6 +51,7 @@ mod refusals_life;
 mod refusals_migrate;
 mod refusals_play;
 mod refusals_plugin;
+mod refusals_push;
 mod refusals_quota;
 mod refusals_rate;
 mod refusals_read;
@@ -183,6 +184,7 @@ pub mod refusals {
     pub use super::refusals_migrate::*;
     pub use super::refusals_play::*;
     pub use super::refusals_plugin::*;
+    pub use super::refusals_push::*;
     pub use super::refusals_quota::*;
     pub use super::refusals_rate::*;
     pub use super::refusals_read::*;
@@ -207,7 +209,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "abd7d75f6b2627327b6935f5322f696016413234";
+pub const REVISION: &str = "e2aa153d5bd6a7f1bd039e314ace6ba5a164f46c";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -221,6 +223,7 @@ pub const KINDS: &[&str] = &[
     "backup",
     "bandwidth",
     "beside",
+    "boot",
     "bundle",
     "capabilities",
     "catalogue",
@@ -264,6 +267,8 @@ pub const KINDS: &[&str] = &[
     "preview",
     "provenance",
     "pull",
+    "push-endpoint",
+    "push-endpoints",
     "quality",
     "removal",
     "repair",
@@ -332,6 +337,9 @@ pub enum Payload {
     /// The `beside` kind.
     #[serde(rename = "beside")]
     Beside(Box<BesideReport>),
+    /// The `boot` kind.
+    #[serde(rename = "boot")]
+    Boot(Box<BootReport>),
     /// The `bundle` kind.
     #[serde(rename = "bundle")]
     Bundle(Box<Bundle>),
@@ -461,6 +469,12 @@ pub enum Payload {
     /// The `pull` kind.
     #[serde(rename = "pull")]
     Pull(Box<String>),
+    /// The `push-endpoint` kind.
+    #[serde(rename = "push-endpoint")]
+    PushEndpoint(Box<RegisteredPushEndpoint>),
+    /// The `push-endpoints` kind.
+    #[serde(rename = "push-endpoints")]
+    PushEndpoints(Box<PushEndpointListing>),
     /// The `quality` kind.
     #[serde(rename = "quality")]
     Quality(Box<QualityReport>),

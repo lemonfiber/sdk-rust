@@ -525,3 +525,28 @@ pub enum Pulling {
     #[serde(untagged)]
     Unrecognised(String),
 }
+
+/// Every push endpoint, and what became of a removal.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PushEndpointListing {
+    /// In the order they were registered.
+    pub endpoints: Vec<super::ListedPushEndpoint>,
+    /// Whether this was a rehearsal: what removing would come to, with nothing removed.
+    pub rehearsed: bool,
+    /// The endpoint this request removed, where it removed one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub removed: Option<String>,
+}
+
+/// What a registration is asked with.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PushEndpointsBody {
+    /// The phone's `WebPush` secret, in base64url.
+    pub auth: String,
+    /// The `https` address the phone's `UnifiedPush` distributor gave.
+    pub endpoint: String,
+    /// What to call it: lower-case letters, digits, dots, dashes and underscores.
+    pub name: String,
+    /// The phone's `WebPush` public key, in base64url.
+    pub p256dh: String,
+}

@@ -124,3 +124,30 @@ pub struct Notes {
     /// Whether the record describes what this build could have shipped.
     pub state: super::ChangelogState,
 }
+
+/// What sort of thing an alert tells the operator.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum NotificationKind {
+    /// A condition at warning or worse, at onset and resolution.
+    #[serde(rename = "problem")]
+    Problem,
+    /// Work the operator asked for finishing.
+    #[serde(rename = "completion")]
+    Completion,
+    /// An update to the stack or lemonfiber being available.
+    #[serde(rename = "update")]
+    Update,
+    /// A backup that succeeded.
+    #[serde(rename = "backup")]
+    Backup,
+    /// A household member's request newly waiting on the operator.
+    #[serde(rename = "request")]
+    Request,
+    /// An invitation accepted, declined or lapsed.
+    #[serde(rename = "member")]
+    Member,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}

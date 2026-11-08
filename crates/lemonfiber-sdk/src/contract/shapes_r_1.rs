@@ -326,6 +326,19 @@ pub struct RegisteredDeviceKey {
     pub registered: String,
 }
 
+/// A push endpoint registered.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct RegisteredPushEndpoint {
+    /// The `https` address its distributor gave.
+    pub endpoint: String,
+    /// The name it was registered under.
+    pub name: String,
+    /// When it was registered.
+    pub registered: String,
+    /// Whether this was a rehearsal: what registering would come to, with nothing kept.
+    pub rehearsed: bool,
+}
+
 /// One release, and everything the record holds about it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Release {
@@ -870,28 +883,4 @@ pub struct Rhythm {
     pub from: String,
     /// When it ends, which may be the next morning.
     pub to: String,
-}
-
-/// Which of the two volumes a reading is about.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum Role {
-    /// Where the media and the downloads live.
-    #[serde(rename = "data")]
-    Data,
-    /// Where the services keep their own configuration and databases.
-    #[serde(rename = "services")]
-    Services,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
-}
-
-/// A directory everything lemonfiber keeps sits under.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Root {
-    /// The directory itself.
-    pub at: String,
-    /// What lives under it, and what losing it would cost.
-    pub what: String,
 }

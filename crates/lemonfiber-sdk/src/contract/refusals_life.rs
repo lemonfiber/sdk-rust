@@ -54,3 +54,11 @@ pub const OFFLINE_INSTALL_UNHELD: crate::RefusalCode = crate::RefusalCode {
     status: 409,
     description: "Raised where an install a start was agreed to did not hold.",
 };
+
+/// `LIFE-15`: Raised where a start would install a part whose install could not be read.
+pub const OFFLINE_INSTALL_UNREAD: crate::RefusalCode = crate::RefusalCode {
+    code: "LIFE-15",
+    name: "OFFLINE_INSTALL_UNREAD",
+    status: 409,
+    description: "Raised where a start would install a part whose install could not be read.",
+};

@@ -177,6 +177,15 @@ pub enum Action {
         /// The device key's name.
         name: String,
     },
+    /// Leave a push endpoint as it stands.
+    ///
+    /// Worked out so the record of a registration or a removal has a reversal to name, and
+    /// never carried out: only the phone holds what a registration is made from.
+    #[serde(rename = "push-endpoint")]
+    PushEndpoint {
+        /// The endpoint's name.
+        name: String,
+    },
     /// Put a setting in the settings store back to what it held.
     #[serde(rename = "resettle")]
     Resettle {
@@ -275,6 +284,7 @@ impl crate::open::Tags for Action {
         "reinstate",
         "revoke-device",
         "reinstate-device",
+        "push-endpoint",
         "resettle",
         "regrant",
         "rehold",
@@ -430,6 +440,10 @@ pub struct Alert {
     pub meaning: String,
     /// Which way it went.
     pub moment: super::Moment,
+    /// Which of the closed list of notification kinds this alert is, so a client can
+    /// offer a switch for it. A problem on an alert recorded before alerts carried one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub notification: Option<super::AlertNotification>,
     /// What to do about it, most likely first. An alert that says what happened
     /// and not what to do is a notification, which is a different and worse thing.
     pub remedies: Vec<String>,
@@ -441,6 +455,34 @@ pub struct Alert {
     pub summary: String,
 }
 
+/// Which of the closed list of notification kinds this alert is, so a client can
+/// offer a switch for it. A problem on an alert recorded before alerts carried one.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum AlertNotification {
+    /// A condition at warning or worse, at onset and resolution.
+    #[serde(rename = "problem")]
+    Problem,
+    /// Work the operator asked for finishing.
+    #[serde(rename = "completion")]
+    Completion,
+    /// An update to the stack or lemonfiber being available.
+    #[serde(rename = "update")]
+    Update,
+    /// A backup that succeeded.
+    #[serde(rename = "backup")]
+    Backup,
+    /// A household member's request newly waiting on the operator.
+    #[serde(rename = "request")]
+    Request,
+    /// An invitation accepted, declined or lapsed.
+    #[serde(rename = "member")]
+    Member,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// What the operator will be told about, and what changing it came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct AlertReport {
@@ -448,6 +490,9 @@ pub struct AlertReport {
     pub changed: bool,
     /// Events set apart from the preset, quietest name first.
     pub exceptions: Vec<super::ExceptionReport>,
+    /// The notification kinds this stack raises as it is configured, so a client offers a
+    /// switch for each of those and for nothing else.
+    pub kinds: Vec<super::NotificationKind>,
     /// What that preset means, in the operator's terms.
     pub means: String,
     /// The preset in force for events with no exception of their own.
