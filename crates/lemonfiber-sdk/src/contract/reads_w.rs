@@ -20,6 +20,21 @@ impl crate::Read for Watching {
     const KINDS: &[&str] = &["part-way"];
 }
 
+/// `GET /api/watcher`, answered with `watcher`.
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
+pub struct Watcher {}
+
+impl crate::Answer for super::WatcherReport {
+    const TAGGED: bool = false;
+}
+
+impl crate::Read for Watcher {
+    type Answer = super::WatcherReport;
+    const PATH: &str = "/api/watcher";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["watcher"];
+}
+
 /// `GET /api/wiring`, answered with `wiring`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
 pub struct Wiring {}

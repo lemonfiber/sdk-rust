@@ -331,6 +331,36 @@ pub enum Moment {
     Unrecognised(String),
 }
 
+/// How a monitor checks what it watches.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum MonitorKind {
+    /// An HTTP request answered with a success.
+    #[serde(rename = "http")]
+    Http,
+    /// An HTTP request whose answer holds a word.
+    #[serde(rename = "keyword")]
+    Keyword,
+    /// A TCP port that takes a connection.
+    #[serde(rename = "port")]
+    Port,
+    /// A host that answers a ping.
+    #[serde(rename = "ping")]
+    Ping,
+    /// A name that resolves.
+    #[serde(rename = "dns")]
+    Dns,
+    /// A container that runs.
+    #[serde(rename = "docker")]
+    Docker,
+    /// A check-in expected each interval.
+    #[serde(rename = "heartbeat")]
+    Heartbeat,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// A move in place the bundle offers: the plugin and the stack's own service of its id it
 /// would take the place of.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]

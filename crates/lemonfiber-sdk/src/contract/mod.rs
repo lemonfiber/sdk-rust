@@ -209,7 +209,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "e2aa153d5bd6a7f1bd039e314ace6ba5a164f46c";
+pub const REVISION: &str = "a1ca3119cbfcfcf6279e73af3cbbf53a64d7fed8";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -297,6 +297,7 @@ pub const KINDS: &[&str] = &[
     "walkthrough",
     "watch",
     "watched",
+    "watcher",
     "wiring",
     "wizard",
     "word",
@@ -559,6 +560,9 @@ pub enum Payload {
     /// The `watched` kind.
     #[serde(rename = "watched")]
     Watched(Box<WatchedReport>),
+    /// The `watcher` kind.
+    #[serde(rename = "watcher")]
+    Watcher(Box<WatcherReport>),
     /// The `wiring` kind.
     #[serde(rename = "wiring")]
     Wiring(Box<WiringReport>),
