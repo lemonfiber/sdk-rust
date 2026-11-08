@@ -144,6 +144,48 @@ impl crate::open::Tags for Wanted {
     const KNOWN: &[&str] = &["setting", "secret", "service"];
 }
 
+/// Which path an entry point's monitor watches.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum WatchPath {
+    /// The address the household is handed.
+    #[serde(rename = "household")]
+    Household,
+    /// The address the stack's own network reaches it at.
+    #[serde(rename = "internal")]
+    Internal,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// What a monitor sees.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum WatchState {
+    /// What it watches answered.
+    #[serde(rename = "up")]
+    Up,
+    /// What it watches failed as many checks as it alarms after.
+    #[serde(rename = "down")]
+    Down,
+    /// What it watches failed a check, and fewer than it alarms after.
+    #[serde(rename = "pending")]
+    Pending,
+    /// It is not checking.
+    #[serde(rename = "paused")]
+    Paused,
+    /// What it covers is stopped on purpose.
+    #[serde(rename = "expected-down")]
+    ExpectedDown,
+    /// It holds no reading newer than its interval and grace.
+    #[serde(rename = "not-reporting")]
+    NotReporting,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// A player's report of how far a member got, as the media server now holds it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct WatchedReport {
@@ -155,6 +197,60 @@ pub struct WatchedReport {
     pub position: u64,
     /// Whether this was a rehearsal: what would have happened, with none of it done.
     pub rehearsed: bool,
+}
+
+/// One monitor, and what it covers where lemonfiber made it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct WatchedTarget {
+    /// Whether it is checking, rather than only defined.
+    pub active: bool,
+    /// What it covers, by the record of what lemonfiber provisioned; absent for a monitor
+    /// lemonfiber did not make.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub covers: Option<super::Covers>,
+    /// A heartbeat's interval, grace and last check-in.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub heartbeat: Option<super::Heartbeat>,
+    /// How it checks.
+    pub kind: super::MonitorKind,
+    /// When it last took a reading, in seconds since the Unix epoch, where it ever has.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_reading: Option<u64>,
+    /// Its own name in the watcher.
+    pub name: String,
+    /// Which path an entry point's monitor watches.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub path: Option<super::WatchPath>,
+    /// Since when, in seconds since the Unix epoch.
+    pub since: u64,
+    /// What it sees.
+    pub state: super::WatchState,
+    /// What it was asked to watch and what it watches instead, where it does not watch
+    /// what it should.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unconfigured: Option<super::Unconfigured>,
+}
+
+/// Which part watches the stack from outside it, whether it answers, and what each of its
+/// monitors sees beside what it covers.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct WatcherReport {
+    /// Every monitor it holds, the operator's and lemonfiber's.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub monitors: Option<Vec<super::WatchedTarget>>,
+    /// Whether the watcher answers. False is coverage nobody can see, never all clear.
+    pub reachable: bool,
+    /// When it was asked, in seconds since the Unix epoch.
+    pub read_at: u64,
+    /// Every critical service and household entry point no active monitor covers.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub uncovered: Option<Vec<super::Covers>>,
+    /// Why it does not answer, where it does not.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unreachable_because: Option<String>,
+    /// The plugin filling `status.watch`, where one does.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub watcher: Option<String>,
 }
 
 /// What to do when a declared cap is reached.

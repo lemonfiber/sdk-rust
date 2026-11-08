@@ -1,3 +1,14 @@
+/// What a monitor was asked to watch, what it watches instead, and why.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Unconfigured {
+    /// What it was asked to watch.
+    pub wanted: String,
+    /// What it watches.
+    pub watches: String,
+    /// Why, in the stack's words.
+    pub why: String,
+}
+
 /// A container running under this project that the stack description never declared.
 ///
 /// Its own type rather than a [`Service`] with the fields left blank. A service
@@ -97,6 +108,9 @@ pub struct Unfilled {
     /// The medium it asked a filler of, where nothing filling it files that medium.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub files: Option<String>,
+    /// The media it asked a filler of, where nothing filling it files one of them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub media_types: Option<Vec<String>>,
     /// The upstream's own API it asked in, or every API it asked in any of, where no
     /// upstream filling it declares one of them.
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -247,6 +247,11 @@ pub struct LifecycleReport {
     /// over the project this run starts, and held to nothing lemonfiber vets.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub unvetted: Option<super::Unvetted>,
+    /// What holding the outside watcher to the stack's monitors came to, where it was
+    /// more than held already: given them, or why not. Absent where it already held them
+    /// or nothing fills `status.watch`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub watched: Option<String>,
 }
 
 /// How much of the line something may take.

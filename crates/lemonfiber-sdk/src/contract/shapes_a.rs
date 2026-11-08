@@ -201,6 +201,17 @@ pub enum Action {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         value: Option<String>,
     },
+    /// Ask a curator to grab a release again by its fingerprint and lift its blocklist
+    /// entry.
+    #[serde(rename = "regrab")]
+    Regrab {
+        /// The kind of media the curator files it as.
+        kind: super::TitleKind,
+        /// The release's fingerprint.
+        release: String,
+        /// The curator's id for the title.
+        title: i64,
+    },
     /// Give a grant back to a plugin, or end one it was given.
     #[serde(rename = "regrant")]
     Regrant {
@@ -286,6 +297,7 @@ impl crate::open::Tags for Action {
         "reinstate-device",
         "push-endpoint",
         "resettle",
+        "regrab",
         "regrant",
         "rehold",
         "unreplaced",

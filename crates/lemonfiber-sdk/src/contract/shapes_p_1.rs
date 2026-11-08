@@ -696,6 +696,9 @@ pub struct PluginAsking {
     /// The medium the filler it reaches files, where it narrows the ask to one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub files: Option<String>,
+    /// The media it asks a filler of, where it narrows the ask to the fillers of those.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub media_types: Option<Vec<String>>,
     /// The upstream's own API it talks in, or every API it talks in any of, which it
     /// reaches in place of the adapter.
     #[serde(default, skip_serializing_if = "Option::is_none")]
