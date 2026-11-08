@@ -1,3 +1,18 @@
+/// `GET /api/boot`, answered with `boot`.
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
+pub struct Boot {}
+
+impl crate::Answer for super::BootReport {
+    const TAGGED: bool = false;
+}
+
+impl crate::Read for Boot {
+    type Answer = super::BootReport;
+    const PATH: &str = "/api/boot";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["boot"];
+}
+
 /// `GET /api/backups`, answered with `archives`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
 pub struct Backups {}

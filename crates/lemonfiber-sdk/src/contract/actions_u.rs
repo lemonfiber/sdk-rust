@@ -56,6 +56,10 @@ pub struct Up {
     /// The services to act on, leaving the rest of the form alone.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub services: Option<Vec<String>>,
+    /// What was read before answering — the offer a repair's yes was read in, the
+    /// listing a restore's was, what a replacement would stop — as it named itself.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub offer: Option<String>,
     /// Whether to rehearse: write nothing, and answer with what the action would do.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dry_run: Option<bool>,
@@ -64,7 +68,7 @@ pub struct Up {
 impl crate::Action for Up {
     const NAME: &str = "up";
     const REHEARSAL: bool = true;
-    const CONSENT: &[&str] = &[];
+    const CONSENT: &[&str] = &["offer"];
 }
 
 /// `POST /api/actions/update`.

@@ -136,6 +136,10 @@ pub struct LifecycleReport {
     /// a service is fenced and they were not. Absent for every other action.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fencing: Option<String>,
+    /// The VPN's forwarded port before the start and after it, and whether every client
+    /// takes it, where the guard forwards one or the clients took one before.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub forwarded: Option<super::Forwarded>,
     /// What starting the stack did about the VPN's forwarded port, where it did
     /// anything. Absent in the ordinary case — the client was already on it, or
     /// there is no tunnel to forward through — and a sentence where the client was
@@ -401,6 +405,17 @@ pub struct ListedKey {
     /// When it was last admitted, where it has been.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub used: Option<String>,
+}
+
+/// One push endpoint as the listing shows it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ListedPushEndpoint {
+    /// The `https` address its distributor gave.
+    pub endpoint: String,
+    /// The name it was registered under.
+    pub name: String,
+    /// When it was registered.
+    pub registered: String,
 }
 
 /// The archives this machine has kept.

@@ -29,3 +29,12 @@ pub const ANOTHER_OFFER: crate::RefusalCode = crate::RefusalCode {
     status: 400,
     description: "Raised when an agreement names an offer that is not the one standing now.",
 };
+
+/// `SPACE-8`: Raised when an answer narrows to a category its offer does not hold as costing nothing.
+pub const NOT_ON_OFFER: crate::RefusalCode = crate::RefusalCode {
+    code: "SPACE-8",
+    name: "NOT_ON_OFFER",
+    status: 400,
+    description:
+        "Raised when an answer narrows to a category its offer does not hold as costing nothing.",
+};

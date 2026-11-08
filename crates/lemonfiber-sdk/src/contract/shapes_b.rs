@@ -155,6 +155,102 @@ pub struct Beyond {
     pub remedy: super::Remedy,
 }
 
+/// What a run at boot came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum BootOutcome {
+    /// The stack came back, tunnel and forwarded port included.
+    #[serde(rename = "passed")]
+    Passed,
+    /// The stack, or its tunnel, did not come back.
+    #[serde(rename = "failed")]
+    Failed,
+    /// The rest came back, and a part waits for its install from this build.
+    #[serde(rename = "waiting-for-install")]
+    WaitingForInstall,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// When this machine last started, what the run after it came to, and how long the
+/// stack has failed to come back.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct BootReport {
+    /// When this machine last started, in seconds since the Unix epoch, where it says.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub booted_at: Option<u64>,
+    /// Why a run after that start started nothing, where one did.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub declined: Option<String>,
+    /// How many starts it has failed to come back after since then.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub failed_boots: Option<u32>,
+    /// Since when the stack has failed to come back, in seconds since the Unix epoch.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub failing_since: Option<u64>,
+    /// The newest verification kept against any start.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_verified: Option<super::BootVerification>,
+    /// The verification kept against that start, where one ran after it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub verified: Option<super::BootVerification>,
+}
+
+/// Whether the tunnel came back with the stack.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "state")]
+#[non_exhaustive]
+pub enum BootTunnel {
+    /// Its checks passed.
+    #[serde(rename = "held")]
+    Held,
+    /// A check of it failed.
+    #[serde(rename = "not-established")]
+    NotEstablished {
+        /// Which, in the stack's words.
+        said: String,
+    },
+    /// Nothing checked it: the stack runs no tunnel, did not come up, or could not be
+    /// read.
+    #[serde(rename = "not-checked")]
+    NotChecked,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<BootTunnel, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for BootTunnel {
+    const TAG: Option<&str> = Some("state");
+    const KNOWN: &[&str] = &["held", "not-established", "not-checked"];
+}
+
+/// What one run at boot that reached the stack came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct BootVerification {
+    /// When the machine started that the run came after, where it said.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub against: Option<u64>,
+    /// When the run finished.
+    pub at: u64,
+    /// Each service that did not come back.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub not_back: Option<Vec<String>>,
+    /// What it came to.
+    pub outcome: super::BootOutcome,
+    /// The forwarded port before the start and after it, where the stack forwards one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub port: Option<super::Forwarded>,
+    /// The sentence the run raised, where it raised one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub said: Option<String>,
+    /// Whether the tunnel came back with the stack.
+    pub tunnel: super::BootTunnel,
+}
+
 /// What a support request said: what a bundle holds, and where it is if it exists.
 ///
 /// One record with an absent path rather than two shapes, because the two answers

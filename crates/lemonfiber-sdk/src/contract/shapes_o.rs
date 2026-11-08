@@ -79,7 +79,7 @@ pub struct Outbound {
 
 /// One of the requests lemonfiber makes on its own account.
 ///
-/// Ten, and the closed set is the claim. An eleventh is a decision somebody makes by
+/// Eleven, and the closed set is the claim. A twelfth is a decision somebody makes by
 /// adding a variant here and answering four questions about it, rather than one
 /// that happens by somebody building a request.
 ///
@@ -140,6 +140,9 @@ pub enum OutboundReach {
     /// Fetching the poster of a title a member's search found.
     #[serde(rename = "posters")]
     Posters,
+    /// Waking a phone that asked to be woken when this stack has something to say.
+    #[serde(rename = "waking")]
+    Waking,
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),

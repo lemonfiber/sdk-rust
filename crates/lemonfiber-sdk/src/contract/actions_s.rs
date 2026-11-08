@@ -78,6 +78,9 @@ impl crate::Action for SettingsSet {
 /// `POST /api/actions/space`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
 pub struct Space {
+    /// The categories of what the offer holds as costing nothing to take, orphaned or extracted; all it holds where none is named.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub only: Option<Vec<String>>,
     /// What was read before answering — the offer a repair's yes was read in, the
     /// listing a restore's was, what a replacement would stop — as it named itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -150,6 +153,10 @@ pub struct Switch {
     /// The forms to act on.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub forms: Option<Vec<String>>,
+    /// What was read before answering — the offer a repair's yes was read in, the
+    /// listing a restore's was, what a replacement would stop — as it named itself.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub offer: Option<String>,
     /// Whether to rehearse: write nothing, and answer with what the action would do.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dry_run: Option<bool>,
@@ -158,5 +165,5 @@ pub struct Switch {
 impl crate::Action for Switch {
     const NAME: &str = "switch";
     const REHEARSAL: bool = true;
-    const CONSENT: &[&str] = &[];
+    const CONSENT: &[&str] = &["offer"];
 }

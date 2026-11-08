@@ -210,6 +210,19 @@ pub struct FormsReport {
     pub forms: Vec<super::FormReport>,
 }
 
+/// The VPN's forwarded port across a start.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Forwarded {
+    /// The port the guard forwards now, where it forwards one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub now: Option<u16>,
+    /// Whether every client inside the guard takes peers on it.
+    pub pushed: bool,
+    /// The port every client last took, where they took one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub was: Option<u16>,
+}
+
 /// How much a reading can be relied on.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "as")]
