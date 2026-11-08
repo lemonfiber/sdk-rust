@@ -225,6 +225,18 @@ pub struct HealthSummary {
     pub worst: Option<String>,
 }
 
+/// A heartbeat's interval and grace, and its last check-in.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Heartbeat {
+    /// The seconds between the check-ins it expects.
+    pub every_s: u64,
+    /// The seconds past its interval it waits before it alarms.
+    pub grace_s: u64,
+    /// When it last checked in, in seconds since the Unix epoch, where it ever has.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_check_in: Option<u64>,
+}
+
 /// One thing the household holds, as a member is shown it.
 ///
 /// What a person recognises and nothing else. There is no file path, no container,

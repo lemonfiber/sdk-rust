@@ -62,6 +62,9 @@ pub enum Reaches {
         /// The medium the filler it reaches files, where the ask is narrowed to one.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         files: Option<String>,
+        /// The media the fillers it reaches file one of, where the ask is narrowed to those.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        media_types: Option<Vec<String>>,
         /// The upstream's own API the ask talks in, or every API it talks in any of,
         /// where it reaches the upstream an adapter fronts rather than the adapter.
         #[serde(default, skip_serializing_if = "Option::is_none")]

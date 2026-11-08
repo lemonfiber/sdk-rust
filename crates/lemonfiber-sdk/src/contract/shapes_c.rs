@@ -550,6 +550,29 @@ pub struct Coverage {
     pub wanted: u64,
 }
 
+/// What a monitor lemonfiber provisions covers, which its tag names.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Covers {
+    /// A service of the stack, by its id.
+    #[serde(rename = "service")]
+    Service(String),
+    /// A household-facing entry point, by the id of the service it is.
+    #[serde(rename = "entry-point")]
+    EntryPoint(String),
+    /// A job the stack runs on a schedule, by its id.
+    #[serde(rename = "job")]
+    Job(String),
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Covers, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Covers {
+    const TAG: Option<&str> = None;
+    const KNOWN: &[&str] = &["service", "entry-point", "job"];
+}
+
 /// A credential of another service granted to a third-party plugin, named by the setting it
 /// is held under and never by its value.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
