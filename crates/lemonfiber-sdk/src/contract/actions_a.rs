@@ -39,14 +39,19 @@ pub struct Ask {
     /// the identifier their search listed it under.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
-    /// Whether the title asked for is a series or a film, as a page of a member's search
-    /// names it: `tv` or `movies`.
+    /// Whether the title asked for is a series, a film, music or books, as a page of a
+    /// member's search names it: `tv`, `movies`, `music` or `books`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kind: Option<String>,
     /// The seasons of a series asked for. None names every season not already here or
     /// on its way.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub seasons: Option<Vec<u32>>,
+    /// What is asked for within music or books, as a page of a member's search names
+    /// it: `album` or `artist`, `book`, `author` or `series`. Absent asks for an album
+    /// or a book.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
     /// Whether to rehearse: write nothing, and answer with what the action would do.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dry_run: Option<bool>,

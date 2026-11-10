@@ -253,6 +253,57 @@ pub struct WatcherReport {
     pub watcher: Option<String>,
 }
 
+/// Why a download is unhealthy.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Wedge {
+    /// Connected, with nothing moving and no source to move it.
+    #[serde(rename = "stalled")]
+    Stalled,
+    /// Moving, but so slowly its estimate runs past what is allowed.
+    #[serde(rename = "slow")]
+    Slow,
+    /// The client or the curator gave up on it.
+    #[serde(rename = "failed")]
+    Failed,
+    /// A torrent that has not resolved what it is.
+    #[serde(rename = "stuck-on-metadata")]
+    StuckOnMetadata,
+    /// In a client under a curator's category, and in no curator's queue.
+    #[serde(rename = "orphaned")]
+    Orphaned,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// One unhealthy item, as the latest pass found it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Wedged {
+    /// When it was added, in seconds since the Unix epoch, where anything says.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub added_at: Option<u64>,
+    /// Why it is unhealthy.
+    pub class: super::Wedge,
+    /// Until when it is left alone as newly added, where it still is.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub in_grace_until: Option<u64>,
+    /// What the next run would do to it, where healing is on.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next: Option<Vec<super::Act>>,
+    /// The release, by its name in the client.
+    pub release: String,
+    /// The curator it is queued with, or the client holding it where none is.
+    pub service: String,
+    /// How many consecutive passes have flagged it for this reason.
+    pub strikes: u32,
+    /// The title it is for, where a curator holds it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    /// Why, in words.
+    pub why: String,
+}
+
 /// What to do when a declared cap is reached.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]

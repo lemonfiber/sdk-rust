@@ -209,7 +209,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "a1ca3119cbfcfcf6279e73af3cbbf53a64d7fed8";
+pub const REVISION: &str = "f493bb8c4ef878445062bb225d93e92296bb89df";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -219,6 +219,7 @@ pub const KINDS: &[&str] = &[
     "alerts",
     "archives",
     "askable",
+    "askable-kinds",
     "asked",
     "backup",
     "bandwidth",
@@ -270,6 +271,7 @@ pub const KINDS: &[&str] = &[
     "push-endpoint",
     "push-endpoints",
     "quality",
+    "queue",
     "removal",
     "repair",
     "replacement",
@@ -280,6 +282,7 @@ pub const KINDS: &[&str] = &[
     "settings",
     "setup",
     "space",
+    "stack",
     "start",
     "status",
     "step",
@@ -326,6 +329,9 @@ pub enum Payload {
     /// The `askable` kind.
     #[serde(rename = "askable")]
     Askable(Box<AskableReport>),
+    /// The `askable-kinds` kind.
+    #[serde(rename = "askable-kinds")]
+    AskableKinds(Box<AskableKindsReport>),
     /// The `asked` kind.
     #[serde(rename = "asked")]
     Asked(Box<AskedReport>),
@@ -479,6 +485,9 @@ pub enum Payload {
     /// The `quality` kind.
     #[serde(rename = "quality")]
     Quality(Box<QualityReport>),
+    /// The `queue` kind.
+    #[serde(rename = "queue")]
+    Queue(Box<QueueHealth>),
     /// The `removal` kind.
     #[serde(rename = "removal")]
     Removal(Box<HouseholdRemoval>),
@@ -509,6 +518,9 @@ pub enum Payload {
     /// The `space` kind.
     #[serde(rename = "space")]
     Space(Box<Reckoning>),
+    /// The `stack` kind.
+    #[serde(rename = "stack")]
+    Stack(Box<StackReport>),
     /// The `start` kind.
     #[serde(rename = "start")]
     Start(Box<String>),

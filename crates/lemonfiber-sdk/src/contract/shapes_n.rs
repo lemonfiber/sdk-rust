@@ -6,8 +6,8 @@
 pub struct Newest {
     /// The checks most recently found wrong, each with its onset.
     pub problems: Vec<super::NewsCheck>,
-    /// The numbers of the household's newest requests.
-    pub requests: Vec<i64>,
+    /// The references of the household's newest requests.
+    pub requests: Vec<String>,
     /// The kinds that could not be read, as [`News::unread`] names them.
     pub unread: Vec<super::NewsKind>,
     /// The versions of the newest releases in the record this build carries.
@@ -19,7 +19,7 @@ pub struct Newest {
 pub struct News {
     /// The checks found wrong, the most recent onset first.
     pub problems: Vec<super::NewsProblem>,
-    /// What the household has asked for, highest number first.
+    /// What the household has asked for, the most recently asked first.
     pub requests: Vec<super::NewsRequest>,
     /// The kinds that could not be read.
     ///
@@ -71,13 +71,17 @@ pub struct NewsProblem {
     pub summary: String,
 }
 
-/// One request, by its number.
+/// One request, by its reference.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct NewsRequest {
+    /// When it was asked for, where that is known.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub asked: Option<String>,
     /// Who asked for it, by the name the media server holds them under.
     pub by: String,
-    /// The number the request service files it under.
-    pub number: i64,
+    /// The reference the household list names it with: the request service's number
+    /// (`42`), or `music-<n>` or `books-<n>` for an ask the core keeps.
+    pub request: String,
     /// What it is called, where a service has been told about it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
@@ -109,6 +113,13 @@ pub enum Next {
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
+}
+
+/// How any action is run without a question being put.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct NonInteractive {
+    /// The words an action is run with, as the command line takes them.
+    pub form: String,
 }
 
 /// What a surface shows about the record, given the version asking.

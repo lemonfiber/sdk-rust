@@ -14,9 +14,15 @@ pub struct Leaving {
 /// holds them to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct LeftAfter {
+    /// Books, authors and series still to ask for, absent where nothing limits them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub books: Option<u32>,
     /// Films still to ask for, absent where nothing limits them.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub films: Option<u32>,
+    /// Albums and artists still to ask for, absent where nothing limits them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub music: Option<u32>,
     /// Seasons of television still to ask for, absent where nothing limits them.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub television: Option<u32>,
