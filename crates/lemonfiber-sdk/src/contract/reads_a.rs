@@ -74,6 +74,9 @@ pub struct AskableIdPoster {
     /// The `kind` parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub kind: Option<String>,
+    /// The `unit` parameter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
 }
 
 impl crate::FileRead for AskableIdPoster {
