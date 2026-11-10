@@ -132,14 +132,19 @@ jobs:
           done <<< "$(git diff --name-only HEAD^1 HEAD)"
           echo "code=${code}" >> "$GITHUB_OUTPUT"
 
-  # The most expensive gate. `cargo mutants` runs the suite unmutated first and stops
-  # where it fails, so it measures nothing over tests already red.
-  mutation:
-    name: mutation testing
+  # The most expensive gate, split across shards that run at once. `cargo mutants` runs
+  # the suite unmutated first and stops where it fails, so it measures nothing over tests
+  # already red.
+  mutation-shards:
+    name: mutation (${{ matrix.shard }})
     needs: scope
     if: ${{ !cancelled() && github.event_name == 'pull_request' && (needs.scope.result != 'success' || needs.scope.outputs.code == 'true') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -149,11 +154,31 @@ jobs:
       - uses: taiki-e/install-action@75a348306ce8f67c0b06fc62c32a8546140ba955 # cargo-mutants
         with:
           tool: cargo-mutants@27.1.0,just
-      - name: Mutate, and hold every mutant to being told apart
-        run: just mutation
+      - name: Mutate this shard, and hold every mutant to being told apart
+        env:
+          INDEX: ${{ strategy.job-index }}
+          TOTAL: ${{ strategy.job-total }}
+        run: just mutation "${INDEX}/${TOTAL}"
       - name: The mutants that survived, each as the change it made
         if: ${{ !cancelled() }}
         run: cat mutants.out/missed.txt
+
+  # One answer for the whole mutation run: every shard told every mutant apart.
+  mutation:
+    name: mutation testing
+    needs: mutation-shards
+    if: ${{ !cancelled() && needs.mutation-shards.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every shard told every mutant apart
+        env:
+          SHARDS: ${{ needs.mutation-shards.result }}
+        run: |
+          if [ "${SHARDS}" != success ]; then
+            echo "::error::A mutation shard let a mutant survive or did not finish (${SHARDS})."
+            exit 1
+          fi
 
   # A library's promise to its consumer, checked against the commit it pins. It needs the
   # whole history, to load that commit, and what breaks is what the head breaks and the

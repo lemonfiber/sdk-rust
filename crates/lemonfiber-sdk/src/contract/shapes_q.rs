@@ -58,3 +58,36 @@ pub struct Queue {
     /// How many of them are stuck rather than progressing.
     pub stuck: u64,
 }
+
+/// Whether healing acts, the strikes and grace it acts after, every unhealthy item of the
+/// latest pass, what could not be reached, and the newest runs.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct QueueHealth {
+    /// When the latest pass classified the queue, in seconds since the Unix epoch, where
+    /// one ever has.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub classified_at: Option<u64>,
+    /// How long a newly added download is left alone, in seconds.
+    pub grace_s: u64,
+    /// Whether healing acts, or only classifies.
+    pub healing: super::HealingSwitch,
+    /// Whether the list may be short, because something could not be read.
+    pub incomplete: bool,
+    /// Every unhealthy item the latest pass found; a healthy one is left out.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub items: Option<Vec<super::Wedged>>,
+    /// Where a download client files a curator's downloads outside the curator's folder,
+    /// which nothing is acted on past.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mismatch: Option<String>,
+    /// Whether this answer is a run that only said what it would do.
+    pub rehearsed: bool,
+    /// The newest runs first, each a pass that could act, rehearsed or not.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub runs: Option<Vec<super::HealRun>>,
+    /// How many consecutive passes flag an item for one reason before it is acted on.
+    pub strikes_needed: u32,
+    /// Every curator or download client the latest pass could not reach or verify.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unreachable: Option<Vec<super::Unreached>>,
+}

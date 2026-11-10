@@ -1,3 +1,57 @@
+/// One of the three acts a run takes on an item that struck out.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Act {
+    /// Drop the download from its client.
+    #[serde(rename = "remove")]
+    Remove,
+    /// Keep its release from being grabbed again.
+    #[serde(rename = "blocklist")]
+    Blocklist,
+    /// Search for the title again.
+    #[serde(rename = "search")]
+    Search,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// What became of one act.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum ActOutcome {
+    /// It was done.
+    #[serde(rename = "done")]
+    Done,
+    /// It would have been done; the run was a rehearsal.
+    #[serde(rename = "would")]
+    Would,
+    /// It was not done.
+    #[serde(rename = "refused")]
+    Refused,
+    /// Something weaker was done in its place.
+    #[serde(rename = "fell-back")]
+    FellBack,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// One act as a run took it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ActTaken {
+    /// The act.
+    pub act: super::Act,
+    /// What was done in its place, where something weaker was.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub instead: Option<super::Act>,
+    /// What became of it.
+    pub outcome: super::ActOutcome,
+    /// Why, where it was refused or fell back.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub why: Option<String>,
+}
+
 /// What an undo does.
 ///
 /// Tagged by what it does rather than by the field it sits in, so a reader parsing
@@ -206,7 +260,7 @@ pub enum Action {
     #[serde(rename = "regrab")]
     Regrab {
         /// The kind of media the curator files it as.
-        kind: super::TitleKind,
+        kind: super::VideoKind,
         /// The release's fingerprint.
         release: String,
         /// The curator's id for the title.
@@ -581,17 +635,44 @@ pub enum Appetite {
 /// One title a member's search found.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Askable {
+    /// Its artist or author, where it is music or books and one is known.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub by: Option<String>,
+    /// Where its cover is published, where it is music or books and has one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cover: Option<String>,
     /// The id it is asked for by.
     pub id: String,
-    /// Whether it is a series or a film.
+    /// Whether it is a series, a film, music or books.
     pub kind: super::TitleKind,
     /// Where it stands in the house.
     pub stands: super::Stands,
     /// What it is called.
     pub title: String,
+    /// What it is within music or books, and nothing for a series or a film.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unit: Option<super::TitleUnit>,
     /// The year it came out, where that is known.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub year: Option<u16>,
+}
+
+/// One kind a member may ask for now, with the units it is asked for in.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct AskableKind {
+    /// The kind.
+    pub kind: super::TitleKind,
+    /// The units a title of it is asked for in, none for series and films.
+    pub units: Vec<super::TitleUnit>,
+}
+
+/// Which kinds a member may ask for now.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct AskableKindsReport {
+    /// Each kind they may ask for now, series first.
+    pub kinds: Vec<super::AskableKind>,
+    /// The member asked about, by the name they are known by.
+    pub member: String,
 }
 
 /// One page of what a member's search found, under their limits.
@@ -617,7 +698,7 @@ pub struct AskableReport {
 /// What asking for one title came to, or would come to under a rehearsal.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct AskedReport {
-    /// Whether it is a series or a film.
+    /// Whether it is a series, a film, music or books.
     pub kind: super::TitleKind,
     /// What is left of the member's allowance once it is counted.
     pub leaves: super::LeftAfter,
@@ -630,12 +711,18 @@ pub struct AskedReport {
     /// Whether the title has come out yet. One that has not is asked for, and arrives
     /// once it is out.
     pub released: bool,
+    /// The reference the ask is named by on the household list, where the core keeps it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub request: Option<String>,
     /// All of it, in one household sentence.
     pub said: String,
-    /// The seasons asked for, none for a film.
+    /// The seasons asked for, none for a film, music or books.
     pub seasons: Vec<u32>,
     /// The id of the title asked for.
     pub title: String,
+    /// What it is within music or books, and nothing for a series or a film.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unit: Option<super::TitleUnit>,
 }
 
 /// Where one member stands against what a period allows them.

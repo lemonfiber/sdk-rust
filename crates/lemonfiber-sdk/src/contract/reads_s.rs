@@ -39,6 +39,21 @@ impl crate::Read for Storage {
     const KINDS: &[&str] = &["doctor"];
 }
 
+/// `GET /api/stack`, answered with `stack`.
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
+pub struct Stack {}
+
+impl crate::Answer for super::StackReport {
+    const TAGGED: bool = false;
+}
+
+impl crate::Read for Stack {
+    type Answer = super::StackReport;
+    const PATH: &str = "/api/stack";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["stack"];
+}
+
 /// `GET /api/stuck`, answered with `stuck`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
 pub struct Stuck {}

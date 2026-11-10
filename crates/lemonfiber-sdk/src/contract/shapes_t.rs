@@ -209,10 +209,10 @@ pub struct Title {
     pub year: Option<u16>,
 }
 
-/// Whether a title is a series or a film, as a member's search and ask name it.
+/// What kind of title a member's search and ask name: a series, a film, music or books.
 ///
-/// The web surface's own name for [`Kind`], whose name an SDK already gives to the kinds
-/// of envelope: the same two words on the wire, under a name nothing else takes.
+/// The web surface's own name for what a member asks for, whose name an SDK already gives
+/// to the kinds of envelope: the same words on the wire, under a name nothing else takes.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
 pub enum TitleKind {
@@ -222,6 +222,12 @@ pub enum TitleKind {
     /// A film.
     #[serde(rename = "movies")]
     Movies,
+    /// An album or a whole artist.
+    #[serde(rename = "music")]
+    Music,
+    /// A book, a whole author or a series of books.
+    #[serde(rename = "books")]
+    Books,
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
@@ -239,6 +245,30 @@ pub struct TitleReport {
     /// The title, with where it and each of its episodes is served.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<super::Title>,
+}
+
+/// What one title of music or books is, within its kind.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum TitleUnit {
+    /// One album.
+    #[serde(rename = "album")]
+    Album,
+    /// A whole artist.
+    #[serde(rename = "artist")]
+    Artist,
+    /// One book.
+    #[serde(rename = "book")]
+    Book,
+    /// A whole author.
+    #[serde(rename = "author")]
+    Author,
+    /// A series of books.
+    #[serde(rename = "series")]
+    Series,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// How sure the correlation behind a trace is — a release renamed between services can

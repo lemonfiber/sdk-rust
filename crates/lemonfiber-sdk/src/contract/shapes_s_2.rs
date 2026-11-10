@@ -503,6 +503,16 @@ pub struct StackEdit {
     pub path: String,
 }
 
+/// A part of the stack that the plain Compose words alone do not bring up as lemonfiber
+/// does, and why.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct StackException {
+    /// Why, in the operator's words.
+    pub because: String,
+    /// The part, by its id.
+    pub part: String,
+}
+
 /// A move in place this run took, or tried to take and could not.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct StackMoveTaken {
@@ -534,6 +544,48 @@ pub enum StackProtocol {
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
+}
+
+/// How this stack runs without lemonfiber.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct StackReport {
+    /// The `.env` file beside it.
+    pub env: String,
+    /// Every part the words alone do not bring up as lemonfiber does. Empty where there
+    /// is none.
+    pub exceptions: Vec<super::StackException>,
+    /// How any action is run without a question being put.
+    pub non_interactive: super::NonInteractive,
+    /// The `docker compose` words that bring the stack up with no lemonfiber running, as
+    /// lemonfiber's own start would run them.
+    pub plain_up: Vec<String>,
+    /// The directory the Compose project is written to.
+    pub project: String,
+    /// Whether this machine runs the stack this build ships or the operator's own.
+    pub source: super::StackSource,
+}
+
+/// Which stack this machine runs.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum StackSource {
+    /// The stack this build ships.
+    #[serde(rename = "bundled")]
+    Bundled,
+    /// The operator's own stack directory, by its path.
+    #[serde(rename = "own")]
+    Own(String),
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<StackSource, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for StackSource {
+    const TAG: Option<&str> = None;
+    const KNOWN: &[&str] = &["bundled", "own"];
 }
 
 /// What updating the stack would change, or what a run of it came to.
@@ -836,64 +888,4 @@ pub enum StepCame {
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
-}
-
-/// A walkthrough that stopped: where, why, what the services were saying, and what to do.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Stopped {
-    /// What the services involved were saying at the time, shown inline rather than left
-    /// for the operator to go and find — a fault report they have to research is a fault
-    /// report they abandon.
-    pub logs: Vec<String>,
-    /// Why.
-    pub reason: super::Reason,
-    /// The one thing to try.
-    pub remedy: String,
-    /// The step it stopped at.
-    pub step: super::WalkthroughStep,
-}
-
-/// The storage picture: what is free, when it runs out, and whether imports link.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Storage {
-    /// Bytes free on the volume the services keep their configuration and databases
-    /// on, which fills apart from the data volume where the two are different disks
-    /// and stops every service when it does. A [`Reading`] for the same reason.
-    pub config_free: super::DashboardReading,
-    /// The time until the disk fills at the current rate of the queue draining
-    /// onto it, or `None` where it is not projected to fill.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub exhaustion: Option<super::Duration>,
-    /// Bytes free on the data volume — a [`Reading`], since a volume that could
-    /// not be read this refresh must not render as zero free.
-    pub free: super::DashboardReading,
-    /// Whether imports are linking or copying.
-    pub hardlink: super::Hardlink,
-}
-
-/// Everything lemonfiber keeps on this machine, and what became of it.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Stored {
-    /// What is on this machine that is not lemonfiber's to keep or remove.
-    pub beside: Vec<super::StoredBeside>,
-    /// Each thing kept, configuration first and then what can be made again.
-    pub kept: Vec<super::Kept>,
-    /// Whether this was a rehearsal: what would have happened, with none of it done.
-    ///
-    /// Said in a field of its own so that a rehearsal is never told from the real run by
-    /// its wording alone.
-    pub rehearsed: bool,
-    /// Whether this run removed any of it.
-    pub removal: super::StoredRemoval,
-    /// The two directories all of it lives under.
-    pub roots: Vec<super::Root>,
-}
-
-/// Something on this machine that lemonfiber neither keeps nor removes.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct StoredBeside {
-    /// What it is.
-    pub what: String,
-    /// Whose it is, and why it is not lemonfiber's to take away.
-    pub why: String,
 }

@@ -63,12 +63,13 @@ sync revision:
 bc base="origin/main" title="":
     scripts/backward_compat.sh {{quote(base)}} {{quote(title)}}
 
-# Mutation testing: no mutant survives, and a run that mutated nothing fails. Slow: CI runs
-# it on every pull request that changes code.
-mutation:
+# Mutation testing: no mutant survives, and a run that mutated nothing fails. `shard` is
+# `k/n`, the k-th of n parts counted from 0. Slow: CI runs it, sharded, on every pull
+# request that changes code.
+mutation shard="0/1":
     #!/usr/bin/env bash
     set -uo pipefail
-    cargo mutants --package lemonfiber-sdk --no-shuffle --colors never --jobs "$(nproc)"
+    cargo mutants --package lemonfiber-sdk --no-shuffle --colors never --jobs "$(nproc)" --shard {{quote(shard)}}
     status=$?
     if [ ! -f mutants.out/outcomes.json ] || { [ "${status}" -ne 0 ] && [ "${status}" -ne 2 ] && [ "${status}" -ne 3 ]; }; then
       echo "cargo mutants stopped with ${status}, before it judged the mutants."
