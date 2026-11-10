@@ -41,7 +41,7 @@ them. A client that disagrees with the contract is wrong.
 - **What the core pins does not break unannounced.** `backward compatibility` compares the
   public surface with that commit, and a break needs `!` after the type in the title.
 - **Every mutant is told apart.** `mutation testing` runs `cargo-mutants` over the written
-  client in CI, on every pull request that changes code.
+  client in CI, in shards that run at once, on every pull request that changes code.
 - **No explanatory comments.** A `///` doc is written where a lint asks for one, and
   says what the item is.
 
