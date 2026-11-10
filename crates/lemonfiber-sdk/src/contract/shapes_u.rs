@@ -272,6 +272,15 @@ pub enum Unrated {
     Unrecognised(String),
 }
 
+/// A curator or download client a pass could not reach or verify.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Unreached {
+    /// The service, by its id.
+    pub service: String,
+    /// Why, in words.
+    pub why: String,
+}
+
 /// Something lemonfiber cannot act on, named rather than passed over.
 ///
 /// Written for a migration survey and read by two reports now. The second is the

@@ -127,6 +127,9 @@ pub struct MemberRequest {
     /// Absent, not null, until it is there.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub arrived: Option<String>,
+    /// When it was asked for, where the request service or the core says.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub asked: Option<String>,
     /// About how much room it will want, at the quality in force.
     ///
     /// A guess and labelled as one — see [`crate::asking::Estimate`]. Absent where the
@@ -134,9 +137,10 @@ pub struct MemberRequest {
     /// guess the length of.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub estimate: Option<super::Estimate>,
-    /// The number the request service files it under, which is how one is named again
-    /// when somebody rules on it.
-    pub id: i64,
+    /// The reference it is named by again when somebody rules on it: the number the
+    /// request service files it under (`42`), or `music-<n>` or `books-<n>` for an ask
+    /// for music or books the core keeps itself.
+    pub id: String,
     /// What kind of thing it is — a series, a film — in the household's own words.
     /// Absent where the request service names a kind this build does not know.
     #[serde(default, skip_serializing_if = "Option::is_none")]

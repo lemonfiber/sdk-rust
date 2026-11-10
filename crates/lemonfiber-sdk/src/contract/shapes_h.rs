@@ -172,6 +172,49 @@ pub enum Hardlink {
     Unrecognised(String),
 }
 
+/// One run: a pass that could act.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct HealRun {
+    /// When, in seconds since the Unix epoch.
+    pub at: u64,
+    /// Every item it acted on, or would have.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub items: Option<Vec<super::Healed>>,
+    /// Whether it was a rehearsal, which acted on nothing.
+    pub rehearsed: bool,
+}
+
+/// One item a run acted on.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Healed {
+    /// Each act, in the order they were taken.
+    pub acts: Vec<super::ActTaken>,
+    /// The release, by its name in the client.
+    pub release: String,
+    /// The curator it was queued with, or the client holding it where none was.
+    pub service: String,
+    /// The title it was for, where a curator held it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    /// Why it was acted on.
+    pub why: String,
+}
+
+/// Whether healing acts.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum HealingSwitch {
+    /// It acts on what has struck out.
+    #[serde(rename = "on")]
+    On,
+    /// It only classifies.
+    #[serde(rename = "off")]
+    Off,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// What the stack amounts to.
 ///
 /// Ordered from best to worst, so the worst of several is a `max` and there is no

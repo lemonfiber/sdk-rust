@@ -1,3 +1,63 @@
+/// A walkthrough that stopped: where, why, what the services were saying, and what to do.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Stopped {
+    /// What the services involved were saying at the time, shown inline rather than left
+    /// for the operator to go and find — a fault report they have to research is a fault
+    /// report they abandon.
+    pub logs: Vec<String>,
+    /// Why.
+    pub reason: super::Reason,
+    /// The one thing to try.
+    pub remedy: String,
+    /// The step it stopped at.
+    pub step: super::WalkthroughStep,
+}
+
+/// The storage picture: what is free, when it runs out, and whether imports link.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Storage {
+    /// Bytes free on the volume the services keep their configuration and databases
+    /// on, which fills apart from the data volume where the two are different disks
+    /// and stops every service when it does. A [`Reading`] for the same reason.
+    pub config_free: super::DashboardReading,
+    /// The time until the disk fills at the current rate of the queue draining
+    /// onto it, or `None` where it is not projected to fill.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exhaustion: Option<super::Duration>,
+    /// Bytes free on the data volume — a [`Reading`], since a volume that could
+    /// not be read this refresh must not render as zero free.
+    pub free: super::DashboardReading,
+    /// Whether imports are linking or copying.
+    pub hardlink: super::Hardlink,
+}
+
+/// Everything lemonfiber keeps on this machine, and what became of it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Stored {
+    /// What is on this machine that is not lemonfiber's to keep or remove.
+    pub beside: Vec<super::StoredBeside>,
+    /// Each thing kept, configuration first and then what can be made again.
+    pub kept: Vec<super::Kept>,
+    /// Whether this was a rehearsal: what would have happened, with none of it done.
+    ///
+    /// Said in a field of its own so that a rehearsal is never told from the real run by
+    /// its wording alone.
+    pub rehearsed: bool,
+    /// Whether this run removed any of it.
+    pub removal: super::StoredRemoval,
+    /// The two directories all of it lives under.
+    pub roots: Vec<super::Root>,
+}
+
+/// Something on this machine that lemonfiber neither keeps nor removes.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct StoredBeside {
+    /// What it is.
+    pub what: String,
+    /// Whose it is, and why it is not lemonfiber's to take away.
+    pub why: String,
+}
+
 /// Something a removal could not take away.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct StoredLeft {

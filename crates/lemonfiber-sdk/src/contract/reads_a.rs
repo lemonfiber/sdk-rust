@@ -10,6 +10,12 @@ pub struct Askable {
     /// The `after` parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// The `kind` parameter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub kind: Option<String>,
+    /// The `unit` parameter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
 }
 
 impl crate::Answer for super::AskableReport {
@@ -21,6 +27,25 @@ impl crate::Read for Askable {
     const PATH: &str = "/api/askable";
     const SEGMENTS: &[&str] = &[];
     const KINDS: &[&str] = &["askable"];
+}
+
+/// `GET /api/askable/kinds`, answered with `askable-kinds`.
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
+pub struct AskableKinds {
+    /// The `member` parameter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub member: Option<String>,
+}
+
+impl crate::Answer for super::AskableKindsReport {
+    const TAGGED: bool = false;
+}
+
+impl crate::Read for AskableKinds {
+    type Answer = super::AskableKindsReport;
+    const PATH: &str = "/api/askable/kinds";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["askable-kinds"];
 }
 
 /// `GET /api/alerts`, answered with `alerts`.

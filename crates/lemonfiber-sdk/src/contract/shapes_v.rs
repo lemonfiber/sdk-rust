@@ -163,6 +163,22 @@ pub struct VersionReport {
     pub supported_schema: Vec<u32>,
 }
 
+/// Whether a title a curator of video files is a series or a film, as a document that
+/// names one of those two alone publishes it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum VideoKind {
+    /// A series.
+    #[serde(rename = "tv")]
+    Tv,
+    /// A film.
+    #[serde(rename = "movies")]
+    Movies,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// The watch a run would keep, and what it would do at the end of it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Vigil {

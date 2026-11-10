@@ -76,9 +76,11 @@ impl crate::Action for HouseholdAllow {
 /// `POST /api/actions/household-approve`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
 pub struct HouseholdApprove {
-    /// The request being ruled on, by the number the request service files it under.
+    /// The request being ruled on, by the reference the household list names it with:
+    /// the request service's own number (`42`), or `music-<n>` or `books-<n>` for an ask
+    /// the core keeps.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub request: Option<i64>,
+    pub request: Option<String>,
     /// Whether to rehearse: write nothing, and answer with what the action would do.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dry_run: Option<bool>,
@@ -93,9 +95,11 @@ impl crate::Action for HouseholdApprove {
 /// `POST /api/actions/household-decline`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
 pub struct HouseholdDecline {
-    /// The request being ruled on, by the number the request service files it under.
+    /// The request being ruled on, by the reference the household list names it with:
+    /// the request service's own number (`42`), or `music-<n>` or `books-<n>` for an ask
+    /// the core keeps.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub request: Option<i64>,
+    pub request: Option<String>,
     /// Why a request is being turned down, or why a service was chosen to fill a
     /// capability.
     #[serde(default, skip_serializing_if = "Option::is_none")]
