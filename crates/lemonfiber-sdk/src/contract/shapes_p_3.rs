@@ -1,3 +1,38 @@
+/// One credential a plugin says it will hold, without a value and with no place for one.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginSecret {
+    /// Whether a recipe of the plugin's captures the value.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub captured: Option<bool>,
+    /// The capability of the plugin's own that a credential crossing to it is needed to fill.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub r#for: Option<String>,
+    /// What the value is, within the plugin.
+    pub id: String,
+    /// How many seconds a code the operator enters to claim a part holds, where it is
+    /// one: asked for only to claim the part, and held no longer than the claim or this.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lapses_s: Option<u32>,
+    /// Whether lemonfiber made the value at install.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub minted: Option<bool>,
+    /// Whether only the operator holds the value and the service reading it needs one to
+    /// start.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub needed_to_start: Option<bool>,
+    /// The values of the plugin's settings under which it is asked for and written.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub needs: Option<std::collections::BTreeMap<String, Vec<super::ServiceConstant>>>,
+    /// Whose credential it is.
+    pub of: String,
+    /// The variable an earlier release kept its value under in the stack's environment
+    /// file.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub was: Option<String>,
+    /// What holding it is for.
+    pub why: String,
+}
+
 /// A privileged shape lemonfiber writes for a service.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
