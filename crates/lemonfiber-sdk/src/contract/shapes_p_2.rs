@@ -504,6 +504,9 @@ pub enum PluginPlaceholderForm {
     /// hash of its password reads it.
     #[serde(rename = "pbkdf2")]
     Pbkdf2,
+    /// bcrypt of the value at cost 10 under a fresh salt, written `$2b$10$…`.
+    #[serde(rename = "bcrypt")]
+    Bcrypt,
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
@@ -881,19 +884,4 @@ pub struct PluginSecret {
     pub was: Option<String>,
     /// What holding it is for.
     pub why: String,
-}
-
-/// A privileged shape lemonfiber writes for a service.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum PluginShape {
-    /// `NET_ADMIN` and the tunnel device.
-    #[serde(rename = "egress-guard")]
-    EgressGuard,
-    /// The host's render devices and the group that owns them.
-    #[serde(rename = "render")]
-    Render,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
 }
