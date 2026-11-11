@@ -34,9 +34,9 @@ pub struct Ask {
     /// Who an action addressed to somebody in the household is for, as they sign in.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// The title an action is about: the title or episode a player's progress is on,
-    /// by the identifier the shelf lists it under, or the title a member asks for, by
-    /// the identifier their search listed it under.
+    /// The thing an action is about, by its id: the title or episode a player's progress
+    /// is on, by the identifier the shelf lists it under, the title a member asks for, by
+    /// the identifier their search listed it under, or the wake a phone confirms.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// Whether the title asked for is a series, a film, music or books, as a page of a

@@ -544,6 +544,9 @@ pub enum AlertNotification {
     /// An invitation accepted, declined or lapsed.
     #[serde(rename = "member")]
     Member,
+    /// Something a member asked for has arrived; the one kind a member is told.
+    #[serde(rename = "ready")]
+    Ready,
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),

@@ -13,6 +13,7 @@ mod actions_g;
 mod actions_h;
 mod actions_i;
 mod actions_m;
+mod actions_n;
 mod actions_p;
 mod actions_q;
 mod actions_r;
@@ -49,6 +50,7 @@ mod refusals_gone;
 mod refusals_key;
 mod refusals_life;
 mod refusals_migrate;
+mod refusals_notify;
 mod refusals_play;
 mod refusals_plugin;
 mod refusals_push;
@@ -161,6 +163,7 @@ pub mod actions {
     pub use super::actions_h::*;
     pub use super::actions_i::*;
     pub use super::actions_m::*;
+    pub use super::actions_n::*;
     pub use super::actions_p::*;
     pub use super::actions_q::*;
     pub use super::actions_r::*;
@@ -182,6 +185,7 @@ pub mod refusals {
     pub use super::refusals_key::*;
     pub use super::refusals_life::*;
     pub use super::refusals_migrate::*;
+    pub use super::refusals_notify::*;
     pub use super::refusals_play::*;
     pub use super::refusals_plugin::*;
     pub use super::refusals_push::*;
@@ -209,7 +213,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "10531156453569a9e96110e9dddb5d472faf8aeb";
+pub const REVISION: &str = "728ab40fa39bba0557218ecbc0bd7c63501ba7c6";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -259,6 +263,8 @@ pub const KINDS: &[&str] = &[
     "music",
     "news",
     "news-items",
+    "notify",
+    "notify-mine",
     "outbound",
     "pairing",
     "part-way",
@@ -449,6 +455,12 @@ pub enum Payload {
     /// The `news-items` kind.
     #[serde(rename = "news-items")]
     NewsItems(Box<News>),
+    /// The `notify` kind.
+    #[serde(rename = "notify")]
+    Notify(Box<NotifyReport>),
+    /// The `notify-mine` kind.
+    #[serde(rename = "notify-mine")]
+    NotifyMine(Box<NotifyMineReport>),
     /// The `outbound` kind.
     #[serde(rename = "outbound")]
     Outbound(Box<Leaving>),

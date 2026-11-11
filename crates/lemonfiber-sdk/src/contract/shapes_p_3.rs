@@ -1,3 +1,18 @@
+/// A privileged shape lemonfiber writes for a service.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum PluginShape {
+    /// `NET_ADMIN` and the tunnel device.
+    #[serde(rename = "egress-guard")]
+    EgressGuard,
+    /// The host's render devices and the group that owns them.
+    #[serde(rename = "render")]
+    Render,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// An adapter that writes the files of the service it fronts, through that service's
 /// whole configuration directory mounted into it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]

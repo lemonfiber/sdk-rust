@@ -79,7 +79,7 @@ pub struct Outbound {
 
 /// One of the requests lemonfiber makes on its own account.
 ///
-/// Eleven, and the closed set is the claim. A twelfth is a decision somebody makes by
+/// Fifteen, and the closed set is the claim. A sixteenth is a decision somebody makes by
 /// adding a variant here and answering four questions about it, rather than one
 /// that happens by somebody building a request.
 ///
@@ -107,6 +107,9 @@ pub struct Outbound {
 /// The tenth is made for a member rather than for the operator: the poster of a title
 /// their search found, from the one catalogue address this build names, so their client
 /// draws it without ever being sent there.
+///
+/// The last four deliver alerts to the back-ends the operator added, one for each kind,
+/// so each kind is switched off on its own.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
 pub enum OutboundReach {
@@ -143,6 +146,18 @@ pub enum OutboundReach {
     /// Waking a phone that asked to be woken when this stack has something to say.
     #[serde(rename = "waking")]
     Waking,
+    /// Delivering an alert to an ntfy topic.
+    #[serde(rename = "ntfy")]
+    Ntfy,
+    /// Delivering an alert to a gotify server.
+    #[serde(rename = "gotify")]
+    Gotify,
+    /// Posting an alert to a webhook.
+    #[serde(rename = "webhook")]
+    Webhook,
+    /// Delivering an alert to an Apprise API.
+    #[serde(rename = "apprise")]
+    Apprise,
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
