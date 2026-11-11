@@ -495,6 +495,9 @@ pub enum ServiceConstant {
 /// record already holds.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct ServiceFields {
+    /// The arguments its image's own entrypoint is handed, in order.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub args: Option<Vec<String>>,
     /// The certificate lemonfiber makes for it, where it declares one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub certificate: Option<super::ServiceCertificate>,
