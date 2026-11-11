@@ -160,3 +160,25 @@ impl crate::Action for Pull {
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
 }
+
+/// `POST /api/actions/push-woken`.
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
+pub struct PushWoken {
+    /// Who an action addressed to somebody in the household is for, as they sign in.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// The thing an action is about, by its id: the title or episode a player's progress
+    /// is on, by the identifier the shelf lists it under, the title a member asks for, by
+    /// the identifier their search listed it under, or the wake a phone confirms.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// Whether to rehearse: write nothing, and answer with what the action would do.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dry_run: Option<bool>,
+}
+
+impl crate::Action for PushWoken {
+    const NAME: &str = "push-woken";
+    const REHEARSAL: bool = true;
+    const CONSENT: &[&str] = &[];
+}
