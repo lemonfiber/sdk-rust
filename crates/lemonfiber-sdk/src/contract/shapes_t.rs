@@ -209,10 +209,8 @@ pub struct Title {
     pub year: Option<u16>,
 }
 
-/// What kind of title a member's search and ask name: a series, a film, music or books.
-///
-/// The web surface's own name for what a member asks for, whose name an SDK already gives
-/// to the kinds of envelope: the same words on the wire, under a name nothing else takes.
+/// What kind of title a curator files, a member asks for and a media server holds: a
+/// series, a film, music or books.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
 pub enum TitleKind {
@@ -222,10 +220,10 @@ pub enum TitleKind {
     /// A film.
     #[serde(rename = "movies")]
     Movies,
-    /// An album or a whole artist.
+    /// An album, or a whole artist asked for.
     #[serde(rename = "music")]
     Music,
-    /// A book, a whole author or a series of books.
+    /// A book, or a whole author or series of books asked for.
     #[serde(rename = "books")]
     Books,
     /// A value this client was not generated with, as it arrived.
