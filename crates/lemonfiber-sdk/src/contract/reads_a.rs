@@ -1,6 +1,6 @@
 /// `GET /api/askable`, answered with `askable`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct Askable {
+pub struct AskableRead {
     /// The `member` parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub member: Option<String>,
@@ -22,7 +22,7 @@ impl crate::Answer for super::AskableReport {
     const TAGGED: bool = false;
 }
 
-impl crate::Read for Askable {
+impl crate::Read for AskableRead {
     type Answer = super::AskableReport;
     const PATH: &str = "/api/askable";
     const SEGMENTS: &[&str] = &[];
@@ -31,7 +31,7 @@ impl crate::Read for Askable {
 
 /// `GET /api/askable/kinds`, answered with `askable-kinds`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct AskableKinds {
+pub struct AskableKindsRead {
     /// The `member` parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub member: Option<String>,
@@ -41,7 +41,7 @@ impl crate::Answer for super::AskableKindsReport {
     const TAGGED: bool = false;
 }
 
-impl crate::Read for AskableKinds {
+impl crate::Read for AskableKindsRead {
     type Answer = super::AskableKindsReport;
     const PATH: &str = "/api/askable/kinds";
     const SEGMENTS: &[&str] = &[];
@@ -50,13 +50,13 @@ impl crate::Read for AskableKinds {
 
 /// `GET /api/alerts`, answered with `alerts`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct Alerts {}
+pub struct AlertsRead {}
 
 impl crate::Answer for super::AlertReport {
     const TAGGED: bool = false;
 }
 
-impl crate::Read for Alerts {
+impl crate::Read for AlertsRead {
     type Answer = super::AlertReport;
     const PATH: &str = "/api/alerts";
     const SEGMENTS: &[&str] = &[];
@@ -65,7 +65,7 @@ impl crate::Read for Alerts {
 
 /// `GET /api/askable/{id}/poster`, answered with a file.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct AskableIdPoster {
+pub struct AskableIdPosterRead {
     /// The `id` segment of the path.
     pub id: String,
     /// The `member` parameter.
@@ -79,7 +79,7 @@ pub struct AskableIdPoster {
     pub unit: Option<String>,
 }
 
-impl crate::FileRead for AskableIdPoster {
+impl crate::FileRead for AskableIdPosterRead {
     const PATH: &str = "/api/askable/{id}/poster";
     const SEGMENTS: &[&str] = &["id"];
 }

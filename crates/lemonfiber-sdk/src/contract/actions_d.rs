@@ -1,6 +1,6 @@
 /// `POST /api/actions/diagnose`.
 #[derive(Debug, Clone, PartialEq, serde::Serialize)]
-pub struct Diagnose {
+pub struct DiagnoseAction {
     /// The group of checks, or the one check, a diagnosis is narrowed to.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub only: Option<String>,
@@ -8,7 +8,7 @@ pub struct Diagnose {
     pub disruptive: bool,
 }
 
-impl crate::Action for Diagnose {
+impl crate::Action for DiagnoseAction {
     const NAME: &str = "diagnose";
     const REHEARSAL: bool = false;
     const CONSENT: &[&str] = &[];
@@ -16,7 +16,7 @@ impl crate::Action for Diagnose {
 
 /// `POST /api/actions/down`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Down {
+pub struct DownAction {
     /// The forms to act on.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub forms: Option<Vec<String>>,
@@ -31,7 +31,7 @@ pub struct Down {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Down {
+impl crate::Action for DownAction {
     const NAME: &str = "down";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -39,7 +39,7 @@ impl crate::Action for Down {
 
 /// `POST /api/actions/downloads-pause`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct DownloadsPause {
+pub struct DownloadsPauseAction {
     /// What was read before answering — the offer a repair's yes was read in, the
     /// listing a restore's was, what a replacement would stop — as it named itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -49,7 +49,7 @@ pub struct DownloadsPause {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for DownloadsPause {
+impl crate::Action for DownloadsPauseAction {
     const NAME: &str = "downloads-pause";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];
@@ -57,7 +57,7 @@ impl crate::Action for DownloadsPause {
 
 /// `POST /api/actions/downloads-resume`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct DownloadsResume {
+pub struct DownloadsResumeAction {
     /// What was read before answering — the offer a repair's yes was read in, the
     /// listing a restore's was, what a replacement would stop — as it named itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -67,7 +67,7 @@ pub struct DownloadsResume {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for DownloadsResume {
+impl crate::Action for DownloadsResumeAction {
     const NAME: &str = "downloads-resume";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];

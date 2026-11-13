@@ -1,6 +1,6 @@
 /// `POST /api/actions/notify-choose`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct NotifyChoose {
+pub struct NotifyChooseAction {
     /// Each way to be told a member chooses, by the id the operator's offer lists it under.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub backends: Option<Vec<String>>,
@@ -9,7 +9,7 @@ pub struct NotifyChoose {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for NotifyChoose {
+impl crate::Action for NotifyChooseAction {
     const NAME: &str = "notify-choose";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];

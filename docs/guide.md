@@ -71,19 +71,19 @@ when the session stops being admitted, and `session.member` whom it is for.
 ## Reading
 
 `contract::reads` holds a struct for each read the contract lists, holding what it
-takes. `Client::read` answers it with an `Envelope` whose `data` is typed by the kind
-the read answers with:
+takes, named after its path with `Read` after it. `Client::read` answers it with an
+`Envelope` whose `data` is typed by the kind the read answers with:
 
 ```rust
-use lemonfiber_sdk::contract::reads::{HeldId, Status};
+use lemonfiber_sdk::contract::reads::{HeldIdRead, StatusRead};
 
-let status = client.read(&Status::default()).await?;
+let status = client.read(&StatusRead::default()).await?;
 println!("{:?}", status.data.condition);
 
 let title = client
-    .read(&HeldId {
+    .read(&HeldIdRead {
         id: "tt0133093".to_owned(),
-        ..HeldId::default()
+        ..HeldIdRead::default()
     })
     .await?;
 ```
@@ -102,13 +102,13 @@ arrives there: a tag it knows with data that does not read as that tag is
 
 Some reads are not a single envelope:
 
-- `Client::logs` takes `reads::Logs` and answers with `Logged::Lines`, an envelope a
+- `Client::logs` takes `reads::LogsRead` and answers with `Logged::Lines`, an envelope a
   line, or with `Logged::Following`, a name for the work following the logs where
   `follow` was asked for.
-- `Client::file` takes a read answered with a file, such as `reads::BundleName`, and
+- `Client::file` takes a read answered with a file, such as `reads::BundleNameRead`, and
   answers with a `File`: its bytes and the type it was labelled with.
 - `Client::picture` takes a read answered with a picture, such as
-  `reads::HeldIdPoster`, and answers with a `Picture`. A picture is one of
+  `reads::HeldIdPosterRead`, and answers with a `Picture`. A picture is one of
   `PICTURE_TYPES` (JPEG, PNG, WebP, GIF and AVIF, never SVG) and at most `PICTURE_MOST`
   bytes, 2 MiB. Any other answer is `Error::Unreadable`.
 
@@ -141,17 +141,18 @@ permitted.
 
 ## Acting
 
-`contract::actions` holds a struct for each action, holding its arguments.
+`contract::actions` holds a struct for each action, holding its arguments, named after
+the action with `Action` after it.
 `Client::act` sends it once and never asks again, because a second sending would be a
 second change:
 
 ```rust
-use lemonfiber_sdk::contract::actions::Restart;
+use lemonfiber_sdk::contract::actions::RestartAction;
 use lemonfiber_sdk::{Acted, JobStanding};
 
-let restart = Restart {
+let restart = RestartAction {
     services: Some(vec!["sonarr".to_owned()]),
-    ..Restart::default()
+    ..RestartAction::default()
 };
 if let Acted::Started(started) = client.act(&restart).await? {
     let job = started.job.unwrap_or_default();

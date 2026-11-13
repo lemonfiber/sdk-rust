@@ -1,6 +1,6 @@
 /// `GET /api/explain`, answered with `glossary` or `word`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct Explain {
+pub struct ExplainRead {
     /// The `word` parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub word: Option<String>,
@@ -23,7 +23,7 @@ impl crate::Answer for ExplainAnswer {
     const TAGGED: bool = true;
 }
 
-impl crate::Read for Explain {
+impl crate::Read for ExplainRead {
     type Answer = ExplainAnswer;
     const PATH: &str = "/api/explain";
     const SEGMENTS: &[&str] = &[];

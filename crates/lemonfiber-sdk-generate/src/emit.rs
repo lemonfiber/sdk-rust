@@ -4,7 +4,7 @@ use std::io::Write as _;
 use std::process::{Command, Output, Stdio};
 
 use crate::artefact::{Artefact, Read};
-use crate::names::{field, literal, pascal, screaming};
+use crate::names::{answer_type, field, literal, pascal, read_type, screaming};
 use crate::schema::{Body, Field, Holds, Shape, Shaped, Ty, Variant, UNRECOGNISED};
 use crate::Refused;
 
@@ -391,10 +391,6 @@ fn rust_here(ty: &Ty) -> String {
     rust(ty).replace("super::", "")
 }
 
-fn read_name(read: &Read) -> String {
-    pascal(read.path.trim_start_matches("/api/"))
-}
-
 fn segments_of(read: &Read) -> Vec<&str> {
     read.path
         .split('/')
@@ -453,12 +449,7 @@ fn read_struct(read: &Read, name: &str, segments: &[&str]) -> String {
     text
 }
 
-fn read_answer(
-    read: &Read,
-    name: &str,
-    shaped: &Shaped,
-    answered: &mut BTreeSet<String>,
-) -> (String, String) {
+fn read_answer(read: &Read, shaped: &Shaped, answered: &mut BTreeSet<String>) -> (String, String) {
     if let [kind] = read.kinds.as_slice() {
         if let Some(Ty::Named(data)) = shaped.kinds.get(kind) {
             let text = if answered.insert(data.clone()) {
@@ -471,7 +462,7 @@ fn read_answer(
             return (format!("super::{data}"), text);
         }
     }
-    let answer = format!("{name}Answer");
+    let answer = answer_type(&read.path);
     let mut text = format!(
         "/// What `GET {}` answers with, by its kind.\n#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]\n#[serde(tag = \"kind\", content = \"data\")]\n#[non_exhaustive]\npub enum {answer} {{\n",
         read.path
@@ -498,8 +489,8 @@ fn reads(artefact: &Artefact, shaped: &Shaped) -> Result<Groups, Refused> {
     let mut answered = BTreeSet::new();
     let mut problems = Vec::new();
     for read in &artefact.reads {
-        let name = read_name(read);
-        if !names.insert(name.clone()) || !names.insert(format!("{name}Answer")) {
+        let name = read_type(&read.path);
+        if !names.insert(name.clone()) || !names.insert(answer_type(&read.path)) {
             problems.push(format!(
                 "{}: written as {name}, which another read takes",
                 read.path
@@ -517,7 +508,7 @@ fn reads(artefact: &Artefact, shaped: &Shaped) -> Result<Groups, Refused> {
             groups.entry(letter(&name)).or_default().push(text);
             continue;
         }
-        let (answer, written) = read_answer(read, &name, shaped, &mut answered);
+        let (answer, written) = read_answer(read, shaped, &mut answered);
         text.push_str(&written);
         let kinds: Vec<&str> = read.kinds.iter().map(String::as_str).collect();
         let _ = writeln!(

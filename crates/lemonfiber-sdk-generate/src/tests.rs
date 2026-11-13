@@ -4,7 +4,9 @@ use std::path::{Path, PathBuf};
 
 use serde_json::{json, Value};
 
+use crate::artefact::Artefact;
 use crate::emit::{formatted, paged};
+use crate::schema::shaped;
 use crate::{run, Refused, CONTRACT, GENERATED, STAMP};
 
 type Outcome = Result<(), Box<dyn std::error::Error>>;
@@ -682,7 +684,7 @@ fn a_read_or_a_key_callable_action_this_cannot_write_is_refused() -> Outcome {
     )?;
     refuses(set("reads.json", "/0/extra", json!(1)), "carries extra")?;
     refuses(
-        set("reads.json", "/1/path", json!("/api/status-answer")),
+        set("reads.json", "/1/path", json!("/api/held-id")),
         "which another read takes",
     )?;
     refuses(
@@ -765,7 +767,60 @@ fn a_shape_this_cannot_write_is_refused_naming_it() -> Outcome {
                 json!("../defs/Payload.json");
         },
         "it is carried by no kind",
+    )?;
+    refuses(
+        |files| {
+            files.insert("defs/String.json".to_owned(), json!({ "type": "string" }));
+            *at(files, "defs/Status_of_Things.json", "/properties/code/$ref") =
+                json!("String.json");
+        },
+        "the definition String takes a name this generator writes itself; it is carried by status",
     )
+}
+
+fn written_outside_the_shapes() -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let mut names = Vec::new();
+    for entry in fs::read_dir(repository().join(GENERATED))? {
+        let path = entry?.path();
+        let stem = path
+            .file_stem()
+            .and_then(|stem| stem.to_str())
+            .unwrap_or_default();
+        if stem.starts_with("shapes_") {
+            continue;
+        }
+        for line in fs::read_to_string(&path)?.lines() {
+            let declared = line
+                .strip_prefix("pub struct ")
+                .or_else(|| line.strip_prefix("pub enum "))
+                .and_then(|rest| rest.split([' ', '{', '(', ';']).next());
+            names.extend(declared.map(str::to_owned));
+        }
+    }
+    Ok(names)
+}
+
+#[test]
+fn every_type_written_beside_the_shapes_is_a_name_a_definition_is_refused() -> Outcome {
+    let vendored = Artefact::read(&repository())?;
+    let names = written_outside_the_shapes()?;
+    assert!(names.iter().any(|name| name == "Payload"));
+    for name in names {
+        let mut taking = vendored.clone();
+        taking
+            .defs
+            .insert(name.clone(), json!({ "type": "string" }));
+        let said = shaped(&taking)
+            .err()
+            .map(|refused| refused.to_string())
+            .unwrap_or_default();
+        let expected = format!("the definition {name} takes a name this generator writes itself");
+        assert!(
+            said.contains(&expected),
+            "expected {expected:?} in {said:?}"
+        );
+    }
+    Ok(())
 }
 
 #[test]

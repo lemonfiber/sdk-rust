@@ -1,6 +1,6 @@
 /// `POST /api/actions/accept`.
 #[derive(Debug, Clone, PartialEq, serde::Serialize)]
-pub struct Accept {
+pub struct AcceptAction {
     /// The check a warning is being answered for.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub check: Option<String>,
@@ -8,7 +8,7 @@ pub struct Accept {
     pub disruptive: bool,
 }
 
-impl crate::Action for Accept {
+impl crate::Action for AcceptAction {
     const NAME: &str = "accept";
     const REHEARSAL: bool = false;
     const CONSENT: &[&str] = &[];
@@ -16,13 +16,13 @@ impl crate::Action for Accept {
 
 /// `POST /api/actions/adopt`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Adopt {
+pub struct AdoptAction {
     /// Whether to rehearse: write nothing, and answer with what the action would do.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Adopt {
+impl crate::Action for AdoptAction {
     const NAME: &str = "adopt";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -30,7 +30,7 @@ impl crate::Action for Adopt {
 
 /// `POST /api/actions/ask`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Ask {
+pub struct AskAction {
     /// Who an action addressed to somebody in the household is for, as they sign in.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -57,7 +57,7 @@ pub struct Ask {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Ask {
+impl crate::Action for AskAction {
     const NAME: &str = "ask";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];

@@ -1,6 +1,6 @@
 /// `GET /api/logs`, answered with `job` or `log`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct Logs {
+pub struct LogsRead {
     /// The `form` parameter, sent once for each value.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub form: Vec<String>,
@@ -32,7 +32,7 @@ impl crate::Answer for LogsAnswer {
     const TAGGED: bool = true;
 }
 
-impl crate::Read for Logs {
+impl crate::Read for LogsRead {
     type Answer = LogsAnswer;
     const PATH: &str = "/api/logs";
     const SEGMENTS: &[&str] = &[];

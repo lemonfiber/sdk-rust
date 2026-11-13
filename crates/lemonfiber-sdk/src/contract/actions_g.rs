@@ -1,6 +1,6 @@
 /// `POST /api/actions/grant`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Grant {
+pub struct GrantAction {
     /// Who an action addressed to somebody in the household is for, as they sign in.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -13,7 +13,7 @@ pub struct Grant {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Grant {
+impl crate::Action for GrantAction {
     const NAME: &str = "grant";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];

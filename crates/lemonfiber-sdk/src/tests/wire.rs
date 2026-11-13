@@ -4,7 +4,7 @@ use std::time::Duration;
 use serde_json::json;
 
 use super::{enveloped, problem, Outcome};
-use crate::contract::reads::{Held, HeldId, Services};
+use crate::contract::reads::{HeldIdRead, HeldRead, ServicesRead};
 use crate::contract::refusals::{NOT_ADMITTED, NO_SUCH_JOB};
 use crate::contract::{Appetite, CapabilityState, Chosen};
 use crate::envelope::raw;
@@ -114,7 +114,7 @@ fn a_kind_this_client_does_not_know_is_named_and_one_it_does_not_expect_is_refus
 
 #[test]
 fn a_read_writes_its_segments_into_the_path_and_the_rest_as_its_query() -> Outcome {
-    let title = HeldId {
+    let title = HeldIdRead {
         id: "a b/c".to_owned(),
         member: Some("ana".to_owned()),
         defaults: None,
@@ -123,14 +123,17 @@ fn a_read_writes_its_segments_into_the_path_and_the_rest_as_its_query() -> Outco
         located("/api/held/{id}", &["id"], &title)?,
         "/api/held/a%20b%2Fc?member=ana"
     );
-    let services = Services {
+    let services = ServicesRead {
         form: vec!["tv".to_owned(), "music".to_owned()],
     };
     assert_eq!(
         located("/api/services", &[], &services)?,
         "/api/services?form=tv&form=music"
     );
-    assert_eq!(located("/api/held", &[], &Held::default())?, "/api/held");
+    assert_eq!(
+        located("/api/held", &[], &HeldRead::default())?,
+        "/api/held"
+    );
     assert_eq!(
         located("/api/x", &[], &json!({ "most": 3, "none": null }))?,
         "/api/x?most=3"
@@ -144,7 +147,7 @@ fn a_segment_a_url_would_resolve_away_is_not_sent() {
         assert!(matches!(segment(unkept), Err(Error::Unsendable(_))));
     }
     assert!(matches!(
-        located("/api/held/{id}", &["id"], &HeldId::default()),
+        located("/api/held/{id}", &["id"], &HeldIdRead::default()),
         Err(Error::Unsendable(said)) if said.contains("`id`")
     ));
     assert!(matches!(

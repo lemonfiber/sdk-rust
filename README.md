@@ -56,7 +56,7 @@ The token for this run, which the page will ask you for:
 Then ask it how the stack is doing:
 
 ```rust
-use lemonfiber_sdk::contract::reads::Status;
+use lemonfiber_sdk::contract::reads::StatusRead;
 use lemonfiber_sdk::{Address, Client, Credential, Error};
 
 #[tokio::main(flavor = "current_thread")]
@@ -64,7 +64,7 @@ async fn main() -> Result<(), Error> {
     let token = std::env::var("LEMONFIBER_TOKEN").unwrap_or_default();
     let address = Address::new("http://127.0.0.1:9000", None)?;
     let client = Client::new(address, Credential::new(token)?)?;
-    let status = client.read(&Status::default()).await?;
+    let status = client.read(&StatusRead::default()).await?;
     println!("{:?} {:?}", status.data.condition, status.data.active_forms);
     Ok(())
 }

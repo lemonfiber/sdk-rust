@@ -1,6 +1,6 @@
 /// `GET /api/forms`, answered with `forms` or `preview`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct Forms {
+pub struct FormsRead {
     /// The `form` parameter, sent once for each value.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub form: Vec<String>,
@@ -23,7 +23,7 @@ impl crate::Answer for FormsAnswer {
     const TAGGED: bool = true;
 }
 
-impl crate::Read for Forms {
+impl crate::Read for FormsRead {
     type Answer = FormsAnswer;
     const PATH: &str = "/api/forms";
     const SEGMENTS: &[&str] = &[];
@@ -32,13 +32,13 @@ impl crate::Read for Forms {
 
 /// `GET /api/front-door`, answered with `front-door`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct FrontDoor {}
+pub struct FrontDoorRead {}
 
 impl crate::Answer for super::FrontDoorReport {
     const TAGGED: bool = false;
 }
 
-impl crate::Read for FrontDoor {
+impl crate::Read for FrontDoorRead {
     type Answer = super::FrontDoorReport;
     const PATH: &str = "/api/front-door";
     const SEGMENTS: &[&str] = &[];

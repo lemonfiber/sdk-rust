@@ -1,6 +1,6 @@
 /// `POST /api/actions/undo`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Undo {
+pub struct UndoAction {
     /// The stamp of the run to put back, as the history writes it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub at: Option<String>,
@@ -9,7 +9,7 @@ pub struct Undo {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Undo {
+impl crate::Action for UndoAction {
     const NAME: &str = "undo";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -17,7 +17,7 @@ impl crate::Action for Undo {
 
 /// `POST /api/actions/uninstall`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Uninstall {
+pub struct UninstallAction {
     /// Whether anything still downloading is let finish before the stop.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub wait: Option<bool>,
@@ -41,7 +41,7 @@ pub struct Uninstall {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Uninstall {
+impl crate::Action for UninstallAction {
     const NAME: &str = "uninstall";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer", "confirm"];
@@ -49,7 +49,7 @@ impl crate::Action for Uninstall {
 
 /// `POST /api/actions/up`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Up {
+pub struct UpAction {
     /// The forms to act on.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub forms: Option<Vec<String>>,
@@ -65,7 +65,7 @@ pub struct Up {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Up {
+impl crate::Action for UpAction {
     const NAME: &str = "up";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];
@@ -73,7 +73,7 @@ impl crate::Action for Up {
 
 /// `POST /api/actions/update`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Update {
+pub struct UpdateAction {
     /// Whether anything still downloading is let finish before the stop.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub wait: Option<bool>,
@@ -92,7 +92,7 @@ pub struct Update {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Update {
+impl crate::Action for UpdateAction {
     const NAME: &str = "update";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer", "confirm"];

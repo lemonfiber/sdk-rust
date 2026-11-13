@@ -1,6 +1,6 @@
 /// `GET /api/uninstall`, answered with `uninstall`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct Uninstall {
+pub struct UninstallRead {
     /// The `tier` parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tier: Option<String>,
@@ -10,7 +10,7 @@ impl crate::Answer for super::Uninstall {
     const TAGGED: bool = false;
 }
 
-impl crate::Read for Uninstall {
+impl crate::Read for UninstallRead {
     type Answer = super::Uninstall;
     const PATH: &str = "/api/uninstall";
     const SEGMENTS: &[&str] = &[];
@@ -19,7 +19,7 @@ impl crate::Read for Uninstall {
 
 /// `GET /api/update`, answered with `self-update` or `update`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct Update {
+pub struct UpdateRead {
     /// The `what` parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub what: Option<String>,
@@ -45,7 +45,7 @@ impl crate::Answer for UpdateAnswer {
     const TAGGED: bool = true;
 }
 
-impl crate::Read for Update {
+impl crate::Read for UpdateRead {
     type Answer = UpdateAnswer;
     const PATH: &str = "/api/update";
     const SEGMENTS: &[&str] = &[];

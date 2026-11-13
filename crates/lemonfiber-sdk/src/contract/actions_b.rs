@@ -1,6 +1,6 @@
 /// `POST /api/actions/backup`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Backup {
+pub struct BackupAction {
     /// The one service to act on instead of the whole stack.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service: Option<String>,
@@ -9,7 +9,7 @@ pub struct Backup {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Backup {
+impl crate::Action for BackupAction {
     const NAME: &str = "backup";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -17,7 +17,7 @@ impl crate::Action for Backup {
 
 /// `POST /api/actions/bandwidth`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Bandwidth {
+pub struct BandwidthAction {
     /// How much of the line downloads may take, as a share or a rate.
     ///
     /// Carried as it was written and read in the core, like `unrated` above and for
@@ -50,7 +50,7 @@ pub struct Bandwidth {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Bandwidth {
+impl crate::Action for BandwidthAction {
     const NAME: &str = "bandwidth";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];

@@ -1,6 +1,6 @@
 /// `POST /api/actions/internal-certificate-replace`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct InternalCertificateReplace {
+pub struct InternalCertificateReplaceAction {
     /// What was read before answering — the offer a repair's yes was read in, the
     /// listing a restore's was, what a replacement would stop — as it named itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -10,7 +10,7 @@ pub struct InternalCertificateReplace {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for InternalCertificateReplace {
+impl crate::Action for InternalCertificateReplaceAction {
     const NAME: &str = "internal-certificate-replace";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];
@@ -18,7 +18,7 @@ impl crate::Action for InternalCertificateReplace {
 
 /// `POST /api/actions/invite`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Invite {
+pub struct InviteAction {
     /// Who an action addressed to somebody in the household is for, as they sign in.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -46,7 +46,7 @@ pub struct Invite {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Invite {
+impl crate::Action for InviteAction {
     const NAME: &str = "invite";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["confirm"];

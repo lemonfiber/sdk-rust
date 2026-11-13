@@ -1,8 +1,8 @@
 /// `POST /api/actions/companion-pair`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct CompanionPair {}
+pub struct CompanionPairAction {}
 
-impl crate::Action for CompanionPair {
+impl crate::Action for CompanionPairAction {
     const NAME: &str = "companion-pair";
     const REHEARSAL: bool = false;
     const CONSENT: &[&str] = &[];
@@ -10,7 +10,7 @@ impl crate::Action for CompanionPair {
 
 /// `POST /api/actions/config-set`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct ConfigSet {
+pub struct ConfigSetAction {
     /// Whether anything still downloading is let finish before the stop.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub wait: Option<bool>,
@@ -28,7 +28,7 @@ pub struct ConfigSet {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for ConfigSet {
+impl crate::Action for ConfigSetAction {
     const NAME: &str = "config-set";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["confirm"];
@@ -36,7 +36,7 @@ impl crate::Action for ConfigSet {
 
 /// `POST /api/actions/credentials-revoke`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct CredentialsRevoke {
+pub struct CredentialsRevokeAction {
     /// What was read before answering — the offer a repair's yes was read in, the
     /// listing a restore's was, what a replacement would stop — as it named itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -54,7 +54,7 @@ pub struct CredentialsRevoke {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for CredentialsRevoke {
+impl crate::Action for CredentialsRevokeAction {
     const NAME: &str = "credentials-revoke";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];

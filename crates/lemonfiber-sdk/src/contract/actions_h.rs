@@ -1,6 +1,6 @@
 /// `POST /api/actions/hosting-install`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct HostingInstall {
+pub struct HostingInstallAction {
     /// The forms to act on.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub forms: Option<Vec<String>>,
@@ -16,7 +16,7 @@ pub struct HostingInstall {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for HostingInstall {
+impl crate::Action for HostingInstallAction {
     const NAME: &str = "hosting-install";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -24,7 +24,7 @@ impl crate::Action for HostingInstall {
 
 /// `POST /api/actions/hosting-remove`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct HostingRemove {
+pub struct HostingRemoveAction {
     /// Which command this machine is being asked to keep running, or stop keeping.
     ///
     /// A word rather than a switch, for the reason `policy` is one: there is more than
@@ -37,7 +37,7 @@ pub struct HostingRemove {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for HostingRemove {
+impl crate::Action for HostingRemoveAction {
     const NAME: &str = "hosting-remove";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -45,7 +45,7 @@ impl crate::Action for HostingRemove {
 
 /// `POST /api/actions/household-allow`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct HouseholdAllow {
+pub struct HouseholdAllowAction {
     /// Who an action addressed to somebody in the household is for, as they sign in.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -67,7 +67,7 @@ pub struct HouseholdAllow {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for HouseholdAllow {
+impl crate::Action for HouseholdAllowAction {
     const NAME: &str = "household-allow";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -75,7 +75,7 @@ impl crate::Action for HouseholdAllow {
 
 /// `POST /api/actions/household-approve`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct HouseholdApprove {
+pub struct HouseholdApproveAction {
     /// The request being ruled on, by the reference the household list names it with:
     /// the request service's own number (`42`), or `music-<n>` or `books-<n>` for an ask
     /// the core keeps.
@@ -86,7 +86,7 @@ pub struct HouseholdApprove {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for HouseholdApprove {
+impl crate::Action for HouseholdApproveAction {
     const NAME: &str = "household-approve";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -94,7 +94,7 @@ impl crate::Action for HouseholdApprove {
 
 /// `POST /api/actions/household-decline`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct HouseholdDecline {
+pub struct HouseholdDeclineAction {
     /// The request being ruled on, by the reference the household list names it with:
     /// the request service's own number (`42`), or `music-<n>` or `books-<n>` for an ask
     /// the core keeps.
@@ -109,7 +109,7 @@ pub struct HouseholdDecline {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for HouseholdDecline {
+impl crate::Action for HouseholdDeclineAction {
     const NAME: &str = "household-decline";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -117,7 +117,7 @@ impl crate::Action for HouseholdDecline {
 
 /// `POST /api/actions/household-handoff`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct HouseholdHandoff {
+pub struct HouseholdHandoffAction {
     /// Who an action addressed to somebody in the household is for, as they sign in.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -126,7 +126,7 @@ pub struct HouseholdHandoff {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for HouseholdHandoff {
+impl crate::Action for HouseholdHandoffAction {
     const NAME: &str = "household-handoff";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];

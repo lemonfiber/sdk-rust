@@ -1,12 +1,12 @@
 /// `POST /api/actions/walkthrough`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Walkthrough {
+pub struct WalkthroughAction {
     /// The one thing to add end to end, as it would be said.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub item: Option<String>,
 }
 
-impl crate::Action for Walkthrough {
+impl crate::Action for WalkthroughAction {
     const NAME: &str = "walkthrough";
     const REHEARSAL: bool = false;
     const CONSENT: &[&str] = &[];
@@ -14,7 +14,7 @@ impl crate::Action for Walkthrough {
 
 /// `POST /api/actions/watch`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Watch {
+pub struct WatchAction {
     /// The forms to act on.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub forms: Option<Vec<String>>,
@@ -23,7 +23,7 @@ pub struct Watch {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Watch {
+impl crate::Action for WatchAction {
     const NAME: &str = "watch";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -31,7 +31,7 @@ impl crate::Action for Watch {
 
 /// `POST /api/actions/watched`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Watched {
+pub struct WatchedAction {
     /// Who an action addressed to somebody in the household is for, as they sign in.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -52,7 +52,7 @@ pub struct Watched {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Watched {
+impl crate::Action for WatchedAction {
     const NAME: &str = "watched";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -60,7 +60,7 @@ impl crate::Action for Watched {
 
 /// `POST /api/actions/wiring-fill`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct WiringFill {
+pub struct WiringFillAction {
     /// The one service to act on instead of the whole stack.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service: Option<String>,
@@ -80,7 +80,7 @@ pub struct WiringFill {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for WiringFill {
+impl crate::Action for WiringFillAction {
     const NAME: &str = "wiring-fill";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];
