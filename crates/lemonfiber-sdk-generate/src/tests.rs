@@ -784,7 +784,7 @@ fn written_outside_the_shapes() -> Result<Vec<String>, Box<dyn std::error::Error
         let path = entry?.path();
         let stem = path
             .file_stem()
-            .and_then(|stem| stem.to_str())
+            .and_then(std::ffi::OsStr::to_str)
             .unwrap_or_default();
         if stem.starts_with("shapes_") {
             continue;
