@@ -226,8 +226,8 @@ impl Client {
     /// # Errors
     ///
     /// Every [`Error`] a request can meet.
-    pub async fn logs(&self, read: &reads::Logs) -> Result<Logged, Error> {
-        let path = located(<reads::Logs as Read>::PATH, &[], read)?;
+    pub async fn logs(&self, read: &reads::LogsRead) -> Result<Logged, Error> {
+        let path = located(<reads::LogsRead as Read>::PATH, &[], read)?;
         let answer = self
             .line
             .exchange(Asked::read(path), Some(self.credential.secret()))

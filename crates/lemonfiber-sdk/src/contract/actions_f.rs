@@ -1,6 +1,6 @@
 /// `POST /api/actions/forget`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Forget {
+pub struct ForgetAction {
     /// Whether a cost the action would incur was agreed to in advance.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub confirm: Option<bool>,
@@ -9,7 +9,7 @@ pub struct Forget {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Forget {
+impl crate::Action for ForgetAction {
     const NAME: &str = "forget";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["confirm"];

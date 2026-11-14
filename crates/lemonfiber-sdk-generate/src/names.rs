@@ -94,6 +94,25 @@ pub fn type_name(name: &str) -> String {
         .collect()
 }
 
+fn read_base(path: &str) -> String {
+    pascal(path.trim_start_matches("/api/"))
+}
+
+#[must_use]
+pub fn read_type(path: &str) -> String {
+    format!("{}Read", read_base(path))
+}
+
+#[must_use]
+pub fn answer_type(path: &str) -> String {
+    format!("{}Answer", read_base(path))
+}
+
+#[must_use]
+pub fn action_type(name: &str) -> String {
+    format!("{}Action", pascal(name))
+}
+
 #[must_use]
 pub fn literal(text: &str) -> String {
     format!("{text:?}")

@@ -1,6 +1,6 @@
 /// `GET /api/held`, answered with `held`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct Held {
+pub struct HeldRead {
     /// The `member` parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub member: Option<String>,
@@ -16,7 +16,7 @@ impl crate::Answer for super::HeldReport {
     const TAGGED: bool = false;
 }
 
-impl crate::Read for Held {
+impl crate::Read for HeldRead {
     type Answer = super::HeldReport;
     const PATH: &str = "/api/held";
     const SEGMENTS: &[&str] = &[];
@@ -25,7 +25,7 @@ impl crate::Read for Held {
 
 /// `GET /api/held/{id}`, answered with `title`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct HeldId {
+pub struct HeldIdRead {
     /// The `id` segment of the path.
     pub id: String,
     /// The `member` parameter.
@@ -40,7 +40,7 @@ impl crate::Answer for super::TitleReport {
     const TAGGED: bool = false;
 }
 
-impl crate::Read for HeldId {
+impl crate::Read for HeldIdRead {
     type Answer = super::TitleReport;
     const PATH: &str = "/api/held/{id}";
     const SEGMENTS: &[&str] = &["id"];
@@ -49,13 +49,13 @@ impl crate::Read for HeldId {
 
 /// `GET /api/hosting`, answered with `hosting`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct Hosting {}
+pub struct HostingRead {}
 
 impl crate::Answer for super::HostingReport {
     const TAGGED: bool = false;
 }
 
-impl crate::Read for Hosting {
+impl crate::Read for HostingRead {
     type Answer = super::HostingReport;
     const PATH: &str = "/api/hosting";
     const SEGMENTS: &[&str] = &[];
@@ -64,13 +64,13 @@ impl crate::Read for Hosting {
 
 /// `GET /api/history`, answered with `history`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct History {}
+pub struct HistoryRead {}
 
 impl crate::Answer for super::HistoryReport {
     const TAGGED: bool = false;
 }
 
-impl crate::Read for History {
+impl crate::Read for HistoryRead {
     type Answer = super::HistoryReport;
     const PATH: &str = "/api/history";
     const SEGMENTS: &[&str] = &[];
@@ -79,7 +79,7 @@ impl crate::Read for History {
 
 /// `GET /api/held/{id}/poster`, answered with a file.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct HeldIdPoster {
+pub struct HeldIdPosterRead {
     /// The `id` segment of the path.
     pub id: String,
     /// The `member` parameter.
@@ -90,14 +90,14 @@ pub struct HeldIdPoster {
     pub defaults: Option<String>,
 }
 
-impl crate::FileRead for HeldIdPoster {
+impl crate::FileRead for HeldIdPosterRead {
     const PATH: &str = "/api/held/{id}/poster";
     const SEGMENTS: &[&str] = &["id"];
 }
 
 /// `GET /api/held/{id}/backdrop`, answered with a file.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
-pub struct HeldIdBackdrop {
+pub struct HeldIdBackdropRead {
     /// The `id` segment of the path.
     pub id: String,
     /// The `member` parameter.
@@ -108,7 +108,7 @@ pub struct HeldIdBackdrop {
     pub defaults: Option<String>,
 }
 
-impl crate::FileRead for HeldIdBackdrop {
+impl crate::FileRead for HeldIdBackdropRead {
     const PATH: &str = "/api/held/{id}/backdrop";
     const SEGMENTS: &[&str] = &["id"];
 }

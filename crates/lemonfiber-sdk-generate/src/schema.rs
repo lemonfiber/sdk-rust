@@ -3,10 +3,12 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde_json::{Map, Value};
 
 use crate::artefact::Artefact;
-use crate::names::{field, pascal, type_name};
+use crate::names::{action_type, answer_type, field, pascal, read_type, type_name};
 use crate::Refused;
 
-pub const WRITTEN: &[&str] = &["Payload"];
+const WRITTEN: &[&str] = &["Payload"];
+
+const PRELUDE: &[&str] = &["Box", "Option", "String", "Vec"];
 
 pub const UNRECOGNISED: &str = "Unrecognised";
 
@@ -595,13 +597,13 @@ pub fn shaped(artefact: &Artefact) -> Result<Shaped, Refused> {
         shapes: BTreeMap::new(),
         problems: Vec::new(),
     };
-    for written in WRITTEN {
-        if shaper.defs.contains(*written) {
+    for written in written_names(artefact) {
+        if shaper.defs.contains(&written) {
             let carriers: Vec<&str> = artefact
                 .kinds
                 .keys()
                 .map(String::as_str)
-                .filter(|kind| reaches(artefact, kind, &|name| type_name(name) == *written))
+                .filter(|kind| reaches(artefact, kind, &|name| type_name(name) == written))
                 .collect();
             shaper.problems.push(format!(
                 "the definition {written} takes a name this generator writes itself; it is carried by {}",
@@ -625,11 +627,14 @@ pub fn shaped(artefact: &Artefact) -> Result<Shaped, Refused> {
     }
     let mut actions = Vec::new();
     for action in &artefact.actions {
-        let ident = pascal(&action.name);
+        let ident = action_type(&action.name);
         let mut fields = Vec::new();
         let mut defaulted = true;
         for (name, schema) in &action.arguments {
-            let held = shaper.ty(schema, &format!("{ident}Arguments{}", pascal(name)));
+            let held = shaper.ty(
+                schema,
+                &format!("{}Arguments{}", pascal(&action.name), pascal(name)),
+            );
             let optional = schema.get("default").is_some();
             defaulted &= optional || matches!(held, Ty::Opt(_));
             fields.push(Field {
@@ -681,6 +686,25 @@ pub fn shaped(artefact: &Artefact) -> Result<Shaped, Refused> {
             &shaper.problems,
         ))
     }
+}
+
+fn written_names(artefact: &Artefact) -> BTreeSet<String> {
+    let mut names: BTreeSet<String> = WRITTEN
+        .iter()
+        .chain(PRELUDE)
+        .map(|name| (*name).to_owned())
+        .collect();
+    names.extend(
+        artefact
+            .actions
+            .iter()
+            .map(|action| action_type(&action.name)),
+    );
+    for read in &artefact.reads {
+        names.insert(read_type(&read.path));
+        names.insert(answer_type(&read.path));
+    }
+    names
 }
 
 fn reaches(artefact: &Artefact, kind: &str, target: &dyn Fn(&str) -> bool) -> bool {

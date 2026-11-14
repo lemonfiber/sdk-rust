@@ -3,9 +3,10 @@ use std::time::Duration;
 use serde_json::json;
 
 use super::{client, enveloped, listing, loopback, problem, reply, started, Outcome, Scripted};
-use crate::contract::actions::{Diagnose, Restart};
+use crate::contract::actions::{DiagnoseAction, RestartAction};
 use crate::contract::reads::{
-    AskableIdPoster, BundleName, Explain, ExplainAnswer, HeldIdPoster, Logs, Playing,
+    AskableIdPosterRead, BundleNameRead, ExplainAnswer, ExplainRead, HeldIdPosterRead, LogsRead,
+    PlayingRead,
 };
 use crate::contract::refusals::NO_SUCH_JOB;
 use crate::contract::{CapabilityState, CredentialScope, Payload};
@@ -33,7 +34,7 @@ fn header<'a>(request: &'a crate::Request, name: &str) -> Option<&'a str> {
 #[tokio::test]
 async fn a_read_asks_for_its_path_carrying_the_token_in_its_header() -> Outcome {
     let (client, client_script) = client(Scripted::answering(vec![Ok(reply(200, playing()))]))?;
-    let read = Playing {
+    let read = PlayingRead {
         member: Some("ana".to_owned()),
     };
     let envelope = client.read(&read).await?;
@@ -56,15 +57,15 @@ async fn a_read_answering_with_several_kinds_is_typed_by_the_kind_that_arrived()
         Ok(reply(200, enveloped("status", &json!({})))),
     ]))?;
     assert!(matches!(
-        client.read(&Explain::default()).await?.data,
+        client.read(&ExplainRead::default()).await?.data,
         ExplainAnswer::Glossary(_)
     ));
     assert!(matches!(
-        client.read(&Explain::default()).await?.data,
+        client.read(&ExplainRead::default()).await?.data,
         ExplainAnswer::Word(_)
     ));
     assert!(matches!(
-        client.read(&Explain::default()).await,
+        client.read(&ExplainRead::default()).await,
         Err(Error::UnexpectedKind { .. })
     ));
     Ok(())
@@ -78,11 +79,11 @@ async fn a_read_is_asked_again_after_a_passing_failure_and_an_action_never_is() 
         Ok(reply(200, playing())),
         Ok(reply(503, Vec::new())),
     ]))?;
-    client.read(&Playing::default()).await?;
+    client.read(&PlayingRead::default()).await?;
     assert_eq!(client_script.sent().len(), 3);
     assert!(matches!(
         client
-            .act(&Diagnose {
+            .act(&DiagnoseAction {
                 only: None,
                 disruptive: false
             })
@@ -105,7 +106,7 @@ async fn a_second_attempt_waits_twice_as_long_as_the_first() -> Outcome {
         Ok(reply(200, playing())),
     ]))?;
     let started = tokio::time::Instant::now();
-    client.read(&Playing::default()).await?;
+    client.read(&PlayingRead::default()).await?;
     let waited = started.elapsed();
     assert!(waited >= Duration::from_millis(750) && waited < Duration::from_millis(760));
     Ok(())
@@ -129,20 +130,20 @@ async fn asking_where_work_stands_is_asked_again_and_letting_it_go_never_is() ->
 async fn a_read_stops_asking_after_three_attempts_or_when_the_wait_would_run_out() -> Outcome {
     let (client, client_script) = client(Scripted::answering(vec![Ok(reply(502, Vec::new())); 4]))?;
     assert!(
-        matches!(client.read(&Playing::default()).await, Err(Error::Unreachable(said)) if said.contains("502"))
+        matches!(client.read(&PlayingRead::default()).await, Err(Error::Unreachable(said)) if said.contains("502"))
     );
     assert_eq!(client_script.sent().len(), 3);
     let (hurried, hurried_script) =
         super::client(Scripted::answering(vec![Ok(reply(502, Vec::new())); 2]))?;
     let hurried = hurried.waiting(Duration::from_millis(100));
     assert!(matches!(
-        hurried.read(&Playing::default()).await,
+        hurried.read(&PlayingRead::default()).await,
         Err(Error::Unreachable(_))
     ));
     assert_eq!(hurried_script.sent().len(), 1);
     let (nobody, nobody_script) = super::client(Scripted::default())?;
     assert!(
-        matches!(nobody.read(&Playing::default()).await, Err(Error::Unreachable(said)) if said.contains("not answering"))
+        matches!(nobody.read(&PlayingRead::default()).await, Err(Error::Unreachable(said)) if said.contains("not answering"))
     );
     assert_eq!(nobody_script.sent().len(), 3);
     Ok(())
@@ -153,7 +154,7 @@ async fn a_call_waits_no_longer_than_it_was_given() -> Outcome {
     let client = Client::with_transport(loopback()?, Credential::new("token")?, super::Silent)?
         .waiting(Duration::from_secs(2));
     assert_eq!(
-        client.read(&Playing::default()).await,
+        client.read(&PlayingRead::default()).await,
         Err(Error::TimedOut(Duration::from_secs(2)))
     );
     Ok(())
@@ -166,11 +167,11 @@ async fn a_certificate_refused_or_an_answer_too_large_is_said_so() -> Outcome {
         Err(Failure::TooLarge),
     ]))?;
     assert_eq!(
-        client.read(&Playing::default()).await,
+        client.read(&PlayingRead::default()).await,
         Err(Error::CertificateRefused)
     );
     assert!(matches!(
-        client.read(&Playing::default()).await,
+        client.read(&PlayingRead::default()).await,
         Err(Error::Unreadable(_))
     ));
     Ok(())
@@ -207,7 +208,7 @@ async fn a_file_is_kept_as_the_bytes_that_arrived() -> Outcome {
         }),
         Ok(reply(404, problem("BUNDLE-1", "No such bundle."))),
     ]))?;
-    let bundle = BundleName {
+    let bundle = BundleNameRead {
         name: "support-1.zip".to_owned(),
     };
     let file = client.file(&bundle).await?;
@@ -244,9 +245,9 @@ async fn a_picture_is_a_raster_image_of_at_most_its_size() -> Outcome {
         Ok(reply(200, Vec::new())),
         Ok(reply(404, problem("PLAY-9", "No poster."))),
     ]))?;
-    let poster = HeldIdPoster {
+    let poster = HeldIdPosterRead {
         id: "t1".to_owned(),
-        ..HeldIdPoster::default()
+        ..HeldIdPosterRead::default()
     };
     assert_eq!(client.picture(&poster).await?.media_type, "image/png");
     assert!(
@@ -256,7 +257,7 @@ async fn a_picture_is_a_raster_image_of_at_most_its_size() -> Outcome {
         matches!(client.picture(&poster).await, Err(Error::Unreadable(said)) if said.contains("\"\""))
     );
     assert!(matches!(
-        client.picture(&AskableIdPoster::default()).await,
+        client.picture(&AskableIdPosterRead::default()).await,
         Err(Error::Unsendable(_))
     ));
     assert!(matches!(
@@ -292,9 +293,9 @@ async fn the_logs_are_one_envelope_a_line_or_the_work_following_them() -> Outcom
         Ok(reply(200, enveloped("pull", &json!("Pulling")))),
         Ok(reply(400, problem("READ-1", "Not a form."))),
     ]))?;
-    let read = Logs {
+    let read = LogsRead {
         tail: Some("2".to_owned()),
-        ..Logs::default()
+        ..LogsRead::default()
     };
     assert!(matches!(client.logs(&read).await?, Logged::Lines(lines) if lines.len() == 2));
     assert!(
@@ -315,10 +316,10 @@ async fn an_action_answers_now_or_with_a_name_for_the_work() -> Outcome {
         Ok(reply(202, started("job-1"))),
         Ok(reply(409, problem("LIFE-1", "Something else is running."))),
     ]))?;
-    let restart = Restart {
+    let restart = RestartAction {
         forms: Some(vec!["tv".to_owned()]),
         dry_run: Some(true),
-        ..Restart::default()
+        ..RestartAction::default()
     };
     assert!(
         matches!(client.act(&restart).await?, Acted::Answered(envelope) if envelope.data == Payload::Pull(Box::new("Pulled".to_owned())))
@@ -346,7 +347,7 @@ async fn an_action_answers_now_or_with_a_name_for_the_work() -> Outcome {
             .and_then(|second| header(second, "Idempotency-Key")),
         Some("attempt-1")
     );
-    assert!(Restart::REHEARSAL && Restart::CONSENT == ["offer"]);
+    assert!(RestartAction::REHEARSAL && RestartAction::CONSENT == ["offer"]);
     Ok(())
 }
 
@@ -379,9 +380,12 @@ async fn what_a_stack_can_do_is_read_for_the_credential_that_asked() -> Outcome 
     let set: CapabilitySet = client.capabilities().await?;
     assert_eq!(set.scope, CredentialScope::Member);
     assert_eq!(set.stack.as_deref(), Some("stack-1"));
-    assert_eq!(set.of_read::<Playing>(), Some(&CapabilityState::Available));
     assert_eq!(
-        set.of_action::<Restart>(),
+        set.of_read::<PlayingRead>(),
+        Some(&CapabilityState::Available)
+    );
+    assert_eq!(
+        set.of_action::<RestartAction>(),
         Some(&CapabilityState::Unpermitted)
     );
     assert_eq!(set.of("/api/held"), None);
@@ -391,7 +395,7 @@ async fn what_a_stack_can_do_is_read_for_the_credential_that_asked() -> Outcome 
             .collect::<Vec<_>>(),
         ["/api/something-newer"]
     );
-    assert_eq!(Playing::KINDS, ["playing"]);
+    assert_eq!(PlayingRead::KINDS, ["playing"]);
     Ok(())
 }
 

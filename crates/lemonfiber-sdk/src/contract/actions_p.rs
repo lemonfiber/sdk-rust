@@ -1,6 +1,6 @@
 /// `POST /api/actions/plugin-install`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct PluginInstall {
+pub struct PluginInstallAction {
     /// What was read before answering — the offer a repair's yes was read in, the
     /// listing a restore's was, what a replacement would stop — as it named itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -24,7 +24,7 @@ pub struct PluginInstall {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for PluginInstall {
+impl crate::Action for PluginInstallAction {
     const NAME: &str = "plugin-install";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer", "approved"];
@@ -32,7 +32,7 @@ impl crate::Action for PluginInstall {
 
 /// `POST /api/actions/plugin-prove`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct PluginProve {
+pub struct PluginProveAction {
     /// What was read before answering — the offer a repair's yes was read in, the
     /// listing a restore's was, what a replacement would stop — as it named itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -46,7 +46,7 @@ pub struct PluginProve {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for PluginProve {
+impl crate::Action for PluginProveAction {
     const NAME: &str = "plugin-prove";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];
@@ -54,7 +54,7 @@ impl crate::Action for PluginProve {
 
 /// `POST /api/actions/plugin-remove`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct PluginRemove {
+pub struct PluginRemoveAction {
     /// What was read before answering — the offer a repair's yes was read in, the
     /// listing a restore's was, what a replacement would stop — as it named itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -68,7 +68,7 @@ pub struct PluginRemove {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for PluginRemove {
+impl crate::Action for PluginRemoveAction {
     const NAME: &str = "plugin-remove";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];
@@ -76,7 +76,7 @@ impl crate::Action for PluginRemove {
 
 /// `POST /api/actions/plugin-run`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct PluginRun {
+pub struct PluginRunAction {
     /// What was read before answering — the offer a repair's yes was read in, the
     /// listing a restore's was, what a replacement would stop — as it named itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -102,7 +102,7 @@ pub struct PluginRun {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for PluginRun {
+impl crate::Action for PluginRunAction {
     const NAME: &str = "plugin-run";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer", "approved"];
@@ -110,7 +110,7 @@ impl crate::Action for PluginRun {
 
 /// `POST /api/actions/plugin-update`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct PluginUpdate {
+pub struct PluginUpdateAction {
     /// What was read before answering — the offer a repair's yes was read in, the
     /// listing a restore's was, what a replacement would stop — as it named itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -138,7 +138,7 @@ pub struct PluginUpdate {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for PluginUpdate {
+impl crate::Action for PluginUpdateAction {
     const NAME: &str = "plugin-update";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer", "approved"];
@@ -146,7 +146,7 @@ impl crate::Action for PluginUpdate {
 
 /// `POST /api/actions/pull`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Pull {
+pub struct PullAction {
     /// The forms to act on.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub forms: Option<Vec<String>>,
@@ -155,7 +155,7 @@ pub struct Pull {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Pull {
+impl crate::Action for PullAction {
     const NAME: &str = "pull";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -163,7 +163,7 @@ impl crate::Action for Pull {
 
 /// `POST /api/actions/push-woken`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct PushWoken {
+pub struct PushWokenAction {
     /// Who an action addressed to somebody in the household is for, as they sign in.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -177,7 +177,7 @@ pub struct PushWoken {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for PushWoken {
+impl crate::Action for PushWokenAction {
     const NAME: &str = "push-woken";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];

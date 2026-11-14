@@ -1,6 +1,6 @@
 /// `POST /api/actions/search`.
 #[derive(Debug, Clone, PartialEq, serde::Serialize)]
-pub struct Search {
+pub struct SearchAction {
     /// Whether the checks that disturb the running system are included.
     pub disruptive: bool,
     /// What to follow, named as a person would say it.
@@ -11,7 +11,7 @@ pub struct Search {
     pub season: Option<u32>,
 }
 
-impl crate::Action for Search {
+impl crate::Action for SearchAction {
     const NAME: &str = "search";
     const REHEARSAL: bool = false;
     const CONSENT: &[&str] = &[];
@@ -19,13 +19,13 @@ impl crate::Action for Search {
 
 /// `POST /api/actions/seed`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Seed {
+pub struct SeedAction {
     /// Whether to rehearse: write nothing, and answer with what the action would do.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Seed {
+impl crate::Action for SeedAction {
     const NAME: &str = "seed";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &[];
@@ -33,7 +33,7 @@ impl crate::Action for Seed {
 
 /// `POST /api/actions/settings-clear`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct SettingsClear {
+pub struct SettingsClearAction {
     /// The settings to put back to their defaults, by the names the settings read lists
     /// them under.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -47,7 +47,7 @@ pub struct SettingsClear {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for SettingsClear {
+impl crate::Action for SettingsClearAction {
     const NAME: &str = "settings-clear";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];
@@ -55,7 +55,7 @@ impl crate::Action for SettingsClear {
 
 /// `POST /api/actions/settings-set`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct SettingsSet {
+pub struct SettingsSetAction {
     /// Each setting to change, by the name the settings read lists it under, with the
     /// value it is to hold, written as exactly itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -69,7 +69,7 @@ pub struct SettingsSet {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for SettingsSet {
+impl crate::Action for SettingsSetAction {
     const NAME: &str = "settings-set";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];
@@ -77,7 +77,7 @@ impl crate::Action for SettingsSet {
 
 /// `POST /api/actions/space`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Space {
+pub struct SpaceAction {
     /// The categories of what the offer holds as costing nothing to take, orphaned or extracted; all it holds where none is named.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub only: Option<Vec<String>>,
@@ -90,7 +90,7 @@ pub struct Space {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Space {
+impl crate::Action for SpaceAction {
     const NAME: &str = "space";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];
@@ -98,7 +98,7 @@ impl crate::Action for Space {
 
 /// `POST /api/actions/stop-seeding`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct StopSeeding {
+pub struct StopSeedingAction {
     /// What was read before answering — the offer a repair's yes was read in, the
     /// listing a restore's was, what a replacement would stop — as it named itself.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -112,7 +112,7 @@ pub struct StopSeeding {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for StopSeeding {
+impl crate::Action for StopSeedingAction {
     const NAME: &str = "stop-seeding";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];
@@ -120,7 +120,7 @@ impl crate::Action for StopSeeding {
 
 /// `POST /api/actions/support`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Support {
+pub struct SupportAction {
     /// Whether to produce the bundle, rather than say what one would hold.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub write: Option<bool>,
@@ -141,7 +141,7 @@ pub struct Support {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Support {
+impl crate::Action for SupportAction {
     const NAME: &str = "support";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["confirm"];
@@ -149,7 +149,7 @@ impl crate::Action for Support {
 
 /// `POST /api/actions/switch`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
-pub struct Switch {
+pub struct SwitchAction {
     /// The forms to act on.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub forms: Option<Vec<String>>,
@@ -162,7 +162,7 @@ pub struct Switch {
     pub dry_run: Option<bool>,
 }
 
-impl crate::Action for Switch {
+impl crate::Action for SwitchAction {
     const NAME: &str = "switch";
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer"];
