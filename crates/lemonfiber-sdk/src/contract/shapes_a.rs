@@ -260,11 +260,25 @@ pub enum Action {
     #[serde(rename = "regrab")]
     Regrab {
         /// The kind of media the curator files it as.
-        kind: super::VideoKind,
+        kind: Box<super::VideoKind>,
         /// The release's fingerprint.
         release: String,
         /// The curator's id for the title.
         title: i64,
+    },
+    /// Ask a curator to remove what a member asked it for, and take the ask the core
+    /// keeps for it off the household list; nothing where the curator held some of it
+    /// before.
+    #[serde(rename = "unask")]
+    Unask {
+        /// The ask the core keeps for it, by its reference.
+        kept: String,
+        /// The curator's reference for it.
+        reference: String,
+        /// What was asked for.
+        unit: Box<super::Unit>,
+        /// Whether the curator held none of it before.
+        whole: bool,
     },
     /// Give a grant back to a plugin, or end one it was given.
     #[serde(rename = "regrant")]
@@ -272,7 +286,7 @@ pub enum Action {
         /// Whether to give it, rather than end it.
         give: bool,
         /// The grant, by the setting the credential is held under.
-        grant: super::PluginGrant,
+        grant: Box<super::PluginGrant>,
         /// The plugin the grant is of.
         plugin: String,
     },
@@ -352,6 +366,7 @@ impl crate::open::Tags for Action {
         "push-endpoint",
         "resettle",
         "regrab",
+        "unask",
         "regrant",
         "rehold",
         "unreplaced",
@@ -395,13 +410,11 @@ pub struct Admitted {
     /// **Absent is the operator**, which is the whole of the discriminator. A second
     /// field naming which kind of person this is could disagree with this one, and
     /// the day they disagreed a client would have to choose which to believe.
-    ///
-    /// The id and nothing else. What that member is called, what they may watch and
-    /// what they have left are read from the household report, which already carries
-    /// all of it per member — so there is one fact here and no second copy of
-    /// anything that could go stale against the read.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub member: Option<String>,
+    /// The member's display name as the media server holds it, where it is a member's.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
     /// The secret this session is carried by, sent in the header the per-run token is.
     pub token: String,
     /// When it stops being one, written as every other instant this product writes.
@@ -579,13 +592,13 @@ pub enum Answer {
     #[serde(rename = "held")]
     Held {
         /// What became of the download limit.
-        down: super::BandwidthHeld,
+        down: Box<super::BandwidthHeld>,
         /// Which side of the household's day it says it is on, where it keeps the
         /// hours itself.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         period: Option<super::Period>,
         /// And of the upload one.
-        up: super::BandwidthHeld,
+        up: Box<super::BandwidthHeld>,
     },
     /// It did not answer, and this is what it said.
     ///
@@ -748,6 +761,40 @@ pub enum AskingStanding {
     /// Nothing is left, so the next thing they ask for is refused as they ask.
     #[serde(rename = "quota-exhausted")]
     QuotaExhausted,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// One assertion that is not a probe, and what its recording came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Asserted {
+    /// What a verdict is reported against.
+    pub id: String,
+    /// Which of the two it is.
+    pub kind: super::Assertion,
+    /// What it establishes, in one line.
+    pub says: String,
+    /// The service it asks.
+    pub service: String,
+    /// What the recording said about it.
+    pub verdict: super::PluginVerdict,
+}
+
+/// Which kind of assertion a verdict is about.
+///
+/// A probe is reported against the capability it demonstrates and is not here. These
+/// two are, because neither belongs to a capability: one gates the install of this
+/// plugin and the other is a row in a register that runs every day afterwards.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Assertion {
+    /// What must hold before this plugin is installed.
+    #[serde(rename = "proof")]
+    Proof,
+    /// A check this plugin adds to the doctor's register.
+    #[serde(rename = "check")]
+    Check,
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),

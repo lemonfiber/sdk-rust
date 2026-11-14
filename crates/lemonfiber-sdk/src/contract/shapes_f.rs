@@ -30,6 +30,19 @@ pub enum Facing {
     Unrecognised(String),
 }
 
+/// A service none of whose recordings was written, and why.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Failed {
+    /// The last lines its container wrote, scrubbed and with nothing a terminal obeys.
+    pub log: Vec<String>,
+    /// The service.
+    pub service: String,
+    /// The step it failed at.
+    pub step: String,
+    /// Why.
+    pub why: String,
+}
+
 /// Whether media filenames are shown as they are.
 ///
 /// Replaced unless asked otherwise. A library's contents are not a credential, but they
@@ -43,6 +56,42 @@ pub enum Facing {
 /// round it reads is decided here, once — a surface that read it the other way
 /// round would put a library's contents in a file people post in public.
 pub type Filenames = bool;
+
+/// What asking for a capability comes to.
+///
+/// Carried as one word and its subject rather than as three shapes, so a reader of the
+/// machine-readable form branches on `answer` and finds the rest where the word says.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "answer")]
+#[non_exhaustive]
+pub enum Filling {
+    /// Exactly one candidate claims it, and it is what a wiring reaches.
+    #[serde(rename = "by")]
+    By {
+        /// The service that fills it.
+        service: String,
+    },
+    /// More than one does. Refused until the operator chooses, and every one of them
+    /// is named — resolving it by install order, precedence or recency is the thing
+    /// this answer exists instead of.
+    #[serde(rename = "contested")]
+    Contested {
+        /// Every candidate, named.
+        claimants: Vec<String>,
+    },
+    /// Nothing installed claims it, or everything that does has been refuted or is
+    /// unproven.
+    #[serde(rename = "unfilled")]
+    Unfilled,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Filling, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Filling {
+    const TAG: Option<&str> = Some("answer");
+    const KNOWN: &[&str] = &["by", "contested", "unfilled"];
+}
 
 /// A service a closure asked for that the configuration leaves out, and why.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -274,12 +323,35 @@ pub struct FrontDoorBeside {
     /// with a refusal, and the manifest is where a port is declared.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub address: Option<super::Address>,
-    /// Why it is not somewhere to begin.
+    /// Why it is not somewhere to begin, or for a household member what it is to them.
     pub because: String,
     /// What it is to the household.
     pub facing: super::Facing,
+    /// Whether the address answers from where the asking came from.
+    pub reaches: super::FrontDoorReaches,
     /// The service, by the name it shows itself under.
     pub service: String,
+    /// Why there is no address, where there is none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unaddressed: Option<String>,
+}
+
+/// Whether an address answers from the network a request came from.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum FrontDoorReaches {
+    /// It answers from there.
+    #[serde(rename = "here")]
+    Here,
+    /// It does not answer from there.
+    #[serde(rename = "not-here")]
+    NotHere,
+    /// Nothing here can tell.
+    #[serde(rename = "unknown")]
+    Unknown,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// The household's one front door: which service it is, where it stands, and what
@@ -299,19 +371,27 @@ pub struct FrontDoorReport {
     /// Carried as a state rather than left to the sentence beneath it, for the reason
     /// the standing is: an operator whose setting was refused reads the sentence, and
     /// a browser, a script or a dashboard reads this.
-    pub chosen: super::Chosen,
+    ///
+    /// Absent for a household member.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chosen: Option<super::Chosen>,
     /// What that service is to them. Absent for the same reason.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub facing: Option<super::Facing>,
-    /// What this comes to, in the words an operator would say it in — including,
-    /// where there is no door, that there is none.
+    /// What this comes to, in the words an operator would say it in, or a household
+    /// member's for one — including, where there is no door, that there is none.
     pub meaning: String,
+    /// Whether the address answers from where the asking came from.
+    pub reaches: super::FrontDoorReaches,
     /// The service the household begins at, by the name it shows itself under.
     /// Absent where this stack publishes nothing they could begin at.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service: Option<String>,
     /// Where the front door stands.
     pub standing: super::FrontDoorStanding,
+    /// Why there is no address, where there is a door and none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unaddressed: Option<String>,
 }
 
 /// Where the household's one front door stands.

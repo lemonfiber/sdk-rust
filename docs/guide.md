@@ -278,8 +278,12 @@ loop {
 }
 ```
 
-- The server sends a heartbeat at least every 15 seconds (`HEARTBEAT`). Silence for 30
-  seconds is a broken stream, not a quiet one.
+- The server sends a heartbeat at least every 15 seconds (`HEARTBEAT`, from the
+  contract's `contract::events::HEARTBEAT_SECONDS`). Silence for 30 seconds is a broken
+  stream, not a quiet one.
+- `contract::events::ALL` lists every kind the stream carries. Each `EventKind` says
+  whether a newer one `replaces` an older one, as a state does and a record does not, and
+  whether only the `operator` hears it.
 - A broken stream is reopened from the last event it carried, sent as `Last-Event-ID`.
   It waits one second, then twice as long after each failure up to thirty seconds, and is
   `Error::StreamLost` after five failures in a row. `Following` sets all three.

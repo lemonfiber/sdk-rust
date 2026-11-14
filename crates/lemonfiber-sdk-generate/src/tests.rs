@@ -13,7 +13,7 @@ type Outcome = Result<(), Box<dyn std::error::Error>>;
 
 const REVISION: &str = "0123456789abcdef0123456789abcdef01234567";
 
-fn words(command: &[&str]) -> Vec<String> {
+pub(crate) fn words(command: &[&str]) -> Vec<String> {
     command.iter().map(|word| (*word).to_owned()).collect()
 }
 
@@ -120,7 +120,7 @@ fn lists(put: &mut impl FnMut(&str, Value)) {
     );
 }
 
-fn tree() -> BTreeMap<String, Value> {
+pub(crate) fn tree() -> BTreeMap<String, Value> {
     let mut files = BTreeMap::new();
     let mut put = |path: &str, value: Value| {
         files.insert(path.to_owned(), value);
@@ -135,6 +135,13 @@ fn tree() -> BTreeMap<String, Value> {
             "key_callable": "key-callable.json",
             "reads": "reads.json",
             "refusals": { "LIFE": "refusals/LIFE.json" },
+            "events": {
+                "heartbeat_seconds": 15,
+                "kinds": {
+                    "status": { "schema": "kinds/status.json", "nature": "state", "audience": "anyone" },
+                    "pull": { "schema": "kinds/pull.json", "nature": "record", "audience": "operator" },
+                },
+            },
         }),
     );
     put(
@@ -195,7 +202,7 @@ fn tree() -> BTreeMap<String, Value> {
     files
 }
 
-fn laid_out(
+pub(crate) fn laid_out(
     files: &BTreeMap<String, Value>,
 ) -> Result<tempfile::TempDir, Box<dyn std::error::Error>> {
     let root = tempfile::tempdir()?;
@@ -223,7 +230,7 @@ fn at<'a>(files: &'a mut BTreeMap<String, Value>, file: &str, pointer: &str) -> 
         .unwrap_or_else(|| unreachable!("the fixture holds {file}{pointer}"))
 }
 
-fn set(
+pub(crate) fn set(
     file: &'static str,
     pointer: &'static str,
     value: Value,
@@ -286,6 +293,7 @@ fn an_enum_an_answer_can_carry_is_open_and_one_a_request_reaches_is_closed() -> 
         "#[serde(untagged, deserialize_with = \"crate::open::unrecognised::<Panel, _>\")]\n    Unrecognised(serde_json::Value),"
     ));
     assert!(panel.contains("const TAG: Option<&str> = Some(\"panel\");"));
+    assert!(panel.contains("data: Box<super::PanelReadyData>,"));
     assert!(panel.contains("const KNOWN: &[&str] = &[\"ready\", \"empty\"];"));
     let choice = fs::read_to_string(generated.join("shapes_c.rs"))?;
     assert!(choice.contains(&format!("{open}\npub enum Choice")));
@@ -407,7 +415,7 @@ fn a_version_this_does_not_implement_is_refused_naming_both_and_nothing_is_writt
     Ok(())
 }
 
-fn refuses(edit: impl FnOnce(&mut BTreeMap<String, Value>), saying: &str) -> Outcome {
+pub(crate) fn refuses(edit: impl FnOnce(&mut BTreeMap<String, Value>), saying: &str) -> Outcome {
     let root = edited(edit)?;
     let said = refused_with(root.path(), &["generate"]);
     assert!(said.contains(saying), "expected {saying:?} in {said:?}");
@@ -415,7 +423,7 @@ fn refuses(edit: impl FnOnce(&mut BTreeMap<String, Value>), saying: &str) -> Out
     Ok(())
 }
 
-fn remove(
+pub(crate) fn remove(
     file: &'static str,
     pointer: &'static str,
     key: &'static str,
@@ -459,8 +467,8 @@ fn a_reference_that_reaches_nothing_or_reads_two_ways_is_refused_naming_where() 
 #[test]
 fn an_index_or_list_this_does_not_read_is_refused() -> Outcome {
     refuses(
-        set("index.json", "/events", json!("events.json")),
-        "the index carries events",
+        set("index.json", "/streams", json!("streams.json")),
+        "the index carries streams",
     )?;
     refuses(
         set("index.json", "/kinds", json!({})),

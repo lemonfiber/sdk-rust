@@ -127,6 +127,7 @@ pub const ALL: &[crate::RefusalCode] = &[
     super::refusals::EARLIER_TAKEN,
     super::refusals::ANOTHER_SOURCE,
     super::refusals::UNCONFORMING,
+    super::refusals::KEY_UNREADABLE,
     super::refusals::NOT_A_PUSH_NAME,
     super::refusals::PUSH_NAME_TAKEN,
     super::refusals::PUSH_NOT_HTTPS,

@@ -16,6 +16,19 @@ pub enum JobEnding {
     Unrecognised(String),
 }
 
+/// One case, as its recording answered it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Judged {
+    /// The case.
+    pub case: String,
+    /// The contract it is a case of, as `capability@major`.
+    pub contract: String,
+    /// Where its recording is, beneath the plugin's source.
+    pub recording: String,
+    /// What it came to.
+    pub verdict: super::Verdict,
+}
+
 /// How large a step from one version to another is.
 ///
 /// Named after the part of the version that moved rather than after a size, because

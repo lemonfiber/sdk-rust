@@ -307,7 +307,7 @@ pub enum DoctorVerdict {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         cause: Option<super::Problem>,
         /// The stable identifier for this kind of problem.
-        code: super::Code,
+        code: Box<super::Code>,
         /// The underlying technical detail, available but never leading.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         detail: Option<String>,
@@ -316,9 +316,9 @@ pub enum DoctorVerdict {
         /// What to do, most likely first.
         remedies: Vec<super::Remedy>,
         /// How much it matters.
-        severity: super::ProblemSeverity,
+        severity: Box<super::ProblemSeverity>,
         /// Where it stands with respect to being fixed.
-        state: super::ProblemState,
+        state: Box<super::ProblemState>,
         /// Every step a run declares, with what each came to, where the problem ended a run
         /// of steps part-way; absent from every other problem.
         ///
@@ -336,7 +336,7 @@ pub enum DoctorVerdict {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         cause: Option<super::Problem>,
         /// The stable identifier for this kind of problem.
-        code: super::Code,
+        code: Box<super::Code>,
         /// The underlying technical detail, available but never leading.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         detail: Option<String>,
@@ -345,9 +345,9 @@ pub enum DoctorVerdict {
         /// What to do, most likely first.
         remedies: Vec<super::Remedy>,
         /// How much it matters.
-        severity: super::ProblemSeverity,
+        severity: Box<super::ProblemSeverity>,
         /// Where it stands with respect to being fixed.
-        state: super::ProblemState,
+        state: Box<super::ProblemState>,
         /// Every step a run declares, with what each came to, where the problem ended a run
         /// of steps part-way; absent from every other problem.
         ///
@@ -364,7 +364,7 @@ pub enum DoctorVerdict {
         /// Why it could not be determined.
         reason: String,
         /// What the operator can do to get an answer.
-        remedy: super::Remedy,
+        remedy: Box<super::Remedy>,
     },
     /// A prerequisite was absent, so the check did not apply.
     #[serde(rename = "skipped")]

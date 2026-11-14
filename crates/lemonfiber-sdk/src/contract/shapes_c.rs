@@ -314,7 +314,7 @@ pub enum Chosen {
     #[serde(rename = "refused")]
     Refused {
         /// The `door` field.
-        door: super::Refusal,
+        door: Box<super::Refusal>,
     },
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Chosen, _>")]
@@ -324,6 +324,70 @@ pub enum Chosen {
 impl crate::open::Tags for Chosen {
     const TAG: Option<&str> = Some("chosen");
     const KNOWN: &[&str] = &["derived", "named", "refused"];
+}
+
+/// Everything a plugin's source says, and what this build makes of it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Claimed {
+    /// What every verdict in this report was reached against.
+    pub against: super::PluginEvidence,
+    /// What its services declare they can do.
+    pub capabilities: Vec<super::Claiming>,
+    /// The checks it contributes, against the recordings they name.
+    ///
+    /// Reported and never counted against the install. A contributed check reports on a
+    /// running stack rather than gating one, so a check that its own recording refuses
+    /// is a check doing its job on a machine in the state it was recorded in — which is
+    /// a different fact from a claim its recordings refute.
+    pub checks: Vec<super::Asserted>,
+    /// What it adds to lemonfiber's own registers.
+    pub contributions: Vec<super::Contributed>,
+    /// The extension points generation it was held to.
+    pub extension_points_version: u32,
+    /// The plugin's id.
+    pub id: String,
+    /// Whether this plugin would be installed as it stands.
+    ///
+    /// Carried rather than left for a reader to work out. It is one rule over two of
+    /// the fields above, and a consumer deciding it for itself would be a second copy
+    /// of that rule — free to disagree with the exit status this same answer produces.
+    pub installable: bool,
+    /// Its human-facing name.
+    pub name: String,
+    /// What must hold before it is installed, against the recordings it ships.
+    pub proofs: Vec<super::Asserted>,
+    /// Everything the two published vocabularies refuse, in one pass.
+    pub refusals: Vec<super::Violation>,
+    /// The author's own version of it.
+    pub version: String,
+    /// The capability vocabulary generation it was held to.
+    ///
+    /// Carried for the reason every other read under this word carries one: an author
+    /// comparing what they were refused for with what they read needs to know whether
+    /// the difference is their manifest or this build.
+    pub vocabulary_version: u32,
+}
+
+/// One capability a plugin's service declares, and what this build makes of it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Claiming {
+    /// What asking for it would come to, or nothing where nothing can ask.
+    ///
+    /// A namespaced capability has no answer here rather than an empty one: nothing
+    /// consumes it, which is what *inert* means, and reporting it as unfilled would be
+    /// describing a gap where there is a design.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filling: Option<super::Filling>,
+    /// The capability's name.
+    pub name: String,
+    /// Whether it is this plugin's own rather than one from the core vocabulary.
+    pub own: bool,
+    /// Every probe the claim binds, in the order the vocabulary declares them.
+    pub probes: Vec<super::ProbeRan>,
+    /// The service declaring it.
+    pub service: String,
+    /// How far the claim has been shown.
+    pub shown: super::Shown,
 }
 
 /// A stable identifier for a kind of problem.
@@ -418,6 +482,19 @@ pub struct ConflictReport {
     pub wanted_by: String,
 }
 
+/// What a plugin's recordings say about the contracts its adapters speak.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Conformed {
+    /// Every case of every contract an adapter speaks, as its recording answered it.
+    pub cases: Vec<super::Judged>,
+    /// Whether nothing is refused and every case passed.
+    pub conforms: bool,
+    /// The plugin's id.
+    pub id: String,
+    /// Everything the manifest is refused for, which no recording can make up for.
+    pub refusals: Vec<super::Violation>,
+}
+
 /// One line of the accounting.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Consumption {
@@ -444,6 +521,20 @@ pub struct Contents {
     pub taken: super::Taken,
     /// How it was made, and what its operator chose.
     pub terms: super::Terms,
+}
+
+/// One row a plugin adds to a register lemonfiber already runs.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Contributed {
+    /// The point it is made at.
+    pub at: String,
+    /// The check a remedy is for, where this is one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub r#for: Option<String>,
+    /// The identity it holds, namespaced with the plugin's id.
+    pub id: String,
+    /// What it says, in one line.
+    pub says: String,
 }
 
 /// A row in a register lemonfiber already runs.

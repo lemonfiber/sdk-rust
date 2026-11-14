@@ -157,11 +157,11 @@ pub struct SettledReport {
 pub enum SetupAnswerBody {
     /// The protocol choice.
     #[serde(rename = "protocols")]
-    Protocols(super::Protocols),
+    Protocols(Box<super::Protocols>),
     /// Whether a VPN carries the torrents, and where none does, that the operator
     /// accepted what that means.
     #[serde(rename = "vpn")]
-    Vpn(super::SetupVpn),
+    Vpn(Box<super::SetupVpn>),
     /// The data location.
     #[serde(rename = "data-location")]
     DataLocation(String),
@@ -178,10 +178,10 @@ pub enum SetupAnswerBody {
     ServiceUser(Option<(u32, u32)>),
     /// How the library is served.
     #[serde(rename = "library")]
-    Library(super::Library),
+    Library(Box<super::Library>),
     /// How much the operator wants to be told about.
     #[serde(rename = "notifications")]
-    Notifications(super::Appetite),
+    Notifications(Box<super::Appetite>),
     /// Whether the household uses it.
     #[serde(rename = "household")]
     Household(bool),
@@ -271,9 +271,9 @@ pub struct SetupReport {
 #[serde(untagged)]
 pub enum SetupVpn {
     /// Carrying, with what was given.
-    SetupVpnCarrying(super::SetupVpnCarrying),
+    SetupVpnCarrying(Box<super::SetupVpnCarrying>),
     /// Carrying with nothing given, or nothing carrying it.
-    SetupVpnSaid(super::SetupVpnSaid),
+    SetupVpnSaid(Box<super::SetupVpnSaid>),
 }
 
 /// Carrying, with what was given.
@@ -281,7 +281,7 @@ pub enum SetupVpn {
 pub enum SetupVpnCarrying {
     /// A VPN carries it, through the egress guard set up with what was given.
     #[serde(rename = "carrying")]
-    Carrying(super::SetupGuarded),
+    Carrying(Box<super::SetupGuarded>),
 }
 
 /// Either answer, in a word.
@@ -364,6 +364,36 @@ pub struct Sharing {
     /// The zone the clients read those hours in, where the stack says.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub zone: Option<String>,
+}
+
+/// How far a claim has been shown.
+///
+/// The four the vocabulary's own states name. `Claimed` is not a weaker
+/// `Demonstrated`: it is what a declaration is before anything has asked the service,
+/// which is a fact about this moment rather than about the service.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Shown {
+    /// A service declares it, and nothing has asked the service yet.
+    #[serde(rename = "claimed")]
+    Claimed,
+    /// The probes ran and passed against the evidence the report names.
+    ///
+    /// Which is not the same claim in each case, and the report is where the two are
+    /// told apart: a recording that answers is evidence about a moment somebody wrote
+    /// down, and a service that answers is evidence about the service. This word alone
+    /// does not distinguish them and must not be read as though it did.
+    #[serde(rename = "demonstrated")]
+    Demonstrated,
+    /// The probes could not be run. The claim stands unverified and is not met.
+    #[serde(rename = "unproven")]
+    Unproven,
+    /// The probes ran and failed. The claim is false.
+    #[serde(rename = "refuted")]
+    Refuted,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// Everything the dashboard shows at one moment.
@@ -831,54 +861,4 @@ pub struct Started {
     pub action: String,
     /// The name to ask what became of this work by.
     pub job: String,
-}
-
-/// What each service is doing, and what that adds up to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct StatusReport {
-    /// The forms the running services are up for, in the order the stack declares them.
-    ///
-    /// Read from the whole stack whichever forms were asked about. A form counts while
-    /// every service it holds has been started and none has been stopped, and one
-    /// wholly inside a broader form that counts is left out. Each service names the ones
-    /// it is running for.
-    pub active_forms: Vec<String>,
-    /// What the services amount to, as one word.
-    ///
-    /// For the whole stack, counted over what the active forms hold and whatever else
-    /// is there, so a stack running part of itself on purpose reads as active. With no
-    /// form up, and for the forms asked about, counted over every service listed.
-    pub condition: super::Condition,
-    /// How long each way of acting on these services takes them away for.
-    ///
-    /// Here so that a surface can say it before it asks the operator to confirm,
-    /// which is the only moment saying it is any use.
-    pub disturbs: super::Disturbances,
-    /// What those forms left out for want of a configured provider, service by service.
-    ///
-    /// Beside the services rather than among them: a service filtered out is the
-    /// configuration being honoured, not a service that did not start.
-    pub filtered: Vec<super::Filtered>,
-    /// The forms asked about; empty means the whole stack was.
-    pub forms: Vec<String>,
-    /// Each service, worst first.
-    ///
-    /// A service the active forms filtered out is listed only while it is there; one
-    /// that is not is in `filtered` and nowhere else.
-    pub services: Vec<super::Service>,
-    /// The containers running under this project that the stack never declared.
-    ///
-    /// Kept apart from the services rather than mixed in with them, because what is
-    /// known about each is different: a service has a profile, a criticality and a
-    /// description, and one of these has a name and a state and nothing else. Shown
-    /// all the same — something running under this project's name that lemonfiber did
-    /// not put there is the operator's business whether or not lemonfiber understands
-    /// it.
-    pub undeclared: Vec<super::Undeclared>,
-    /// The services held back until the operator gives what they need to start, each
-    /// with what it waits for and never a value.
-    ///
-    /// Beside the services, as what was filtered is: one that is not there is listed
-    /// here and nowhere else, because it is waiting rather than failing to start.
-    pub waiting: Vec<super::Waiting>,
 }

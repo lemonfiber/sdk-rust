@@ -4,6 +4,7 @@
 
 mod artefact;
 mod emit;
+mod events;
 mod files;
 mod names;
 mod reading;

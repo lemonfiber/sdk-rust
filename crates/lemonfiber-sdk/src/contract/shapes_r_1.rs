@@ -79,7 +79,7 @@ pub enum Reaches {
         /// What the ask reaches — empty where nothing fills it or a contest stands.
         services: Vec<String>,
         /// How it was settled.
-        settled: super::WiringSettled,
+        settled: Box<super::WiringSettled>,
     },
     /// A link deliberately kept to a named service, shown as the exception it is.
     #[serde(rename = "by-name")]
@@ -254,6 +254,22 @@ pub struct RecordReport {
     pub service: String,
 }
 
+/// Every recording a plugin's manifest names, taken again.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Recorded {
+    /// Each service whose recordings were not taken.
+    pub failed: Vec<super::Failed>,
+    /// Whether every recording was written or reproduced, each with a note, and each no
+    /// case asked removed.
+    pub holds: bool,
+    /// The plugin's id.
+    pub id: String,
+    /// Each recording, in the order the manifest names them.
+    pub recordings: Vec<super::RecordingTaken>,
+    /// Everything this build refuses about the manifest; nothing is taken where any is.
+    pub refusals: Vec<super::Violation>,
+}
+
 /// What a recording gives a service in the operator's place: a constant reaching no third
 /// party, or, written `"minted"`, a value made for that run alone.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -268,6 +284,18 @@ pub enum RecordedWith {
     Boolean(bool),
     /// A value this client was not generated with, as it arrived.
     Unrecognised(serde_json::Value),
+}
+
+/// One recording a manifest names, and what taking it came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct RecordingTaken {
+    /// The recording it names.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fixture: Option<String>,
+    /// What names it: a proof, a claim's probe or a contributed check.
+    pub named: String,
+    /// What taking it came to.
+    pub took: super::Took,
 }
 
 /// A named front door that is not one, and why it is not.
@@ -850,40 +878,4 @@ pub struct Review {
     pub refusal: Option<String>,
     /// Where the proposal stands.
     pub stance: super::Stance,
-}
-
-/// How far a removal got, across the two services a household member exists on.
-///
-/// The media server is removed first and the request service second, because the
-/// request service authenticates *through* the media server — so once the first is gone
-/// they can do nothing either way, and a failure at the second leaves an account that
-/// cannot sign in rather than somebody who can still watch.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum Revoked {
-    /// Both, which is what removal means.
-    #[serde(rename = "everywhere")]
-    Everywhere,
-    /// The media server only, and the request service still holds an account.
-    ///
-    /// They can neither watch nor ask — the account left behind signs in through the one
-    /// that is gone — but something is there that should not be, and the next run of this
-    /// command takes it.
-    #[serde(rename = "media-server-only")]
-    MediaServerOnly,
-    /// Nothing was removed, because nothing was confirmed.
-    #[serde(rename = "nothing")]
-    Nothing,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
-}
-
-/// The hours the household is awake, declared once for every download client.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Rhythm {
-    /// When the household's day starts.
-    pub from: String,
-    /// When it ends, which may be the next morning.
-    pub to: String,
 }

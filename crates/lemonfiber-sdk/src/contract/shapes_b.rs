@@ -155,6 +155,24 @@ pub struct Beyond {
     pub remedy: super::Remedy,
 }
 
+/// What a member asks a curator of books for.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum BookUnit {
+    /// One book: a work.
+    #[serde(rename = "book")]
+    Book,
+    /// A whole author: every book, and those that come later.
+    #[serde(rename = "author")]
+    Author,
+    /// A series: every book of it, and those that come later.
+    #[serde(rename = "series")]
+    Series,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// What a run at boot came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]

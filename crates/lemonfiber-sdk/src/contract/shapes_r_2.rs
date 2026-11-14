@@ -1,3 +1,39 @@
+/// How far a removal got, across the two services a household member exists on.
+///
+/// The media server is removed first and the request service second, because the
+/// request service authenticates *through* the media server — so once the first is gone
+/// they can do nothing either way, and a failure at the second leaves an account that
+/// cannot sign in rather than somebody who can still watch.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Revoked {
+    /// Both, which is what removal means.
+    #[serde(rename = "everywhere")]
+    Everywhere,
+    /// The media server only, and the request service still holds an account.
+    ///
+    /// They can neither watch nor ask — the account left behind signs in through the one
+    /// that is gone — but something is there that should not be, and the next run of this
+    /// command takes it.
+    #[serde(rename = "media-server-only")]
+    MediaServerOnly,
+    /// Nothing was removed, because nothing was confirmed.
+    #[serde(rename = "nothing")]
+    Nothing,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// The hours the household is awake, declared once for every download client.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Rhythm {
+    /// When the household's day starts.
+    pub from: String,
+    /// When it ends, which may be the next morning.
+    pub to: String,
+}
+
 /// Which of the two volumes a reading is about.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]

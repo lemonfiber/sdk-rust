@@ -412,7 +412,7 @@ pub enum WiringSettled {
         /// The ones not chosen, so the choice reads as a choice.
         over: Vec<String>,
         /// Who chose.
-        whose: super::Whose,
+        whose: Box<super::Whose>,
         /// Why, where the chooser said.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         why: Option<String>,

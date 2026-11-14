@@ -1,3 +1,53 @@
+/// What each service is doing, and what that adds up to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct StatusReport {
+    /// The forms the running services are up for, in the order the stack declares them.
+    ///
+    /// Read from the whole stack whichever forms were asked about. A form counts while
+    /// every service it holds has been started and none has been stopped, and one
+    /// wholly inside a broader form that counts is left out. Each service names the ones
+    /// it is running for.
+    pub active_forms: Vec<String>,
+    /// What the services amount to, as one word.
+    ///
+    /// For the whole stack, counted over what the active forms hold and whatever else
+    /// is there, so a stack running part of itself on purpose reads as active. With no
+    /// form up, and for the forms asked about, counted over every service listed.
+    pub condition: super::Condition,
+    /// How long each way of acting on these services takes them away for.
+    ///
+    /// Here so that a surface can say it before it asks the operator to confirm,
+    /// which is the only moment saying it is any use.
+    pub disturbs: super::Disturbances,
+    /// What those forms left out for want of a configured provider, service by service.
+    ///
+    /// Beside the services rather than among them: a service filtered out is the
+    /// configuration being honoured, not a service that did not start.
+    pub filtered: Vec<super::Filtered>,
+    /// The forms asked about; empty means the whole stack was.
+    pub forms: Vec<String>,
+    /// Each service, worst first.
+    ///
+    /// A service the active forms filtered out is listed only while it is there; one
+    /// that is not is in `filtered` and nowhere else.
+    pub services: Vec<super::Service>,
+    /// The containers running under this project that the stack never declared.
+    ///
+    /// Kept apart from the services rather than mixed in with them, because what is
+    /// known about each is different: a service has a profile, a criticality and a
+    /// description, and one of these has a name and a state and nothing else. Shown
+    /// all the same — something running under this project's name that lemonfiber did
+    /// not put there is the operator's business whether or not lemonfiber understands
+    /// it.
+    pub undeclared: Vec<super::Undeclared>,
+    /// The services held back until the operator gives what they need to start, each
+    /// with what it waits for and never a value.
+    ///
+    /// Beside the services, as what was filtered is: one that is not there is listed
+    /// here and nowhere else, because it is waiting rather than failing to start.
+    pub waiting: Vec<super::Waiting>,
+}
+
 /// What one step of a recipe came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
@@ -21,6 +71,10 @@ pub enum StepCame {
     /// It was not sent: a value it carries may not go where it was going.
     #[serde(rename = "withheld")]
     Withheld,
+    /// It was not sent: the operator refused its host, or one a step it depends on calls,
+    /// so nothing was asked.
+    #[serde(rename = "declined")]
+    Declined,
     /// It was answered with something other than what it expects.
     #[serde(rename = "unexpected")]
     Unexpected,
