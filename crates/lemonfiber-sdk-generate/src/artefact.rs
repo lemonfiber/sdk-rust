@@ -3,6 +3,7 @@ use std::path::Path;
 
 use serde_json::{Map, Value};
 
+use crate::events::{self, Events};
 use crate::files;
 use crate::names::is_type_name;
 use crate::{Refused, CONTRACT, STAMP};
@@ -14,6 +15,7 @@ const INDEX_FIELDS: &[&str] = &[
     "kinds",
     "actions",
     "bodies",
+    "events",
     "key_callable",
     "reads",
     "refusals",
@@ -87,6 +89,7 @@ pub struct Artefact {
     pub reads: Vec<Read>,
     pub key_callable: Vec<KeyCallable>,
     pub refusals: Vec<Refusal>,
+    pub events: Events,
 }
 
 pub fn revision(root: &Path) -> Result<String, Refused> {
@@ -205,7 +208,7 @@ impl Reader<'_> {
     }
 }
 
-fn object<'a>(
+pub(crate) fn object<'a>(
     node: &'a Value,
     what: &str,
     problems: &mut Vec<String>,
@@ -217,7 +220,12 @@ fn object<'a>(
     fields
 }
 
-fn unread(fields: &Map<String, Value>, known: &[&str], what: &str, problems: &mut Vec<String>) {
+pub(crate) fn unread(
+    fields: &Map<String, Value>,
+    known: &[&str],
+    what: &str,
+    problems: &mut Vec<String>,
+) {
     let extra: Vec<&str> = fields
         .keys()
         .map(String::as_str)
@@ -306,6 +314,7 @@ impl Artefact {
         let actions = read_actions(&mut reader, fields, &mut problems)?;
         let bodies = read_bodies(&mut reader, fields, &mut problems)?;
         let refusals = read_refusals(&reader, fields, &mut problems)?;
+        let events = events::read(fields, &kinds, &mut problems);
         let reads = match file_of(fields.get("reads"), "the reads", &mut problems) {
             Some(file) => read_reads(&reader.json(file)?, &kinds, &mut problems),
             None => Vec::new(),
@@ -340,6 +349,7 @@ impl Artefact {
                 reads,
                 key_callable,
                 refusals,
+                events,
             })
         } else {
             Err(Refused::listing(

@@ -18,12 +18,18 @@ pub struct OccupantReport {
 /// A request lemonfiber makes on an installed plugin's behalf, attributed to it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct OnBehalf {
+    /// Whether this machine's settings allow it.
+    pub allowed: bool,
+    /// What stops working once it is refused.
+    pub cost: String,
     /// Where it goes, as the plugin declared it.
     pub destination: String,
     /// The plugin that declared it, by its id.
     pub plugin: String,
     /// Why it may be made.
     pub purpose: String,
+    /// The setting that refuses it: `plugin.<id>.reach.<host>`.
+    pub switch: String,
 }
 
 /// One thing a way of downloading newly asks the operator for.

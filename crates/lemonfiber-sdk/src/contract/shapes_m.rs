@@ -443,3 +443,18 @@ pub struct MusicReport {
     /// its wording alone.
     pub rehearsed: bool,
 }
+
+/// What a member asks a curator of music for.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum MusicUnit {
+    /// One album: a release group.
+    #[serde(rename = "album")]
+    Album,
+    /// A whole artist: every album, and those that come later.
+    #[serde(rename = "artist")]
+    Artist,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}

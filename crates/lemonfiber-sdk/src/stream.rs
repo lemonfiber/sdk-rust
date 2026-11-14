@@ -13,7 +13,18 @@ use crate::transport::{Chunks, Failure, Response};
 use crate::{Client, Envelope, Error};
 
 /// How often the server speaks when it has nothing to say.
-pub const HEARTBEAT: Duration = Duration::from_secs(15);
+pub const HEARTBEAT: Duration = Duration::from_secs(crate::contract::events::HEARTBEAT_SECONDS);
+
+/// One kind the event stream carries, and what the contract says of it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EventKind {
+    /// The kind's name, as its envelopes carry it.
+    pub kind: &'static str,
+    /// Whether a newer one replaces an older one, as a state does and a record does not.
+    pub replaces: bool,
+    /// Whether only the operator hears it.
+    pub operator: bool,
+}
 
 const EVENTS: &str = "/api/events";
 

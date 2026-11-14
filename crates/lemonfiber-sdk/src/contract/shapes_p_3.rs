@@ -148,6 +148,30 @@ pub struct PluginStepRan {
     pub why: Option<String>,
 }
 
+/// One recipe step refusing a host stops.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginStopped {
+    /// The recipe's id.
+    pub recipe: String,
+    /// The step's id.
+    pub step: String,
+    /// What the recipe accomplishes, in its author's words.
+    pub title: String,
+}
+
+/// What refusing one host a plugin's recipes reach stops.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginStopping {
+    /// The host, as the recipes name it.
+    pub host: String,
+    /// What stops, in its author's words, where the manifest says.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub said: Option<String>,
+    /// Every recipe step refusing it stops: each calling it, and each depending on one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub steps: Option<Vec<super::PluginStopped>>,
+}
+
 /// A capability the operator chose one of a plugin's services to fill.
 ///
 /// The only way anything a plugin brought comes to fill what the stack asks for in
@@ -390,6 +414,15 @@ pub struct Preview {
     /// The data-root difference, where the archive was taken against another one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub relocation: Option<super::Relocation>,
+}
+
+/// One probe a claim binds, and what running it against its recording came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ProbeRan {
+    /// The probe the vocabulary declares, by name.
+    pub probe: String,
+    /// What the recording said about it.
+    pub verdict: super::PluginVerdict,
 }
 
 /// Something that went wrong, in the form an operator can act on.

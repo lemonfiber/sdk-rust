@@ -1,5 +1,5 @@
-//! The lemonfiber web API's shapes, reads, actions and refusals, generated from the
-//! contract artefact taken from the lemonfiber revision [`REVISION`] names.
+//! The lemonfiber web API's shapes, reads, actions, refusals and event kinds, generated
+//! from the contract artefact taken from the lemonfiber revision [`REVISION`] names.
 //! `just generate` writes this module, and CI refuses it where it differs from
 //! what that writes.
 
@@ -20,6 +20,7 @@ mod actions_r;
 mod actions_s;
 mod actions_u;
 mod actions_w;
+pub mod events;
 pub mod key_callable;
 mod reads_a;
 mod reads_b;
@@ -213,7 +214,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "3d18e1fe5502ce9c024146705fddb00629cf53cd";
+pub const REVISION: &str = "3eb835ad7625b721ad7b4e6313260f5715e4a50c";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -271,6 +272,10 @@ pub const KINDS: &[&str] = &[
     "part-way",
     "pausing",
     "playing",
+    "plugin-claims",
+    "plugin-conformance",
+    "plugin-provenance",
+    "plugin-recording",
     "plugins",
     "preview",
     "provenance",
@@ -481,6 +486,18 @@ pub enum Payload {
     /// The `playing` kind.
     #[serde(rename = "playing")]
     Playing(Box<PlayingReport>),
+    /// The `plugin-claims` kind.
+    #[serde(rename = "plugin-claims")]
+    PluginClaims(Box<Claimed>),
+    /// The `plugin-conformance` kind.
+    #[serde(rename = "plugin-conformance")]
+    PluginConformance(Box<Conformed>),
+    /// The `plugin-provenance` kind.
+    #[serde(rename = "plugin-provenance")]
+    PluginProvenance(Box<Vouched>),
+    /// The `plugin-recording` kind.
+    #[serde(rename = "plugin-recording")]
+    PluginRecording(Box<Recorded>),
     /// The `plugins` kind.
     #[serde(rename = "plugins")]
     Plugins(Box<PluginInstalls>),

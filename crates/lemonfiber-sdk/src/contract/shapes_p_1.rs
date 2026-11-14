@@ -80,7 +80,7 @@ pub enum PanelArrayOfDownloader {
     #[serde(rename = "unavailable")]
     Unavailable {
         /// The `data` field.
-        data: super::PanelArrayOfDownloaderUnavailableData,
+        data: Box<super::PanelArrayOfDownloaderUnavailableData>,
     },
     /// A value this client was not generated with, as it arrived.
     #[serde(
@@ -122,7 +122,7 @@ pub enum PanelArrayOfQueue {
     #[serde(rename = "unavailable")]
     Unavailable {
         /// The `data` field.
-        data: super::PanelArrayOfQueueUnavailableData,
+        data: Box<super::PanelArrayOfQueueUnavailableData>,
     },
     /// A value this client was not generated with, as it arrived.
     #[serde(
@@ -164,7 +164,7 @@ pub enum PanelArrayOfService {
     #[serde(rename = "unavailable")]
     Unavailable {
         /// The `data` field.
-        data: super::PanelArrayOfServiceUnavailableData,
+        data: Box<super::PanelArrayOfServiceUnavailableData>,
     },
     /// A value this client was not generated with, as it arrived.
     #[serde(
@@ -206,7 +206,7 @@ pub enum PanelArrayOfTransfer {
     #[serde(rename = "unavailable")]
     Unavailable {
         /// The `data` field.
-        data: super::PanelArrayOfTransferUnavailableData,
+        data: Box<super::PanelArrayOfTransferUnavailableData>,
     },
     /// A value this client was not generated with, as it arrived.
     #[serde(
@@ -242,13 +242,13 @@ pub enum PanelFrontDoorReport {
     #[serde(rename = "ready")]
     Ready {
         /// The `data` field.
-        data: super::FrontDoorReport,
+        data: Box<super::FrontDoorReport>,
     },
     /// The source could not be reached, for this stated reason.
     #[serde(rename = "unavailable")]
     Unavailable {
         /// The `data` field.
-        data: super::PanelFrontDoorReportUnavailableData,
+        data: Box<super::PanelFrontDoorReportUnavailableData>,
     },
     /// A value this client was not generated with, as it arrived.
     #[serde(
@@ -284,13 +284,13 @@ pub enum PanelHouseholdReport {
     #[serde(rename = "ready")]
     Ready {
         /// The `data` field.
-        data: super::HouseholdReport,
+        data: Box<super::HouseholdReport>,
     },
     /// The source could not be reached, for this stated reason.
     #[serde(rename = "unavailable")]
     Unavailable {
         /// The `data` field.
-        data: super::PanelHouseholdReportUnavailableData,
+        data: Box<super::PanelHouseholdReportUnavailableData>,
     },
     /// A value this client was not generated with, as it arrived.
     #[serde(
@@ -326,13 +326,13 @@ pub enum PanelStorage {
     #[serde(rename = "ready")]
     Ready {
         /// The `data` field.
-        data: super::Storage,
+        data: Box<super::Storage>,
     },
     /// The source could not be reached, for this stated reason.
     #[serde(rename = "unavailable")]
     Unavailable {
         /// The `data` field.
-        data: super::PanelStorageUnavailableData,
+        data: Box<super::PanelStorageUnavailableData>,
     },
     /// A value this client was not generated with, as it arrived.
     #[serde(
@@ -368,13 +368,13 @@ pub enum PanelVpn {
     #[serde(rename = "ready")]
     Ready {
         /// The `data` field.
-        data: super::Vpn,
+        data: Box<super::Vpn>,
     },
     /// The source could not be reached, for this stated reason.
     #[serde(rename = "unavailable")]
     Unavailable {
         /// The `data` field.
-        data: super::PanelVpnUnavailableData,
+        data: Box<super::PanelVpnUnavailableData>,
     },
     /// A value this client was not generated with, as it arrived.
     #[serde(
@@ -827,6 +827,9 @@ pub struct PluginDeclaration {
     /// Every credential it says it will hold.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub secrets: Option<Vec<super::PluginSecret>>,
+    /// What refusing each of [`Self::reaches`] stops, in the same order.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stops: Option<Vec<super::PluginStopping>>,
     /// Where its source is published, as the plugin names it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub upstream: Option<String>,

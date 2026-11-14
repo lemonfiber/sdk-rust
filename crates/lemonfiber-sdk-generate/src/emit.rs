@@ -46,6 +46,7 @@ pub fn files(artefact: &Artefact, shaped: &Shaped) -> Result<Vec<(String, String
         ("action_names", action_names(shaped)),
         ("refusal_list", refusal_list(artefact)),
         ("key_callable", key_callable(artefact)),
+        ("events", event_kinds(artefact)),
     ];
     let mut written: Vec<(String, String)> = lists
         .into_iter()
@@ -180,6 +181,13 @@ fn field_of(field: &Field, public: bool) -> String {
     text
 }
 
+fn boxed(ty: &Ty) -> Ty {
+    match ty {
+        Ty::Named(_) => Ty::Boxed(Box::new(ty.clone())),
+        _ => ty.clone(),
+    }
+}
+
 fn variant_of(variant: &Variant) -> String {
     let mut text = doc(
         variant.doc.as_deref(),
@@ -193,12 +201,16 @@ fn variant_of(variant: &Variant) -> String {
             let _ = writeln!(text, "{},", variant.name);
         }
         Holds::One(ty) => {
-            let _ = writeln!(text, "{}({}),", variant.name, rust(ty));
+            let _ = writeln!(text, "{}({}),", variant.name, rust(&boxed(ty)));
         }
         Holds::Fields(fields) => {
             let _ = writeln!(text, "{} {{", variant.name);
             for field in fields {
-                text.push_str(&field_of(field, false));
+                let held = Field {
+                    ty: boxed(&field.ty),
+                    ..field.clone()
+                };
+                text.push_str(&field_of(&held, false));
             }
             text.push_str("},\n");
         }
@@ -327,11 +339,11 @@ fn module(said: &str, name: &str, list: &str, pages: &[(String, String)]) -> Str
 }
 
 fn root(artefact: &Artefact, shaped: &Shaped, modules: &Modules) -> String {
-    let mut text = "//! The lemonfiber web API's shapes, reads, actions and refusals, generated from the\n\
-                    //! contract artefact taken from the lemonfiber revision [`REVISION`] names.\n\
+    let mut text = "//! The lemonfiber web API's shapes, reads, actions, refusals and event kinds, generated\n\
+                    //! from the contract artefact taken from the lemonfiber revision [`REVISION`] names.\n\
                     //! `just generate` writes this module, and CI refuses it where it differs from\n\
                     //! what that writes.\n\n\
-                    mod action_names;\npub mod key_callable;\nmod refusal_list;\n"
+                    mod action_names;\npub mod events;\npub mod key_callable;\nmod refusal_list;\n"
         .to_owned();
     text.push_str(&each(&modules.reads, "mod ", ";"));
     text.push_str(&each(&modules.actions, "mod ", ";"));
@@ -621,6 +633,27 @@ fn key_callable(artefact: &Artefact) -> String {
             callable.disturbs,
             callable.rehearsal,
             callable.idempotent
+        );
+    }
+    text.push_str("];\n");
+    text
+}
+
+fn event_kinds(artefact: &Artefact) -> String {
+    let mut text = format!(
+        "//! The kinds the event stream carries, and how often it speaks when it has nothing to say.\n\n\
+         /// The most seconds the stream stays silent before it sends a heartbeat.\n\
+         pub const HEARTBEAT_SECONDS: u64 = {};\n\n\
+         /// Every kind the event stream carries.\npub const ALL: &[crate::EventKind] = &[\n",
+        artefact.events.heartbeat_seconds
+    );
+    for kind in &artefact.events.kinds {
+        let _ = writeln!(
+            text,
+            "crate::EventKind {{\nkind: {},\nreplaces: {},\noperator: {},\n}},",
+            literal(&kind.kind),
+            kind.replaces,
+            kind.operator
         );
     }
     text.push_str("];\n");

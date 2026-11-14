@@ -755,9 +755,9 @@ pub enum ServiceUserMode {
 #[non_exhaustive]
 pub enum ServiceUserModeWritten {
     /// A mode by name.
-    ServiceUserMode(super::ServiceUserMode),
+    ServiceUserMode(Box<super::ServiceUserMode>),
     /// The variables its image reads the operator's uid and gid from.
-    ServiceIdVariables(super::ServiceIdVariables),
+    ServiceIdVariables(Box<super::ServiceIdVariables>),
     /// A value this client was not generated with, as it arrived.
     Unrecognised(serde_json::Value),
 }
@@ -768,13 +768,13 @@ pub enum ServiceUserModeWritten {
 #[non_exhaustive]
 pub enum ServiceValue {
     /// A constant.
-    ServiceConstant(super::ServiceConstant),
+    ServiceConstant(Box<super::ServiceConstant>),
     /// An operator setting.
-    ServiceSetting(super::ServiceSetting),
+    ServiceSetting(Box<super::ServiceSetting>),
     /// A capability's filler's address.
-    ServiceUrlOf(super::ServiceUrlOf),
+    ServiceUrlOf(Box<super::ServiceUrlOf>),
     /// A declared secret.
-    ServiceSecretOf(super::ServiceSecretOf),
+    ServiceSecretOf(Box<super::ServiceSecretOf>),
     /// A value this client was not generated with, as it arrived.
     Unrecognised(serde_json::Value),
 }
@@ -841,9 +841,9 @@ pub struct SettingChange {
 #[non_exhaustive]
 pub enum SettingChoice {
     /// A value that is always a choice.
-    ServiceConstant(super::ServiceConstant),
+    ServiceConstant(Box<super::ServiceConstant>),
     /// Values that are choices only where `needs` is met.
-    SettingChoiceNeeding(super::SettingChoiceNeeding),
+    SettingChoiceNeeding(Box<super::SettingChoiceNeeding>),
     /// A value this client was not generated with, as it arrived.
     Unrecognised(serde_json::Value),
 }

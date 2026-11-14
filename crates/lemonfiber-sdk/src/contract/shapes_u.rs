@@ -241,6 +241,33 @@ impl crate::open::Tags for UninstallRemoval {
     const KNOWN: &[&str] = &["surveyed", "confirmed", "complete", "partial"];
 }
 
+/// What one ask is for, within its medium.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "medium")]
+#[non_exhaustive]
+pub enum Unit {
+    /// An album or a whole artist.
+    #[serde(rename = "music")]
+    Music {
+        /// The `unit` field.
+        unit: Box<super::MusicUnit>,
+    },
+    /// A book, a whole author or a series.
+    #[serde(rename = "books")]
+    Books {
+        /// The `unit` field.
+        unit: Box<super::BookUnit>,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Unit, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Unit {
+    const TAG: Option<&str> = Some("medium");
+    const KNOWN: &[&str] = &["music", "books"];
+}
+
 /// What is to happen to content the media server has no rating for.
 ///
 /// A choice rather than a default, because a great deal of content carries no rating
@@ -480,16 +507,17 @@ pub enum UpdateState {
 /// upgraded to different bars, and a single number would misstate one of them.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct UpgradeMedia {
-    /// The media type — `tv` or `movies`.
+    /// The media type: `tv`, `movies` or `music`.
     pub media_type: String,
     /// What became of the re-search, or `None` where the upgrade was not confirmed
     /// and only the cost was stated.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub outcome: Option<super::Triggered>,
-    /// The preset in force for it.
+    /// The preset in force for it, or for music the format.
     pub preset: String,
-    /// Roughly what an hour of it costs at that preset.
-    pub size_per_hour: String,
+    /// What upgrading it costs in total: the runtime its curator holds below the cutoff
+    /// times the bytes an hour takes at that preset or format.
+    pub total: super::Total,
 }
 
 /// What upgrading existing content did, or — unconfirmed — would do.

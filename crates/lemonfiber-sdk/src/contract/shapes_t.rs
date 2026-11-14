@@ -36,7 +36,7 @@ pub enum TakesAway {
     #[serde(rename = "open-ended")]
     OpenEnded {
         /// What has to happen before it ends.
-        until: super::Awaiting,
+        until: Box<super::Awaiting>,
     },
     /// A value this client was not generated with, as it arrived.
     #[serde(
@@ -267,6 +267,93 @@ pub enum TitleUnit {
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
+}
+
+/// What taking one recording came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "outcome")]
+#[non_exhaustive]
+pub enum Took {
+    /// The recording was written.
+    #[serde(rename = "written")]
+    Written,
+    /// The recording was written with an empty note, which its author has to write.
+    #[serde(rename = "unnoted")]
+    Unnoted,
+    /// The recording already held what was taken, byte for byte.
+    #[serde(rename = "reproduced")]
+    Reproduced,
+    /// The recording holds another result for the same image and arguments, so it is
+    /// refused and left as it was.
+    #[serde(rename = "unreproduced")]
+    Unreproduced {
+        /// What differs.
+        why: String,
+    },
+    /// The run was still going at its limit, so there is nothing to record.
+    #[serde(rename = "overran")]
+    Overran {
+        /// The limit, in seconds.
+        seconds: u32,
+    },
+    /// Nothing was taken, or there is nowhere to write what was.
+    #[serde(rename = "unrecorded")]
+    Unrecorded {
+        /// Why.
+        why: String,
+    },
+    /// The recording answers no case that was asked, so it was removed.
+    #[serde(rename = "removed")]
+    Removed,
+    /// The recording answers no case that was asked, and is left as it was because the
+    /// run writes nothing.
+    #[serde(rename = "unasked")]
+    Unasked,
+    /// The recording is of a case reaching a host outside the stack, which a run holding
+    /// recordings to what it takes again leaves as recorded rather than reaching.
+    #[serde(rename = "left")]
+    Left {
+        /// The host the case reaches.
+        host: String,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Took, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Took {
+    const TAG: Option<&str> = Some("outcome");
+    const KNOWN: &[&str] = &[
+        "written",
+        "unnoted",
+        "reproduced",
+        "unreproduced",
+        "overran",
+        "unrecorded",
+        "removed",
+        "unasked",
+        "left",
+    ];
+}
+
+/// What upgrading one kind of media costs in total, or why that could not be worked out.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Total {
+    /// The bytes re-fetching what its curator holds below the cutoff would take.
+    #[serde(rename = "bytes")]
+    Bytes(u64),
+    /// Why the total could not be worked out, in the operator's words.
+    #[serde(rename = "unknown")]
+    Unknown(String),
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Total, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Total {
+    const TAG: Option<&str> = None;
+    const KNOWN: &[&str] = &["bytes", "unknown"];
 }
 
 /// How sure the correlation behind a trace is — a release renamed between services can

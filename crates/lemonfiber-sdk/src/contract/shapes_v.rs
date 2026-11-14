@@ -136,6 +136,39 @@ pub struct ValueReplaced {
     pub withheld: bool,
 }
 
+/// What one case's recording came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "outcome")]
+#[non_exhaustive]
+pub enum Verdict {
+    /// The recorded answer is one the contract declares for the case.
+    #[serde(rename = "passed")]
+    Passed,
+    /// It is not, in every way it is not.
+    #[serde(rename = "failed")]
+    Failed {
+        /// Every way the recorded answer is outside the case.
+        faults: Vec<String>,
+    },
+    /// No recording of the case is there.
+    #[serde(rename = "unrecorded")]
+    Unrecorded,
+    /// A recording is there and could not be judged, so it established nothing.
+    #[serde(rename = "unproven")]
+    Unproven {
+        /// What stopped it being judged.
+        why: String,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Verdict, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Verdict {
+    const TAG: Option<&str> = Some("outcome");
+    const KNOWN: &[&str] = &["passed", "failed", "unrecorded", "unproven"];
+}
+
 /// What versions are in play: the binary, the stack it operates, and what changed.
 ///
 /// The changelog is here rather than behind a request of its own because it answers
@@ -194,6 +227,15 @@ pub struct Vigil {
     pub root: String,
 }
 
+/// One thing a manifest got wrong, and where.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Violation {
+    /// Which declaration it is about, in the manifest's own terms.
+    pub location: String,
+    /// What is wrong with it.
+    pub message: String,
+}
+
 /// Every word this product explains, for somebody who asked what there is to ask
 /// about.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -227,6 +269,54 @@ pub struct Volume {
     pub reading: super::Freshness,
     /// Which of the two this is.
     pub role: super::Role,
+}
+
+/// What one of a plugin's images is vouched for.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "provenance")]
+#[non_exhaustive]
+pub enum Vouch {
+    /// A signature over a payload naming this digest verified against a held key.
+    #[serde(rename = "signed")]
+    Signed {
+        /// Which key it verified against, so the answer names what was trusted.
+        by: String,
+    },
+    /// Nothing was established, and nothing follows from it either way.
+    #[serde(rename = "unproven")]
+    Unproven {
+        /// What stopped it being established.
+        why: String,
+    },
+    /// A signature is offered and it does not hold.
+    #[serde(rename = "refused")]
+    Refused {
+        /// Every way it does not.
+        why: String,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Vouch, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Vouch {
+    const TAG: Option<&str> = Some("provenance");
+    const KNOWN: &[&str] = &["signed", "unproven", "refused"];
+}
+
+/// Every image a plugin pins, and what anybody has said about each.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Vouched {
+    /// The plugin's id.
+    pub id: String,
+    /// One answer per image it pins.
+    pub images: Vec<super::Vouch>,
+    /// Whether what was found stops an install.
+    ///
+    /// An unproven image does not: a publisher who signed nothing has made no claim,
+    /// and refusing every unsigned image would refuse most of the registry. A refused
+    /// one does, because a claim that did not hold is worse than none.
+    pub installable: bool,
 }
 
 /// What the VPN is doing, and whether the download client is actually behind it.
