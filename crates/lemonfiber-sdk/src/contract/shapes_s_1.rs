@@ -719,6 +719,17 @@ pub struct ServiceUrlOf {
     pub url_of: String,
 }
 
+/// The user and group the stack's services run as.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ServiceUser {
+    /// Where the two come from.
+    pub from: super::UserFrom,
+    /// The group id.
+    pub gid: u32,
+    /// The user id.
+    pub uid: u32,
+}
+
 /// A user mode a manifest writes by name.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
@@ -780,6 +791,25 @@ pub struct SessionBody {
     pub name: Option<String>,
     /// What was typed: at a claim, the password they chose.
     pub password: String,
+}
+
+/// Whether this stack is set up.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum SetUp {
+    /// Nothing is configured and no setup has begun.
+    #[serde(rename = "none")]
+    None,
+    /// A setup has begun and not finished: answers are being gathered, are waiting for
+    /// review, or an apply stopped part-way.
+    #[serde(rename = "part-way")]
+    PartWay,
+    /// The stack is configured and no setup is part-way through.
+    #[serde(rename = "done")]
+    Done,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
 }
 
 /// A change to one or more settings, made in one act.
@@ -862,18 +892,4 @@ pub struct SettingRead {
     pub value: Option<String>,
     /// Whose it is.
     pub whose: super::Owner,
-}
-
-/// One setting, as it is safe to show.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct SettingReport {
-    /// The setting's name.
-    pub key: String,
-    /// Where the value came from, beside the value rather than behind a second
-    /// request — reading a setting and reading what put it there are one act.
-    pub origin: super::ValueOrigin,
-    /// Whether the value was withheld.
-    pub secret: bool,
-    /// Its value, or a note that it is set and withheld.
-    pub value: String,
 }

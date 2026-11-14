@@ -54,6 +54,21 @@ impl crate::Read for StackRead {
     const KINDS: &[&str] = &["stack"];
 }
 
+/// `GET /api/settled`, answered with `settled`.
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
+pub struct SettledRead {}
+
+impl crate::Answer for super::SettledReport {
+    const TAGGED: bool = false;
+}
+
+impl crate::Read for SettledRead {
+    type Answer = super::SettledReport;
+    const PATH: &str = "/api/settled";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["settled"];
+}
+
 /// `GET /api/stuck`, answered with `stuck`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
 pub struct StuckRead {}

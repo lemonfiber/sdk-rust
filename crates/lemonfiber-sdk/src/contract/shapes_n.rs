@@ -79,12 +79,18 @@ pub struct NewsRequest {
     pub asked: Option<String>,
     /// Who asked for it, by the name the media server holds them under.
     pub by: String,
+    /// The kind of title it asks for, as the household list names it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<super::TitleKind>,
     /// The reference the household list names it with: the request service's number
     /// (`42`), or `music-<n>` or `books-<n>` for an ask the core keeps.
     pub request: String,
     /// What it is called, where a service has been told about it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
+    /// What an ask for music or books asks for, as the household list names it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unit: Option<super::TitleUnit>,
 }
 
 /// One release, by its version.

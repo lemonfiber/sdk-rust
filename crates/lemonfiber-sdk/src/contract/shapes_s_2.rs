@@ -1,3 +1,17 @@
+/// One setting, as it is safe to show.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SettingReport {
+    /// The setting's name.
+    pub key: String,
+    /// Where the value came from, beside the value rather than behind a second
+    /// request — reading a setting and reading what put it there are one act.
+    pub origin: super::ValueOrigin,
+    /// Whether the value was withheld.
+    pub secret: bool,
+    /// Its value, or a note that it is set and withheld.
+    pub value: String,
+}
+
 /// Every setting and secret the stack's services read, and what changing a setting came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct SettingsReport {
@@ -116,6 +130,22 @@ impl crate::open::Tags for Settled {
         "unknown",
         "elsewhere",
     ];
+}
+
+/// What setup settled, read from the configuration as it stands, and whether this stack
+/// is set up.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SettledReport {
+    /// Where the library is kept, a path on this machine or an NFS export as `DATA_ROOT`
+    /// names it, or nothing where no data root is configured.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub data_root: Option<String>,
+    /// Which ways of downloading are configured.
+    pub protocols: super::Protocols,
+    /// The user and group the stack's services run as.
+    pub service_user: super::ServiceUser,
+    /// Whether this stack is set up.
+    pub setup: super::SetUp,
 }
 
 /// One answer, tagged by the step it belongs to.
@@ -851,41 +881,4 @@ pub struct StatusReport {
     /// Beside the services, as what was filtered is: one that is not there is listed
     /// here and nowhere else, because it is waiting rather than failing to start.
     pub waiting: Vec<super::Waiting>,
-}
-
-/// What one step of a recipe came to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum StepCame {
-    /// It was answered with what it should be, and took what it captures.
-    #[serde(rename = "answered")]
-    Answered,
-    /// Its guard did not hold, so it was not made.
-    #[serde(rename = "skipped")]
-    Skipped,
-    /// An earlier step did not come to what it should, so this one was not made.
-    #[serde(rename = "not-reached")]
-    NotReached,
-    /// Nothing answered it.
-    #[serde(rename = "unreachable")]
-    Unreachable,
-    /// It was not sent: its host stands for an address not out on the internet, or
-    /// could not be resolved.
-    #[serde(rename = "refused")]
-    Refused,
-    /// It was not sent: a value it carries may not go where it was going.
-    #[serde(rename = "withheld")]
-    Withheld,
-    /// It was answered with something other than what it expects.
-    #[serde(rename = "unexpected")]
-    Unexpected,
-    /// Its answer held nothing where a capture reads.
-    #[serde(rename = "uncaptured")]
-    Uncaptured,
-    /// Its answer was larger than any answer a recipe reads.
-    #[serde(rename = "oversized")]
-    Oversized,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
 }

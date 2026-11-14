@@ -512,3 +512,23 @@ pub struct UpgradeReport {
     /// its wording alone.
     pub rehearsed: bool,
 }
+
+/// Where the user the services run as comes from.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum UserFrom {
+    /// The operator set both `PUID` and `PGID`.
+    #[serde(rename = "set")]
+    Set,
+    /// The operator set one of `PUID` and `PGID`, and the other is the stack
+    /// directory's owner's.
+    #[serde(rename = "part-set")]
+    PartSet,
+    /// The operator set neither, so both are the stack directory's owner's, or 1000
+    /// where that owner is root or cannot be read.
+    #[serde(rename = "stack-owner")]
+    StackOwner,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}

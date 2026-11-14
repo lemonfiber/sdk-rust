@@ -3,6 +3,10 @@
 pub struct OccupantReport {
     /// Whether lemonfiber knows this service and could take it over as it stands.
     pub adoptable: bool,
+    /// Where it reads its configuration from on this machine.
+    pub config: super::Location,
+    /// Where its library is on this machine.
+    pub library: super::Location,
     /// Every host port it publishes, lowest first.
     pub ports: Vec<u16>,
     /// Whether it is running now, as against present but stopped.
