@@ -213,7 +213,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "13659f53d634c9d3ae05141706a9a910a1b3b614";
+pub const REVISION: &str = "3d18e1fe5502ce9c024146705fddb00629cf53cd";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -241,6 +241,7 @@ pub const KINDS: &[&str] = &[
     "device-key",
     "device-keys",
     "doctor",
+    "ended",
     "error",
     "forms",
     "front-door",
@@ -286,6 +287,7 @@ pub const KINDS: &[&str] = &[
     "seed",
     "self-update",
     "settings",
+    "settled",
     "setup",
     "space",
     "stack",
@@ -389,6 +391,9 @@ pub enum Payload {
     /// The `doctor` kind.
     #[serde(rename = "doctor")]
     Doctor(Box<DoctorReport>),
+    /// The `ended` kind.
+    #[serde(rename = "ended")]
+    Ended(Box<Ended>),
     /// The `error` kind.
     #[serde(rename = "error")]
     Error(Box<Problem>),
@@ -524,6 +529,9 @@ pub enum Payload {
     /// The `settings` kind.
     #[serde(rename = "settings")]
     Settings(Box<SettingsReport>),
+    /// The `settled` kind.
+    #[serde(rename = "settled")]
+    Settled(Box<SettledReport>),
     /// The `setup` kind.
     #[serde(rename = "setup")]
     Setup(Box<SetupReport>),

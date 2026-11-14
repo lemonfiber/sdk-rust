@@ -1,3 +1,21 @@
+/// Why work ended before it finished.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum JobEnding {
+    /// Its name was released.
+    #[serde(rename = "released")]
+    Released,
+    /// Nothing asked about it for a whole lease, so it was let go.
+    #[serde(rename = "let-go")]
+    LetGo,
+    /// The services it followed stopped saying anything.
+    #[serde(rename = "quiet")]
+    Quiet,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// How large a step from one version to another is.
 ///
 /// Named after the part of the version that moved rather than after a size, because

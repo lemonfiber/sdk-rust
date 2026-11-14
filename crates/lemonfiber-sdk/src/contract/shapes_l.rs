@@ -440,6 +440,32 @@ pub struct Listing {
     pub archives: Vec<String>,
 }
 
+/// Where something a service keeps is on this machine, or why that is not said.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Location {
+    /// The host path it is mounted from.
+    #[serde(rename = "at")]
+    At(String),
+    /// It could not be read, and why, in the operator's words.
+    #[serde(rename = "unread")]
+    Unread(String),
+    /// The service keeps none, and why, in the operator's words.
+    #[serde(rename = "none")]
+    None(String),
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<Location, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Location {
+    const TAG: Option<&str> = None;
+    const KNOWN: &[&str] = &["at", "unread", "none"];
+}
+
 /// How bad a line says it is.
 ///
 /// Ordered, so a filter can ask for "warnings and worse" without a table of which

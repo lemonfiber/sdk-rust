@@ -1,3 +1,40 @@
+/// What one step of a recipe came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum StepCame {
+    /// It was answered with what it should be, and took what it captures.
+    #[serde(rename = "answered")]
+    Answered,
+    /// Its guard did not hold, so it was not made.
+    #[serde(rename = "skipped")]
+    Skipped,
+    /// An earlier step did not come to what it should, so this one was not made.
+    #[serde(rename = "not-reached")]
+    NotReached,
+    /// Nothing answered it.
+    #[serde(rename = "unreachable")]
+    Unreachable,
+    /// It was not sent: its host stands for an address not out on the internet, or
+    /// could not be resolved.
+    #[serde(rename = "refused")]
+    Refused,
+    /// It was not sent: a value it carries may not go where it was going.
+    #[serde(rename = "withheld")]
+    Withheld,
+    /// It was answered with something other than what it expects.
+    #[serde(rename = "unexpected")]
+    Unexpected,
+    /// Its answer held nothing where a capture reads.
+    #[serde(rename = "uncaptured")]
+    Uncaptured,
+    /// Its answer was larger than any answer a recipe reads.
+    #[serde(rename = "oversized")]
+    Oversized,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// A walkthrough that stopped: where, why, what the services were saying, and what to do.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Stopped {

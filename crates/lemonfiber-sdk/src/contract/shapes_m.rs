@@ -141,6 +141,10 @@ pub struct MemberRequest {
     /// request service files it under (`42`), or `music-<n>` or `books-<n>` for an ask
     /// for music or books the core keeps itself.
     pub id: String,
+    /// The kind of title it asks for: a series, a film, music or books. Absent, not
+    /// null, where the request service names a kind this build does not know.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<super::TitleKind>,
     /// What kind of thing it is — a series, a film — in the household's own words.
     /// Absent where the request service names a kind this build does not know.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -172,6 +176,10 @@ pub struct MemberRequest {
     /// service's own record of the title. Absent where neither names it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
+    /// What an ask for music or books asks for: one album or book, or a whole artist,
+    /// author or series. Absent, not null, on a series or a film.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unit: Option<super::TitleUnit>,
     /// How many whole days it has been waiting on somebody, where it is waiting at all
     /// and the service's own date could be read.
     ///

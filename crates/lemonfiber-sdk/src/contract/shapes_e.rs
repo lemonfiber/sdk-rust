@@ -42,6 +42,17 @@ pub struct Elsewhere {
     pub service: String,
 }
 
+/// Work that ended before it finished: its name, what it was, and why it ended.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Ended {
+    /// The action that was asked for, as it was named.
+    pub action: String,
+    /// Why it ended.
+    pub ended: super::JobEnding,
+    /// The name the work was answered with.
+    pub job: String,
+}
+
 /// How one service's update ended.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
