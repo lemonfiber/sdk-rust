@@ -170,18 +170,13 @@ pub struct ChangeReport {
     /// machine in a state nobody chose — so what a single line would take with it is on
     /// the line rather than left to be counted off the list.
     pub alongside: u64,
-    /// When it was made, as whole seconds since the Unix epoch, written in decimal.
-    ///
-    /// A string of digits rather than a number, because it is the stamp the record keeps
-    /// and a stamp is compared and stored as text; what it counts is stated here so a
-    /// reader can turn it into a time without guessing at a format.
+    /// When it was made, in whole seconds since the Unix epoch.
     ///
     /// **`0` means the clock was unreadable when the change was written**, not that it
     /// was made at the epoch: it is how a machine whose clock would not answer stamps a
-    /// change. It is not an instant, so two changes both stamped `0` were not made at
-    /// the same moment, and a reader showing it as a date in 1970 would be inventing
-    /// one.
-    pub at: String,
+    /// change. Two changes both stamped `0` were not made at the same moment, and a
+    /// reader showing it as a date in 1970 would be inventing one.
+    pub at: u64,
     /// Why it could not go further, where it could not.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub because: Option<String>,
@@ -256,6 +251,35 @@ pub enum ChangelogState {
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
+}
+
+/// One live TV channel, as one member's account may watch it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Channel {
+    /// The identifier the server tells it apart by.
+    pub id: String,
+    /// What it is called.
+    pub name: String,
+    /// The programme on it now, where the server knows one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub now: Option<super::Programme>,
+    /// Its number, where it has one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub number: Option<String>,
+}
+
+/// The live TV channels one member may watch, each with the programme on it now.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ChannelsReport {
+    /// Each channel their own account may watch whose programme now is within their
+    /// limits. Empty where their account may not watch live TV.
+    pub channels: Vec<super::Channel>,
+    /// The identifier the media server files them under.
+    pub id: String,
+    /// The member this was asked for, by the name they are known by.
+    pub member: String,
+    /// Whether this was a rehearsal: what would have happened, with none of it done.
+    pub rehearsed: bool,
 }
 
 /// What to do about an interrupted apply, once one is found.
@@ -668,8 +692,9 @@ impl crate::open::Tags for Covers {
 /// is held under and never by its value.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct CredentialGranted {
-    /// When the operator approved it.
-    pub at: String,
+    /// When the operator approved it, where the record says.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub at: Option<u64>,
     /// The setting the credential is held under, as the inventory names it.
     pub credential: String,
     /// The capability of the plugin's own it was granted to fill.

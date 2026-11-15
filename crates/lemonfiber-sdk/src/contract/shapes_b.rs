@@ -6,8 +6,8 @@
 /// value the capture wrote is the value the restore reads.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct BackupManifest {
-    /// When it was taken. Opaque here; the surface stamps it from the clock.
-    pub created_at: String,
+    /// When it was taken.
+    pub created_at: u64,
     /// The data root it was taken against, to notice a restore to a different one.
     pub data_root: String,
     /// What is inside, for a listing shown before anything is overwritten.

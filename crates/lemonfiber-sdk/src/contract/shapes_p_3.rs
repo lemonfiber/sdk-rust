@@ -1,3 +1,111 @@
+/// What is asked, and where.
+///
+/// Three fields and no more, and the third is the one worth explaining. A service that
+/// answers XML unless a caller asks for JSON cannot satisfy a capability whose probe
+/// requires a JSON assertion, and until this field there was nowhere to ask: Plex
+/// answers `text/xml` at every path, including the one its health probe uses, unless
+/// the request carries `Accept: application/json`.
+///
+/// **It is one media type and not a header map, and the difference is the point.** A
+/// probe declares who it is asked as, and `none` on every `guarded` probe has meant what
+/// it says partly because nothing could be presented. A map of headers would make that a
+/// convention a reviewer has to hold — any service may name its credential header
+/// whatever it likes, so no list of refused names could ever be closed — where one named
+/// field keeps it a property of the format. A probe still cannot present anything,
+/// because there is nowhere to write it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginRequest {
+    /// The one representation the answer is asked for, as a media type.
+    ///
+    /// Absent where the service needs no asking, which is most of them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub accept: Option<String>,
+    /// The HTTP method.
+    pub method: String,
+    /// The path on the service being asked.
+    pub path: String,
+    /// Each place in the answer whose value the service makes afresh on every run, a JSON
+    /// Pointer into its JSON, to the RE2 shape the whole value there is held to wherever a
+    /// recording is taken again. Never sent.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub varies: Option<std::collections::BTreeMap<String, String>>,
+}
+
+/// One proof that asks one of the plugin's services a question, kept so the doctor can ask
+/// it again without the plugin's source.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginRequestProof {
+    /// What the answer must be.
+    pub expect: super::Expect,
+    /// The proof's id.
+    pub proof: String,
+    /// What it asks.
+    pub request: super::PluginRequest,
+    /// The service it asks.
+    pub service: String,
+    /// What it establishes, in one line.
+    pub title: String,
+    /// Why it is worth asserting.
+    pub why: String,
+}
+
+/// One starting file whose placeholders an update changes, as the version installed
+/// shipped it and as the one coming ships it: the placeholders alone, never what the
+/// file on the machine holds.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginReshipped {
+    /// Its placeholders as the version coming ships it, none where it ships none.
+    pub becomes: Vec<super::PluginPlaceholder>,
+    /// Where the file is, in full.
+    pub path: String,
+    /// Its placeholders as the version installed shipped it, none where it shipped none.
+    pub was: Vec<super::PluginPlaceholder>,
+}
+
+/// Where an update did not hold: what putting the version it replaced back came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginRestored {
+    /// Whether everything its record says it placed is on the machine again.
+    pub placed: bool,
+    /// Whether its containers are running again.
+    ///
+    /// Apart from `placed`, because the two fail differently: a document that would not
+    /// land is a disk, and a container that would not start is the engine — and an
+    /// operator fixes them in different places.
+    pub running: bool,
+    /// The version put back, which is the one the record still names.
+    pub version: String,
+}
+
+/// A run of the image's own program, as a proof declares it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginRun {
+    /// Each argument handed to the image's entrypoint, one string each: one to 64, each at
+    /// most 4096 bytes and none holding a NUL.
+    pub args: Vec<String>,
+    /// How long the run may take, from 1 to 120 seconds. Default 30.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub timeout_s: Option<u32>,
+}
+
+/// One proof that runs the image's own program, kept so the doctor and a later proof can
+/// run it again without the plugin's source.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginRunProof {
+    /// What the run must come to.
+    pub expect: super::Expect,
+    /// The proof's id.
+    pub proof: String,
+    /// What the image's own program is handed.
+    pub run: super::PluginRun,
+    /// The service whose image it runs.
+    pub service: String,
+    /// What it establishes, in one line.
+    pub title: String,
+    /// Why it is worth asserting.
+    pub why: String,
+}
+
 /// One credential a plugin says it will hold, without a value and with no place for one.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct PluginSecret {
@@ -515,6 +623,19 @@ pub struct ProblemStep {
     pub recipe: String,
     /// The step's id within it.
     pub step: String,
+}
+
+/// A programme on a channel.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Programme {
+    /// Its certificate, as the server holds it, where it has one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub certificate: Option<String>,
+    /// When it ends, where the server knows.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ends: Option<u64>,
+    /// What it is called.
+    pub title: String,
 }
 
 /// One consumer, and how far the rotation reached it.

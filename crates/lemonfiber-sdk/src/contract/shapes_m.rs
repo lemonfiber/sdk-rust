@@ -111,7 +111,7 @@ pub struct MemberAsking {
     /// nothing happens. The period is a window that rolls rather than a month that
     /// ends, so this is the moment their earliest counted request ages out.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub frees_up: Option<String>,
+    pub frees_up: Option<u64>,
     /// What happens to what they ask for.
     pub policy: super::Policy,
     /// Where they stand against what their period allows, taken over both counts.
@@ -123,13 +123,13 @@ pub struct MemberAsking {
 /// One thing a household member asked for, and where it stands in their words.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct MemberRequest {
-    /// When the title arrived on the media server, as the request service timestamps it.
-    /// Absent, not null, until it is there.
+    /// When the title arrived on the media server, as the request service says. Absent,
+    /// not null, until it is there.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub arrived: Option<String>,
+    pub arrived: Option<u64>,
     /// When it was asked for, where the request service or the core says.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub asked: Option<String>,
+    pub asked: Option<u64>,
     /// About how much room it will want, at the quality in force.
     ///
     /// A guess and labelled as one — see [`crate::asking::Estimate`]. Absent where the

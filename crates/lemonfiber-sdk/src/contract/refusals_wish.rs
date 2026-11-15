@@ -106,3 +106,11 @@ pub const NO_PICTURE: crate::RefusalCode = crate::RefusalCode {
     status: 404,
     description: "Said where a title a member may ask for has no picture to show them.",
 };
+
+/// `WISH-14`: Said where a member whose asks wait for approval has no account of their own on what files the household's asks, so nothing could wait for anybody's yes.
+pub const THROUGH_THE_HOUSE: crate::RefusalCode = crate::RefusalCode {
+code: "WISH-14",
+name: "THROUGH_THE_HOUSE",
+status: 409,
+description: "Said where a member whose asks wait for approval has no account of their own on what files the household's asks, so nothing could wait for anybody's yes.",
+};

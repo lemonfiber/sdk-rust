@@ -34,8 +34,8 @@ pub struct Pairing {
     /// discovered then. In words any surface can show: how the certificate is replaced
     /// is each surface's own to say, so this names no command.
     pub replacing: String,
-    /// When it stops being good, as a date and a time of day.
-    pub until: String,
+    /// When it stops being good.
+    pub until: u64,
     /// The material as the one line a code carries and a person types.
     pub written: String,
 }
@@ -48,7 +48,7 @@ pub struct Pairing {
 pub struct PairingMaterial {
     /// Where the phone reaches the stack: an `https` address on the household network.
     pub address: String,
-    /// When the material stops being good, in seconds since the Unix epoch.
+    /// When the material stops being good.
     pub expires: u64,
     /// The certificate that address presents: SHA-256 over its DER encoding, in
     /// lower-case hex. Not the digest of its public key.
@@ -60,12 +60,14 @@ pub struct PairingMaterial {
     pub stack: String,
 }
 
-/// A panel's content, or the reason its source could not fill it.
+/// A panel's content, the reason its source could not fill it, or that its source
+/// is still being read.
 ///
 /// The difference between "this panel is up to date" and "this panel's source is
 /// unreachable" is the whole of degrading honestly: an unavailable panel says so,
 /// in its own words, rather than showing stale data as current or blank data as
-/// zero — and the panels beside it stay live.
+/// zero — and the panels beside it stay live. A pending panel is neither: its source
+/// has not answered within the first wave of a gather, and the second fills it in.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
 #[non_exhaustive]
@@ -82,6 +84,9 @@ pub enum PanelArrayOfDownloader {
         /// The `data` field.
         data: Box<super::PanelArrayOfDownloaderUnavailableData>,
     },
+    /// The source has not answered yet; a snapshot that follows fills the panel.
+    #[serde(rename = "pending")]
+    Pending,
     /// A value this client was not generated with, as it arrived.
     #[serde(
         untagged,
@@ -92,7 +97,7 @@ pub enum PanelArrayOfDownloader {
 
 impl crate::open::Tags for PanelArrayOfDownloader {
     const TAG: Option<&str> = Some("panel");
-    const KNOWN: &[&str] = &["ready", "unavailable"];
+    const KNOWN: &[&str] = &["ready", "unavailable", "pending"];
 }
 
 /// The `PanelArrayOfDownloaderUnavailableData` shape.
@@ -102,12 +107,14 @@ pub struct PanelArrayOfDownloaderUnavailableData {
     pub reason: String,
 }
 
-/// A panel's content, or the reason its source could not fill it.
+/// A panel's content, the reason its source could not fill it, or that its source
+/// is still being read.
 ///
 /// The difference between "this panel is up to date" and "this panel's source is
 /// unreachable" is the whole of degrading honestly: an unavailable panel says so,
 /// in its own words, rather than showing stale data as current or blank data as
-/// zero — and the panels beside it stay live.
+/// zero — and the panels beside it stay live. A pending panel is neither: its source
+/// has not answered within the first wave of a gather, and the second fills it in.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
 #[non_exhaustive]
@@ -124,6 +131,9 @@ pub enum PanelArrayOfQueue {
         /// The `data` field.
         data: Box<super::PanelArrayOfQueueUnavailableData>,
     },
+    /// The source has not answered yet; a snapshot that follows fills the panel.
+    #[serde(rename = "pending")]
+    Pending,
     /// A value this client was not generated with, as it arrived.
     #[serde(
         untagged,
@@ -134,7 +144,7 @@ pub enum PanelArrayOfQueue {
 
 impl crate::open::Tags for PanelArrayOfQueue {
     const TAG: Option<&str> = Some("panel");
-    const KNOWN: &[&str] = &["ready", "unavailable"];
+    const KNOWN: &[&str] = &["ready", "unavailable", "pending"];
 }
 
 /// The `PanelArrayOfQueueUnavailableData` shape.
@@ -144,12 +154,14 @@ pub struct PanelArrayOfQueueUnavailableData {
     pub reason: String,
 }
 
-/// A panel's content, or the reason its source could not fill it.
+/// A panel's content, the reason its source could not fill it, or that its source
+/// is still being read.
 ///
 /// The difference between "this panel is up to date" and "this panel's source is
 /// unreachable" is the whole of degrading honestly: an unavailable panel says so,
 /// in its own words, rather than showing stale data as current or blank data as
-/// zero — and the panels beside it stay live.
+/// zero — and the panels beside it stay live. A pending panel is neither: its source
+/// has not answered within the first wave of a gather, and the second fills it in.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
 #[non_exhaustive]
@@ -166,6 +178,9 @@ pub enum PanelArrayOfService {
         /// The `data` field.
         data: Box<super::PanelArrayOfServiceUnavailableData>,
     },
+    /// The source has not answered yet; a snapshot that follows fills the panel.
+    #[serde(rename = "pending")]
+    Pending,
     /// A value this client was not generated with, as it arrived.
     #[serde(
         untagged,
@@ -176,7 +191,7 @@ pub enum PanelArrayOfService {
 
 impl crate::open::Tags for PanelArrayOfService {
     const TAG: Option<&str> = Some("panel");
-    const KNOWN: &[&str] = &["ready", "unavailable"];
+    const KNOWN: &[&str] = &["ready", "unavailable", "pending"];
 }
 
 /// The `PanelArrayOfServiceUnavailableData` shape.
@@ -186,12 +201,14 @@ pub struct PanelArrayOfServiceUnavailableData {
     pub reason: String,
 }
 
-/// A panel's content, or the reason its source could not fill it.
+/// A panel's content, the reason its source could not fill it, or that its source
+/// is still being read.
 ///
 /// The difference between "this panel is up to date" and "this panel's source is
 /// unreachable" is the whole of degrading honestly: an unavailable panel says so,
 /// in its own words, rather than showing stale data as current or blank data as
-/// zero — and the panels beside it stay live.
+/// zero — and the panels beside it stay live. A pending panel is neither: its source
+/// has not answered within the first wave of a gather, and the second fills it in.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
 #[non_exhaustive]
@@ -208,6 +225,9 @@ pub enum PanelArrayOfTransfer {
         /// The `data` field.
         data: Box<super::PanelArrayOfTransferUnavailableData>,
     },
+    /// The source has not answered yet; a snapshot that follows fills the panel.
+    #[serde(rename = "pending")]
+    Pending,
     /// A value this client was not generated with, as it arrived.
     #[serde(
         untagged,
@@ -218,7 +238,7 @@ pub enum PanelArrayOfTransfer {
 
 impl crate::open::Tags for PanelArrayOfTransfer {
     const TAG: Option<&str> = Some("panel");
-    const KNOWN: &[&str] = &["ready", "unavailable"];
+    const KNOWN: &[&str] = &["ready", "unavailable", "pending"];
 }
 
 /// The `PanelArrayOfTransferUnavailableData` shape.
@@ -228,12 +248,14 @@ pub struct PanelArrayOfTransferUnavailableData {
     pub reason: String,
 }
 
-/// A panel's content, or the reason its source could not fill it.
+/// A panel's content, the reason its source could not fill it, or that its source
+/// is still being read.
 ///
 /// The difference between "this panel is up to date" and "this panel's source is
 /// unreachable" is the whole of degrading honestly: an unavailable panel says so,
 /// in its own words, rather than showing stale data as current or blank data as
-/// zero — and the panels beside it stay live.
+/// zero — and the panels beside it stay live. A pending panel is neither: its source
+/// has not answered within the first wave of a gather, and the second fills it in.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
 #[non_exhaustive]
@@ -250,6 +272,9 @@ pub enum PanelFrontDoorReport {
         /// The `data` field.
         data: Box<super::PanelFrontDoorReportUnavailableData>,
     },
+    /// The source has not answered yet; a snapshot that follows fills the panel.
+    #[serde(rename = "pending")]
+    Pending,
     /// A value this client was not generated with, as it arrived.
     #[serde(
         untagged,
@@ -260,7 +285,7 @@ pub enum PanelFrontDoorReport {
 
 impl crate::open::Tags for PanelFrontDoorReport {
     const TAG: Option<&str> = Some("panel");
-    const KNOWN: &[&str] = &["ready", "unavailable"];
+    const KNOWN: &[&str] = &["ready", "unavailable", "pending"];
 }
 
 /// The `PanelFrontDoorReportUnavailableData` shape.
@@ -270,12 +295,14 @@ pub struct PanelFrontDoorReportUnavailableData {
     pub reason: String,
 }
 
-/// A panel's content, or the reason its source could not fill it.
+/// A panel's content, the reason its source could not fill it, or that its source
+/// is still being read.
 ///
 /// The difference between "this panel is up to date" and "this panel's source is
 /// unreachable" is the whole of degrading honestly: an unavailable panel says so,
 /// in its own words, rather than showing stale data as current or blank data as
-/// zero — and the panels beside it stay live.
+/// zero — and the panels beside it stay live. A pending panel is neither: its source
+/// has not answered within the first wave of a gather, and the second fills it in.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
 #[non_exhaustive]
@@ -292,6 +319,9 @@ pub enum PanelHouseholdReport {
         /// The `data` field.
         data: Box<super::PanelHouseholdReportUnavailableData>,
     },
+    /// The source has not answered yet; a snapshot that follows fills the panel.
+    #[serde(rename = "pending")]
+    Pending,
     /// A value this client was not generated with, as it arrived.
     #[serde(
         untagged,
@@ -302,7 +332,7 @@ pub enum PanelHouseholdReport {
 
 impl crate::open::Tags for PanelHouseholdReport {
     const TAG: Option<&str> = Some("panel");
-    const KNOWN: &[&str] = &["ready", "unavailable"];
+    const KNOWN: &[&str] = &["ready", "unavailable", "pending"];
 }
 
 /// The `PanelHouseholdReportUnavailableData` shape.
@@ -312,12 +342,14 @@ pub struct PanelHouseholdReportUnavailableData {
     pub reason: String,
 }
 
-/// A panel's content, or the reason its source could not fill it.
+/// A panel's content, the reason its source could not fill it, or that its source
+/// is still being read.
 ///
 /// The difference between "this panel is up to date" and "this panel's source is
 /// unreachable" is the whole of degrading honestly: an unavailable panel says so,
 /// in its own words, rather than showing stale data as current or blank data as
-/// zero — and the panels beside it stay live.
+/// zero — and the panels beside it stay live. A pending panel is neither: its source
+/// has not answered within the first wave of a gather, and the second fills it in.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
 #[non_exhaustive]
@@ -334,6 +366,9 @@ pub enum PanelStorage {
         /// The `data` field.
         data: Box<super::PanelStorageUnavailableData>,
     },
+    /// The source has not answered yet; a snapshot that follows fills the panel.
+    #[serde(rename = "pending")]
+    Pending,
     /// A value this client was not generated with, as it arrived.
     #[serde(
         untagged,
@@ -344,7 +379,7 @@ pub enum PanelStorage {
 
 impl crate::open::Tags for PanelStorage {
     const TAG: Option<&str> = Some("panel");
-    const KNOWN: &[&str] = &["ready", "unavailable"];
+    const KNOWN: &[&str] = &["ready", "unavailable", "pending"];
 }
 
 /// The `PanelStorageUnavailableData` shape.
@@ -354,12 +389,14 @@ pub struct PanelStorageUnavailableData {
     pub reason: String,
 }
 
-/// A panel's content, or the reason its source could not fill it.
+/// A panel's content, the reason its source could not fill it, or that its source
+/// is still being read.
 ///
 /// The difference between "this panel is up to date" and "this panel's source is
 /// unreachable" is the whole of degrading honestly: an unavailable panel says so,
 /// in its own words, rather than showing stale data as current or blank data as
-/// zero — and the panels beside it stay live.
+/// zero — and the panels beside it stay live. A pending panel is neither: its source
+/// has not answered within the first wave of a gather, and the second fills it in.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "panel")]
 #[non_exhaustive]
@@ -376,6 +413,9 @@ pub enum PanelVpn {
         /// The `data` field.
         data: Box<super::PanelVpnUnavailableData>,
     },
+    /// The source has not answered yet; a snapshot that follows fills the panel.
+    #[serde(rename = "pending")]
+    Pending,
     /// A value this client was not generated with, as it arrived.
     #[serde(
         untagged,
@@ -386,7 +426,7 @@ pub enum PanelVpn {
 
 impl crate::open::Tags for PanelVpn {
     const TAG: Option<&str> = Some("panel");
-    const KNOWN: &[&str] = &["ready", "unavailable"];
+    const KNOWN: &[&str] = &["ready", "unavailable", "pending"];
 }
 
 /// The `PanelVpnUnavailableData` shape.
@@ -469,9 +509,9 @@ pub struct PartWayReport {
 /// Where a refusal's words were carried, and when.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Passed {
-    /// When the attempt was made, absent where the clock could not be written down.
+    /// When the attempt was made, absent on a record kept without one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<String>,
+    pub at: Option<u64>,
     /// The services they reached, by the names the member knows them by. Empty where
     /// there was nowhere this could send.
     pub to: Vec<String>,
@@ -630,6 +670,32 @@ pub struct Plan {
     /// of a pass over this list: the union is over profiles, and a service
     /// appearing twice is not a state this can hold.
     pub services: Vec<String>,
+    /// Each installed plugin naming a form this stack no longer declares, with those
+    /// forms: a plugin that joins none of the rest does not run.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub vanished: Option<Vec<super::Vanished>>,
+}
+
+/// Where one title plays from in a member's browser, at the stack's front door, on a
+/// pass sealing a session on their own account.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PlayReport {
+    /// The title or episode, by the identifier the shelf lists it under.
+    pub id: String,
+    /// When the pass lapses, in whole seconds since the Unix epoch. A browser hands it
+    /// back for a new one before then.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lapses: Option<u64>,
+    /// The member it plays as, by the name they are known by.
+    pub member: String,
+    /// Whether this was a rehearsal: what would have happened, with none of it done.
+    pub rehearsed: bool,
+    /// The playlist it plays from at the front door, carrying its pass.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stream_from: Option<String>,
+    /// Why nothing is located, where nothing is.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unlocated: Option<String>,
 }
 
 /// Somebody watching something now, as the media server lists the session.
@@ -787,104 +853,6 @@ pub enum PluginConstraint {
     /// What a run's standard output begins with.
     #[serde(rename = "stdout_starts_with")]
     StdoutStartsWith,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
-}
-
-/// What a plugin declared about itself, as its install read it.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginDeclaration {
-    /// Every capability it claims, core and its own, in the order it declares them.
-    ///
-    /// Apart from what its services fill: a claim is what it says it can do and has to
-    /// demonstrate, and a capability of its own is claimed without anything asking for
-    /// it.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub claims: Option<Vec<String>>,
-    /// The licence it is distributed under.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub license: Option<String>,
-    /// Every bundled setting it declares it may change.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub overrides: Option<Vec<super::PluginOverriding>>,
-    /// Every destination a recipe of its could reach that is not one of its own
-    /// services: a service of this stack's, or a name outside it.
-    ///
-    /// Recorded as declared rather than sorted into the two here, because which names
-    /// are this stack's is a question about the stack, and the stack a record is read
-    /// against is the one on the machine when it is read.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub reaches: Option<Vec<String>>,
-    /// Whether anybody reviewed it before it was installed.
-    ///
-    /// True for a plugin installed by name through a catalogue index whose signature
-    /// verified, and false for every install from a source an operator named. Carried
-    /// rather than left implicit, because an unreviewed plugin is to be said to be one
-    /// for as long as it is installed.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub reviewed: Option<bool>,
-    /// Every credential it says it will hold.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub secrets: Option<Vec<super::PluginSecret>>,
-    /// What refusing each of [`Self::reaches`] stops, in the same order.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub stops: Option<Vec<super::PluginStopping>>,
-    /// Where its source is published, as the plugin names it.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub upstream: Option<String>,
-}
-
-/// The one verdict a declaration may name.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum PluginDeclaredVerdict {
-    /// The assertion fails on the recording, on the constraint the declaration names.
-    #[serde(rename = "fails")]
-    Fails,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
-}
-
-/// What asking for one of an installed plugin's demand recipes came to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginDemand {
-    /// The plugin whose recipe it is.
-    pub plugin: String,
-    /// What running it came to, or nothing where it was only read.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub ran: Option<super::PluginRecipeRan>,
-    /// The recipe as the operator agrees to it: its calls, what it asks for, and every
-    /// value it would carry where.
-    pub recipe: super::PluginRecipe,
-}
-
-/// What the verdicts in a report were reached against.
-///
-/// One value, because one is all this build can produce: nothing here asks a service
-/// anything. It is a field rather than a sentence for the reason a verdict is one — a
-/// reader handed `demonstrated` has nothing else in the document to tell a recording
-/// that answered from a service that did, and the weaker of those two claims must not
-/// be readable as the stronger. The prose says it on the page; this says it to
-/// whatever consumes the report: an author's own CI, a catalogue, anything counting
-/// passes. Naming the axis now is what made the second kind of evidence a change the
-/// compiler walked somebody through rather than one they had to remember.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum PluginEvidence {
-    /// The recordings the plugin ships. No service was asked anything.
-    #[serde(rename = "recordings")]
-    Recordings,
-    /// The service itself, running on this machine and asked.
-    ///
-    /// The stronger of the two and the one only an install can reach: an author has
-    /// no instance to ask and the catalogue has none either, which is the whole
-    /// reason recordings exist. A verdict reached here says the service did the
-    /// thing on the machine it is installed on, and it must not be readable as the
-    /// weaker claim any more than the weaker may be read as this.
-    #[serde(rename = "service")]
-    Service,
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),

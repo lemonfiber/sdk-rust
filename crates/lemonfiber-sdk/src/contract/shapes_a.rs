@@ -417,8 +417,8 @@ pub struct Admitted {
     pub name: Option<String>,
     /// The secret this session is carried by, sent in the header the per-run token is.
     pub token: String,
-    /// When it stops being one, written as every other instant this product writes.
-    pub until: String,
+    /// When it stops being one.
+    pub until: u64,
 }
 
 /// What adopting a setup already here came to, or would come to.
@@ -478,7 +478,7 @@ pub struct Affected {
     ///
     /// The condition's own stamp, kept between runs, so every surface that reports
     /// the check names the same moment and a restart does not make an old fault new.
-    pub onset: String,
+    pub onset: u64,
     /// What to do about it, most likely first.
     pub remedies: Vec<String>,
     /// How bad it is.

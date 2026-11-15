@@ -18,6 +18,7 @@ mod actions_p;
 mod actions_q;
 mod actions_r;
 mod actions_s;
+mod actions_t;
 mod actions_u;
 mod actions_w;
 pub mod events;
@@ -169,6 +170,7 @@ pub mod actions {
     pub use super::actions_q::*;
     pub use super::actions_r::*;
     pub use super::actions_s::*;
+    pub use super::actions_t::*;
     pub use super::actions_u::*;
     pub use super::actions_w::*;
 }
@@ -214,7 +216,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "3eb835ad7625b721ad7b4e6313260f5715e4a50c";
+pub const REVISION: &str = "fc07885a2d4c8498362bdcaf6539f91033928867";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -234,6 +236,7 @@ pub const KINDS: &[&str] = &[
     "capabilities",
     "catalogue",
     "certificate",
+    "channels",
     "clients",
     "config",
     "credentials",
@@ -271,6 +274,7 @@ pub const KINDS: &[&str] = &[
     "pairing",
     "part-way",
     "pausing",
+    "play",
     "playing",
     "plugin-claims",
     "plugin-conformance",
@@ -305,6 +309,7 @@ pub const KINDS: &[&str] = &[
     "substitution",
     "title",
     "trace",
+    "tuned",
     "undo",
     "uninstall",
     "update",
@@ -372,6 +377,9 @@ pub enum Payload {
     /// The `certificate` kind.
     #[serde(rename = "certificate")]
     Certificate(Box<CertificateReport>),
+    /// The `channels` kind.
+    #[serde(rename = "channels")]
+    Channels(Box<ChannelsReport>),
     /// The `clients` kind.
     #[serde(rename = "clients")]
     Clients(Box<Guidance>),
@@ -483,6 +491,9 @@ pub enum Payload {
     /// The `pausing` kind.
     #[serde(rename = "pausing")]
     Pausing(Box<PausingReport>),
+    /// The `play` kind.
+    #[serde(rename = "play")]
+    Play(Box<PlayReport>),
     /// The `playing` kind.
     #[serde(rename = "playing")]
     Playing(Box<PlayingReport>),
@@ -585,6 +596,9 @@ pub enum Payload {
     /// The `trace` kind.
     #[serde(rename = "trace")]
     Trace(Box<TraceReport>),
+    /// The `tuned` kind.
+    #[serde(rename = "tuned")]
+    Tuned(Box<TunedReport>),
     /// The `undo` kind.
     #[serde(rename = "undo")]
     Undo(Box<UndoReversal>),

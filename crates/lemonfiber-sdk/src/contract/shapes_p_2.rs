@@ -1,3 +1,101 @@
+/// What a plugin declared about itself, as its install read it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginDeclaration {
+    /// Every capability it claims, core and its own, in the order it declares them.
+    ///
+    /// Apart from what its services fill: a claim is what it says it can do and has to
+    /// demonstrate, and a capability of its own is claimed without anything asking for
+    /// it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub claims: Option<Vec<String>>,
+    /// The licence it is distributed under.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license: Option<String>,
+    /// Every bundled setting it declares it may change.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub overrides: Option<Vec<super::PluginOverriding>>,
+    /// Every destination a recipe of its could reach that is not one of its own
+    /// services: a service of this stack's, or a name outside it.
+    ///
+    /// Recorded as declared rather than sorted into the two here, because which names
+    /// are this stack's is a question about the stack, and the stack a record is read
+    /// against is the one on the machine when it is read.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reaches: Option<Vec<String>>,
+    /// Whether anybody reviewed it before it was installed.
+    ///
+    /// True for a plugin installed by name through a catalogue index whose signature
+    /// verified, and false for every install from a source an operator named. Carried
+    /// rather than left implicit, because an unreviewed plugin is to be said to be one
+    /// for as long as it is installed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reviewed: Option<bool>,
+    /// Every credential it says it will hold.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub secrets: Option<Vec<super::PluginSecret>>,
+    /// What refusing each of [`Self::reaches`] stops, in the same order.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stops: Option<Vec<super::PluginStopping>>,
+    /// Where its source is published, as the plugin names it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub upstream: Option<String>,
+}
+
+/// The one verdict a declaration may name.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum PluginDeclaredVerdict {
+    /// The assertion fails on the recording, on the constraint the declaration names.
+    #[serde(rename = "fails")]
+    Fails,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// What asking for one of an installed plugin's demand recipes came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginDemand {
+    /// The plugin whose recipe it is.
+    pub plugin: String,
+    /// What running it came to, or nothing where it was only read.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ran: Option<super::PluginRecipeRan>,
+    /// The recipe as the operator agrees to it: its calls, what it asks for, and every
+    /// value it would carry where.
+    pub recipe: super::PluginRecipe,
+}
+
+/// What the verdicts in a report were reached against.
+///
+/// One value, because one is all this build can produce: nothing here asks a service
+/// anything. It is a field rather than a sentence for the reason a verdict is one — a
+/// reader handed `demonstrated` has nothing else in the document to tell a recording
+/// that answered from a service that did, and the weaker of those two claims must not
+/// be readable as the stronger. The prose says it on the page; this says it to
+/// whatever consumes the report: an author's own CI, a catalogue, anything counting
+/// passes. Naming the axis now is what made the second kind of evidence a change the
+/// compiler walked somebody through rather than one they had to remember.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum PluginEvidence {
+    /// The recordings the plugin ships. No service was asked anything.
+    #[serde(rename = "recordings")]
+    Recordings,
+    /// The service itself, running on this machine and asked.
+    ///
+    /// The stronger of the two and the one only an install can reach: an author has
+    /// no instance to ask and the catalogue has none either, which is the whole
+    /// reason recordings exist. A verdict reached here says the service did the
+    /// thing on the machine it is installed on, and it must not be readable as the
+    /// weaker claim any more than the weaker may be read as this.
+    #[serde(rename = "service")]
+    Service,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// A recording an assertion fails on, the one constraint of its expectation that fails
 /// there, and why.
 ///
@@ -50,7 +148,9 @@ pub struct PluginFailingAsDeclared {
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct PluginGrant {
     /// When the operator approved it, as the record stamps every change.
-    pub at: String,
+    /// Absent on an offer's account of a grant, which nobody has approved yet.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub at: Option<u64>,
     /// The setting the credential is held under, as the credentials read names it.
     pub credential: String,
     /// The capability of the plugin's own it was granted to fill.
@@ -95,6 +195,10 @@ pub struct PluginInstall {
     /// Every ask its services would make, each with what it would reach and how that
     /// would be settled.
     pub asks: Vec<super::Wired>,
+    /// The forms it joins, where none of them was running once it was installed: its
+    /// services were stopped then, and start with the first of these that is started.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub awaits: Option<Vec<String>>,
     /// Every change it makes to the machine, in the order it makes them.
     pub changes: Vec<super::PluginChange>,
     /// Every ask of the stack's the install leaves contested that is not contested
@@ -175,6 +279,12 @@ pub struct PluginInstalled {
     /// What it does for the operator, in its author's words. Absent alike.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    /// The forms its manifest names its services join.
+    ///
+    /// Empty on a record written before they were kept, which joins every form, as such a
+    /// plugin always ran.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub forms: Option<Vec<String>>,
     /// The source it was installed from, as the operator named it.
     ///
     /// Empty for a record written before this was kept. A rehearsal's account carries
@@ -188,11 +298,11 @@ pub struct PluginInstalled {
     /// the epoch.
     ///
     /// The install's own stamp, the one its changes are journalled under, so the
-    /// listing and the history name the same moment. Empty where the record predates
-    /// it; a rehearsal's account carries the moment it was asked, which is the stamp
-    /// the install would have run under.
+    /// listing and the history name the same moment. Absent where the record predates
+    /// it, and on an offer's account of what installing would record, which is not yet
+    /// stamped.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub installed_at: Option<String>,
+    pub installed_at: Option<u64>,
     /// The SHA-256 of the manifest it was installed from, in lower-case hexadecimal.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub manifest: Option<String>,
@@ -341,8 +451,8 @@ pub struct PluginInstalls {
 /// One answer a plugin's adapter gave outside a contract it speaks.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct PluginNonconforming {
-    /// When it answered so, as RFC 3339.
-    pub at: String,
+    /// When it answered so.
+    pub at: u64,
     /// The capability it was asked as.
     pub capability: String,
     /// The operation it was asked.
@@ -757,112 +867,4 @@ pub struct PluginReproof {
     pub plugin: String,
     /// Each proof asked, or that would be asked, with what it came to.
     pub proofs: Vec<super::PluginProving>,
-}
-
-/// What is asked, and where.
-///
-/// Three fields and no more, and the third is the one worth explaining. A service that
-/// answers XML unless a caller asks for JSON cannot satisfy a capability whose probe
-/// requires a JSON assertion, and until this field there was nowhere to ask: Plex
-/// answers `text/xml` at every path, including the one its health probe uses, unless
-/// the request carries `Accept: application/json`.
-///
-/// **It is one media type and not a header map, and the difference is the point.** A
-/// probe declares who it is asked as, and `none` on every `guarded` probe has meant what
-/// it says partly because nothing could be presented. A map of headers would make that a
-/// convention a reviewer has to hold — any service may name its credential header
-/// whatever it likes, so no list of refused names could ever be closed — where one named
-/// field keeps it a property of the format. A probe still cannot present anything,
-/// because there is nowhere to write it.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginRequest {
-    /// The one representation the answer is asked for, as a media type.
-    ///
-    /// Absent where the service needs no asking, which is most of them.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub accept: Option<String>,
-    /// The HTTP method.
-    pub method: String,
-    /// The path on the service being asked.
-    pub path: String,
-    /// Each place in the answer whose value the service makes afresh on every run, a JSON
-    /// Pointer into its JSON, to the RE2 shape the whole value there is held to wherever a
-    /// recording is taken again. Never sent.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub varies: Option<std::collections::BTreeMap<String, String>>,
-}
-
-/// One proof that asks one of the plugin's services a question, kept so the doctor can ask
-/// it again without the plugin's source.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginRequestProof {
-    /// What the answer must be.
-    pub expect: super::Expect,
-    /// The proof's id.
-    pub proof: String,
-    /// What it asks.
-    pub request: super::PluginRequest,
-    /// The service it asks.
-    pub service: String,
-    /// What it establishes, in one line.
-    pub title: String,
-    /// Why it is worth asserting.
-    pub why: String,
-}
-
-/// One starting file whose placeholders an update changes, as the version installed
-/// shipped it and as the one coming ships it: the placeholders alone, never what the
-/// file on the machine holds.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginReshipped {
-    /// Its placeholders as the version coming ships it, none where it ships none.
-    pub becomes: Vec<super::PluginPlaceholder>,
-    /// Where the file is, in full.
-    pub path: String,
-    /// Its placeholders as the version installed shipped it, none where it shipped none.
-    pub was: Vec<super::PluginPlaceholder>,
-}
-
-/// Where an update did not hold: what putting the version it replaced back came to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginRestored {
-    /// Whether everything its record says it placed is on the machine again.
-    pub placed: bool,
-    /// Whether its containers are running again.
-    ///
-    /// Apart from `placed`, because the two fail differently: a document that would not
-    /// land is a disk, and a container that would not start is the engine — and an
-    /// operator fixes them in different places.
-    pub running: bool,
-    /// The version put back, which is the one the record still names.
-    pub version: String,
-}
-
-/// A run of the image's own program, as a proof declares it.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginRun {
-    /// Each argument handed to the image's entrypoint, one string each: one to 64, each at
-    /// most 4096 bytes and none holding a NUL.
-    pub args: Vec<String>,
-    /// How long the run may take, from 1 to 120 seconds. Default 30.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub timeout_s: Option<u32>,
-}
-
-/// One proof that runs the image's own program, kept so the doctor and a later proof can
-/// run it again without the plugin's source.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginRunProof {
-    /// What the run must come to.
-    pub expect: super::Expect,
-    /// The proof's id.
-    pub proof: String,
-    /// What the image's own program is handed.
-    pub run: super::PluginRun,
-    /// The service whose image it runs.
-    pub service: String,
-    /// What it establishes, in one line.
-    pub title: String,
-    /// Why it is worth asserting.
-    pub why: String,
 }

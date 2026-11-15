@@ -15,8 +15,8 @@ pub struct Kept {
 /// A key minted as a claim: the link that collects it, and no secret.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct KeyClaim {
-    /// When the claim stops collecting the key, written as every other instant is.
-    pub lapses: String,
+    /// When the claim stops collecting the key.
+    pub lapses: u64,
     /// The key link: `lemonfiber://key` with the address, the certificate fingerprint,
     /// the stack, when the claim lapses and the claim. Shown once, and drawn as a code.
     pub link: String,

@@ -4,8 +4,8 @@
 /// of those threads goes wrong, and nothing in the contents tells either of them.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Taken {
-    /// When, as a service writes a moment.
-    pub at: String,
+    /// When it was written.
+    pub at: u64,
     /// The lemonfiber that wrote it.
     pub lemonfiber: String,
     /// The stack it was written from.
@@ -378,8 +378,9 @@ pub enum TraceConfidence {
 /// pattern it is rather than flattened to a single furthest stage.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct TraceMoment {
-    /// When the service reported it.
-    pub at: String,
+    /// When it happened, where the service reported it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub at: Option<u64>,
     /// What happened.
     pub outcome: super::TraceOutcome,
 }
@@ -457,7 +458,7 @@ pub struct TraceStage {
     /// When it happened, as the service reported it — absent for a stage inferred
     /// rather than timed, such as being monitored.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<String>,
+    pub at: Option<u64>,
     /// The service that recorded it.
     pub service: String,
     /// The stage reached.
@@ -537,4 +538,36 @@ pub struct Trouble {
     pub causes: Vec<super::Cause>,
     /// What somebody says is happening, in their words.
     pub symptom: String,
+}
+
+/// A channel's live stream opened for a member, where its bytes are served at the
+/// guarded front door, each on a pass for that live stream and that member.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct TunedReport {
+    /// The channel, by the identifier the channels list gives it.
+    pub channel: String,
+    /// Where the tuner's own stream is served, carrying its pass.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub direct: Option<String>,
+    /// SHA-256 over the certificate the door presents, lower-case hex, which a client
+    /// pins.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fingerprint: Option<String>,
+    /// When the passes lapse, in whole seconds since the Unix epoch. A client asks for
+    /// new ones before then.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lapses: Option<u64>,
+    /// The member it is opened for, by the name they are known by.
+    pub member: String,
+    /// Whether this was a rehearsal: what would have happened, with none of it done.
+    pub rehearsed: bool,
+    /// The live stream a renewal or a stop names.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stream: Option<String>,
+    /// Where a transcoded playlist of it is served, carrying its pass.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub transcoded: Option<String>,
+    /// Why nothing is located, where nothing is.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unlocated: Option<String>,
 }
