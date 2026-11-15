@@ -191,7 +191,7 @@ pub struct VersionReport {
     /// taken, which an Android device key's chain is checked against; nothing where it
     /// does not read.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub attestation_status: Option<u64>,
+    pub attestation_status: Option<super::Instant>,
     /// The running binary's version.
     pub binary: String,
     /// What this build's release changed, and every release there has been.

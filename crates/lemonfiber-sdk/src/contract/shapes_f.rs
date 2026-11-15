@@ -134,7 +134,7 @@ pub struct Finding {
     /// move it. Absent where the finding says nothing is wrong, and where the checks
     /// ran for something other than a diagnosis.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub onset: Option<u64>,
+    pub onset: Option<super::Instant>,
     /// Whose check this is: one this build ships, or one a named plugin contributed.
     ///
     /// Carried rather than read off the identifier. A contributed check's id is
@@ -286,7 +286,7 @@ pub enum Freshness {
     #[serde(rename = "as_of")]
     AsOf {
         /// The `at` field.
-        at: u64,
+        at: Box<super::Instant>,
     },
     /// A value this client was not generated with, as it arrived.
     #[serde(

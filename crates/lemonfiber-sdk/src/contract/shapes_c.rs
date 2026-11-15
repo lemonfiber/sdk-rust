@@ -176,7 +176,7 @@ pub struct ChangeReport {
     /// was made at the epoch: it is how a machine whose clock would not answer stamps a
     /// change. Two changes both stamped `0` were not made at the same moment, and a
     /// reader showing it as a date in 1970 would be inventing one.
-    pub at: u64,
+    pub at: super::Instant,
     /// Why it could not go further, where it could not.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub because: Option<String>,
@@ -694,7 +694,7 @@ impl crate::open::Tags for Covers {
 pub struct CredentialGranted {
     /// When the operator approved it, where the record says.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<u64>,
+    pub at: Option<super::Instant>,
     /// The setting the credential is held under, as the inventory names it.
     pub credential: String,
     /// The capability of the plugin's own it was granted to fill.

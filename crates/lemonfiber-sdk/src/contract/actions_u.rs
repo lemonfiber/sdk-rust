@@ -3,7 +3,7 @@
 pub struct UndoAction {
     /// When the run to put back was made, as the history writes it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<u64>,
+    pub at: Option<super::Instant>,
     /// Whether to rehearse: write nothing, and answer with what the action would do.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dry_run: Option<bool>,

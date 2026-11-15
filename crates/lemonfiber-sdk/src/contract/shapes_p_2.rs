@@ -150,7 +150,7 @@ pub struct PluginGrant {
     /// When the operator approved it, as the record stamps every change.
     /// Absent on an offer's account of a grant, which nobody has approved yet.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<u64>,
+    pub at: Option<super::Instant>,
     /// The setting the credential is held under, as the credentials read names it.
     pub credential: String,
     /// The capability of the plugin's own it was granted to fill.
@@ -302,7 +302,7 @@ pub struct PluginInstalled {
     /// it, and on an offer's account of what installing would record, which is not yet
     /// stamped.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub installed_at: Option<u64>,
+    pub installed_at: Option<super::Instant>,
     /// The SHA-256 of the manifest it was installed from, in lower-case hexadecimal.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub manifest: Option<String>,
@@ -452,7 +452,7 @@ pub struct PluginInstalls {
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct PluginNonconforming {
     /// When it answered so.
-    pub at: u64,
+    pub at: super::Instant,
     /// The capability it was asked as.
     pub capability: String,
     /// The operation it was asked.

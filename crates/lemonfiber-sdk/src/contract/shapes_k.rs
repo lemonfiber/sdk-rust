@@ -16,7 +16,7 @@ pub struct Kept {
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct KeyClaim {
     /// When the claim stops collecting the key.
-    pub lapses: u64,
+    pub lapses: super::Instant,
     /// The key link: `lemonfiber://key` with the address, the certificate fingerprint,
     /// the stack, when the claim lapses and the claim. Shown once, and drawn as a code.
     pub link: String,

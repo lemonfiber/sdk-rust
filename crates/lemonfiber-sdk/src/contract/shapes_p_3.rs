@@ -633,7 +633,7 @@ pub struct Programme {
     pub certificate: Option<String>,
     /// When it ends, where the server knows.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub ends: Option<u64>,
+    pub ends: Option<super::Instant>,
     /// What it is called.
     pub title: String,
 }

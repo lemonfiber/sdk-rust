@@ -35,7 +35,7 @@ pub struct Pairing {
     /// is each surface's own to say, so this names no command.
     pub replacing: String,
     /// When it stops being good.
-    pub until: u64,
+    pub until: super::Instant,
     /// The material as the one line a code carries and a person types.
     pub written: String,
 }
@@ -49,7 +49,7 @@ pub struct PairingMaterial {
     /// Where the phone reaches the stack: an `https` address on the household network.
     pub address: String,
     /// When the material stops being good.
-    pub expires: u64,
+    pub expires: super::Instant,
     /// The certificate that address presents: SHA-256 over its DER encoding, in
     /// lower-case hex. Not the digest of its public key.
     pub fingerprint: String,
@@ -511,7 +511,7 @@ pub struct PartWayReport {
 pub struct Passed {
     /// When the attempt was made, absent on a record kept without one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<u64>,
+    pub at: Option<super::Instant>,
     /// The services they reached, by the names the member knows them by. Empty where
     /// there was nowhere this could send.
     pub to: Vec<String>,
