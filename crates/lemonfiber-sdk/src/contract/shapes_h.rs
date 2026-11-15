@@ -306,9 +306,9 @@ pub struct Held {
     pub stream_from: Option<String>,
     /// What it is called, in the words the server holds it under.
     pub title: String,
-    /// Why no location is stated, where none is.
+    /// Why no location is stated, where none is, by the code that names it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub unlocated: Option<String>,
+    pub unlocated: Option<super::Obstacle>,
     /// The year it came out, where the server knows one. Absent rather than guessed:
     /// two films share a title far more often than they share a title and a year.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -324,12 +324,12 @@ pub struct HeldReport {
     /// would tell a household they own nothing on the day the media server rebooted.
     /// Anything that could not be read is said in `findings` and this goes false.
     pub available: bool,
-    /// What is worth saying about this shelf, in the words its reader would use.
+    /// What stood in the way of reading this shelf, each by the code that names it.
     ///
     /// Always written, empty or not. A field the schema requires and the document
     /// sometimes omits is one a reader has to guess about, and an empty list already
-    /// says the thing it would say: there is nothing to report about this shelf.
-    pub findings: Vec<String>,
+    /// says the thing it would say: nothing stood in the way.
+    pub findings: Vec<super::Obstacle>,
     /// What they hold, newest first.
     pub holdings: Vec<super::Held>,
     /// The identifier the media server files them under.
@@ -554,12 +554,16 @@ pub struct HouseholdReport {
     /// exactly the reader who might take it for a lock.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub filtering: Option<String>,
-    /// What could not be read, and anything else worth the operator's attention.
-    pub findings: Vec<String>,
+    /// What could not be read, each by the code that names it.
+    pub findings: Vec<super::Obstacle>,
     /// Everybody the media server holds an account for, in name order — including
     /// those who have never asked for anything, and the invitations nobody has taken
     /// up yet.
     pub members: Vec<super::HouseholdMember>,
+    /// What else is worth the operator's attention about the household: who has used
+    /// their limit, what is waiting on them, what nobody has claimed. Written for the
+    /// operator alone, so a member's own reading carries none.
+    pub noted: Vec<String>,
     /// What happens to what the household asks for where nobody chose otherwise for
     /// one person. Absent where the request service could not be asked.
     #[serde(default, skip_serializing_if = "Option::is_none")]
