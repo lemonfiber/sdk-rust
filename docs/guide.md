@@ -66,7 +66,7 @@ let client = Client::new(address, session.credential)?;
 ```
 
 `name` names a household member, and the operator gives none. `session.until` says
-when the session stops being admitted, and `session.member` whom it is for.
+when the session stops being admitted, in whole seconds since the Unix epoch, and `session.member` whom it is for.
 
 ## Reading
 

@@ -46,8 +46,8 @@ impl fmt::Debug for Credential {
 pub struct Session {
     /// What every request in the session carries.
     pub credential: Credential,
-    /// When it stops being admitted, as the stack wrote it.
-    pub until: String,
+    /// When it stops being admitted, in whole seconds since the Unix epoch.
+    pub until: u64,
     /// The household member it is for, none for the operator.
     pub member: Option<String>,
 }

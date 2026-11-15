@@ -493,7 +493,7 @@ async fn keys_and_device_keys_are_asked_for_at_their_own_doors() -> Outcome {
             200,
             enveloped(
                 "device-challenge",
-                &json!({ "challenge": "c", "expires": "1" }),
+                &json!({ "challenge": "c", "expires": 1 }),
             ),
         )),
         Ok(reply(
