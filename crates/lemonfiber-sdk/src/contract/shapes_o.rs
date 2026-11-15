@@ -1,3 +1,17 @@
+/// Something in the way of one part of an answer, said by its code.
+///
+/// What a read carries beside the part it could not give, rather than a sentence of its
+/// own: a sentence carries no code, so nothing could word it again for whoever reads it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Obstacle {
+    /// The code that names what is in the way.
+    pub code: super::Code,
+    /// What to do about it.
+    pub remedy: String,
+    /// What is in the way, in one sentence.
+    pub said: String,
+}
+
 /// One container of somebody else's stack, as the engine reports it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct OccupantReport {

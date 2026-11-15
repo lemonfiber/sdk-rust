@@ -117,9 +117,9 @@ pub struct Episode {
     pub stream_from: Option<String>,
     /// What it is called, in the words the server holds it under.
     pub title: String,
-    /// Why no location is stated, where none is.
+    /// Why no location is stated, where none is, by the code that names it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub unlocated: Option<String>,
+    pub unlocated: Option<super::Obstacle>,
     /// The year it came out, where the server knows one. Absent rather than guessed:
     /// two films share a title far more often than they share a title and a year.
     #[serde(default, skip_serializing_if = "Option::is_none")]
