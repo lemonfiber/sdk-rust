@@ -5,7 +5,7 @@
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Taken {
     /// When it was written.
-    pub at: u64,
+    pub at: super::Instant,
     /// The lemonfiber that wrote it.
     pub lemonfiber: String,
     /// The stack it was written from.
@@ -380,7 +380,7 @@ pub enum TraceConfidence {
 pub struct TraceMoment {
     /// When it happened, where the service reported it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<u64>,
+    pub at: Option<super::Instant>,
     /// What happened.
     pub outcome: super::TraceOutcome,
 }
@@ -458,7 +458,7 @@ pub struct TraceStage {
     /// When it happened, as the service reported it — absent for a stage inferred
     /// rather than timed, such as being monitored.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<u64>,
+    pub at: Option<super::Instant>,
     /// The service that recorded it.
     pub service: String,
     /// The stage reached.

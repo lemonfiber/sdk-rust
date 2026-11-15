@@ -313,7 +313,7 @@ pub struct Refused {
     /// When it was turned down, so somebody reading it later knows which answer this
     /// was rather than assuming it is the newest. Absent on a record kept without one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<u64>,
+    pub at: Option<super::Instant>,
     /// Whether nobody ruled on it and the period the household agreed to closed it,
     /// rather than an operator turning it down.
     ///
@@ -351,7 +351,7 @@ pub struct RegisteredDeviceKey {
     /// The name it was registered under.
     pub name: String,
     /// When it was registered.
-    pub registered: u64,
+    pub registered: super::Instant,
 }
 
 /// A push endpoint registered.
@@ -362,7 +362,7 @@ pub struct RegisteredPushEndpoint {
     /// The name it was registered under.
     pub name: String,
     /// When it was registered.
-    pub registered: u64,
+    pub registered: super::Instant,
     /// Whether this was a rehearsal: what registering would come to, with nothing kept.
     pub rehearsed: bool,
 }

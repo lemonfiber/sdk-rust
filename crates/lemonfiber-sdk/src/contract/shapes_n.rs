@@ -38,7 +38,7 @@ pub struct NewsCheck {
     pub check: String,
     /// When the stack first saw it wrong since it last saw it right, in whole seconds
     /// since the epoch.
-    pub onset: u64,
+    pub onset: super::Instant,
 }
 
 /// One of the three kinds of thing a surface can mark as new.
@@ -66,7 +66,7 @@ pub struct NewsProblem {
     pub check: String,
     /// When the stack first saw it wrong since it last saw it right, in whole seconds
     /// since the epoch: the same moment the health summary names for it.
-    pub onset: u64,
+    pub onset: super::Instant,
     /// What is wrong, in one line.
     pub summary: String,
 }
@@ -76,7 +76,7 @@ pub struct NewsProblem {
 pub struct NewsRequest {
     /// When it was asked for, where that is known.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub asked: Option<u64>,
+    pub asked: Option<super::Instant>,
     /// Who asked for it, by the name the media server holds them under.
     pub by: String,
     /// The kind of title it asks for, as the household list names it.

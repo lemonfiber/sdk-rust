@@ -85,6 +85,9 @@ pub enum Installed {
     Unrecognised(String),
 }
 
+/// A moment, as a whole number of seconds since the Unix epoch.
+pub type Instant = u64;
+
 /// An import that stopped part-way, in the words of whatever stopped it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Interrupted {

@@ -7,7 +7,7 @@
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct BackupManifest {
     /// When it was taken.
-    pub created_at: u64,
+    pub created_at: super::Instant,
     /// The data root it was taken against, to notice a restore to a different one.
     pub data_root: String,
     /// What is inside, for a listing shown before anything is overwritten.

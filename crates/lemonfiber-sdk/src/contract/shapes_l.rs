@@ -383,13 +383,13 @@ pub struct ListedDeviceKey {
     /// The name it was registered under.
     pub name: String,
     /// When it was registered.
-    pub registered: u64,
+    pub registered: super::Instant,
     /// When it was revoked, where it has been.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub revoked: Option<u64>,
+    pub revoked: Option<super::Instant>,
     /// When it last proved a mint, where it has.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub used: Option<u64>,
+    pub used: Option<super::Instant>,
 }
 
 /// One key as the listing shows it, without its secret.
@@ -398,7 +398,7 @@ pub struct ListedKey {
     /// Whether a household member minted it for themselves.
     pub member_minted: bool,
     /// When it was minted.
-    pub minted: u64,
+    pub minted: super::Instant,
     /// The name it was minted under.
     pub name: String,
     /// The device key whose signature proved its mint, absent where none did.
@@ -408,14 +408,14 @@ pub struct ListedKey {
     pub purpose: super::KeyPurpose,
     /// When it was revoked, where it has been.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub revoked: Option<u64>,
+    pub revoked: Option<super::Instant>,
     /// What it admits: `read`, `act` or `member:<name>`.
     pub scope: String,
     /// Where it stands.
     pub state: super::KeyState,
     /// When it was last admitted, where it has been.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub used: Option<u64>,
+    pub used: Option<super::Instant>,
 }
 
 /// One push endpoint as the listing shows it.
@@ -426,7 +426,7 @@ pub struct ListedPushEndpoint {
     /// The name it was registered under.
     pub name: String,
     /// When it was registered.
-    pub registered: u64,
+    pub registered: super::Instant,
 }
 
 /// The archives this machine has kept.
