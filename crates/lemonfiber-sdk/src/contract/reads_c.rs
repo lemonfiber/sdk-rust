@@ -17,6 +17,25 @@ impl crate::Read for ChecksRead {
     const KINDS: &[&str] = &["doctor"];
 }
 
+/// `GET /api/channels`, answered with `channels`.
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
+pub struct ChannelsRead {
+    /// The `member` parameter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub member: Option<String>,
+}
+
+impl crate::Answer for super::ChannelsReport {
+    const TAGGED: bool = false;
+}
+
+impl crate::Read for ChannelsRead {
+    type Answer = super::ChannelsReport;
+    const PATH: &str = "/api/channels";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["channels"];
+}
+
 /// `GET /api/config`, answered with `config`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
 pub struct ConfigRead {

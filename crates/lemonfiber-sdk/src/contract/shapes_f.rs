@@ -134,7 +134,7 @@ pub struct Finding {
     /// move it. Absent where the finding says nothing is wrong, and where the checks
     /// ran for something other than a diagnosis.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub onset: Option<String>,
+    pub onset: Option<u64>,
     /// Whose check this is: one this build ships, or one a named plugin contributed.
     ///
     /// Carried rather than read off the identifier. A contributed check's id is
@@ -281,8 +281,8 @@ pub enum Freshness {
     #[serde(rename = "live")]
     Live,
     /// Read across a network share, which answers with what it was last told —
-    /// carrying the moment it was taken, in seconds since the epoch, so a figure
-    /// nobody can refresh is at least dated.
+    /// carrying the moment it was taken, so a figure nobody can refresh is at least
+    /// dated.
     #[serde(rename = "as_of")]
     AsOf {
         /// The `at` field.

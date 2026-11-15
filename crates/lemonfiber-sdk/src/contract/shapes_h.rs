@@ -58,9 +58,9 @@ pub struct HandoffReport {
     pub caution: Option<String>,
     /// The apps to point a device at the stack with, each with its code.
     pub clients: Vec<super::HandoffClient>,
-    /// When a code was first issued for them, as an instant. Absent until one is.
+    /// When a code was first issued for them. Absent until one is.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub issued: Option<String>,
+    pub issued: Option<u64>,
     /// Who it is for, as the media server spells their account where it holds one, and as
     /// it was asked for otherwise.
     pub name: String,
@@ -103,7 +103,7 @@ pub struct HandoffSession {
     pub device: String,
     /// When the media server last heard from it, where it says.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub last_seen: Option<String>,
+    pub last_seen: Option<u64>,
 }
 
 /// Where one person's hand-off stands.
@@ -471,10 +471,10 @@ pub struct HouseholdMember {
     /// Whether somebody has set a password on the account. False is an invitation
     /// nobody has taken up rather than a member who is not here.
     pub claimed: bool,
-    /// When the media server last saw them, as it timestamps it. Absent where nobody
-    /// has ever signed in, which is exactly the unclaimed invitations.
+    /// When the media server last saw them. Absent where nobody has ever signed in,
+    /// which is exactly the unclaimed invitations.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub last_seen: Option<String>,
+    pub last_seen: Option<u64>,
     /// The member, by the name their account is held under.
     pub name: String,
     /// What they asked for, newest first.

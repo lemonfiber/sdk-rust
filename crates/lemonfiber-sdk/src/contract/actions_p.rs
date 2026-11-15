@@ -1,3 +1,29 @@
+/// `POST /api/actions/play`.
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
+pub struct PlayAction {
+    /// The id a player keeps for the device it plays on, which a grant opens a session
+    /// for.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub device: Option<String>,
+    /// The thing an action is about, by its id: the title or episode a player's progress
+    /// is on, by the identifier the shelf lists it under, the title a member asks for, by
+    /// the identifier their search listed it under, or the wake a phone confirms.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The pass a browser holds, handed back for a new one around the same session.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pass: Option<String>,
+    /// Whether to rehearse: write nothing, and answer with what the action would do.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dry_run: Option<bool>,
+}
+
+impl crate::Action for PlayAction {
+    const NAME: &str = "play";
+    const REHEARSAL: bool = true;
+    const CONSENT: &[&str] = &[];
+}
+
 /// `POST /api/actions/plugin-install`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
 pub struct PluginInstallAction {

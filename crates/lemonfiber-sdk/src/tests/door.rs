@@ -21,7 +21,7 @@ async fn a_password_is_exchanged_once_for_a_session() -> Outcome {
             200,
             enveloped(
                 "admission",
-                &json!({ "token": "s3ss10n", "until": "1700000000", "member": "ana" }),
+                &json!({ "token": "s3ss10n", "until": 1_700_000_000, "member": "ana" }),
             ),
         )),
         Ok(reply(401, Vec::new())),
@@ -29,14 +29,14 @@ async fn a_password_is_exchanged_once_for_a_session() -> Outcome {
         Ok(reply(429, problem("ADMIT-5", "Wait."))),
         Ok(reply(
             200,
-            enveloped("admission", &json!({ "token": "has space", "until": "1" })),
+            enveloped("admission", &json!({ "token": "has space", "until": 1 })),
         )),
     ]);
     let door =
         Door::with_transport(loopback()?, door_script.clone())?.waiting(Duration::from_secs(5));
     let session = door.admit(&sign_in()).await?;
     assert_eq!(session.member.as_deref(), Some("ana"));
-    assert_eq!(session.until, "1700000000");
+    assert_eq!(session.until, 1_700_000_000);
     assert_eq!(format!("{:?}", session.credential), "Credential(hidden)");
     let refused = |error: Result<crate::Session, Error>| match error {
         Err(Error::Refused(refusal)) => Some((refusal.because, refusal.sentence)),

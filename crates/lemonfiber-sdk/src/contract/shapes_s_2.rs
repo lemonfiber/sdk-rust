@@ -1,3 +1,23 @@
+/// One setting.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SettingRead {
+    /// Every value it accepts, where its manifest declares them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub choices: Option<Vec<super::Choosable>>,
+    /// The environment file's key it is held under, where it is held there.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub environment: Option<String>,
+    /// Its name.
+    pub name: String,
+    /// Each service that reads it.
+    pub readers: Vec<super::Reader>,
+    /// The operator's value, where one is recorded.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<String>,
+    /// Whose it is.
+    pub whose: super::Owner,
+}
+
 /// One setting, as it is safe to show.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct SettingReport {

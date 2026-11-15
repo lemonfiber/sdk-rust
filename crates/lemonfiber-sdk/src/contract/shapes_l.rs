@@ -383,13 +383,13 @@ pub struct ListedDeviceKey {
     /// The name it was registered under.
     pub name: String,
     /// When it was registered.
-    pub registered: String,
+    pub registered: u64,
     /// When it was revoked, where it has been.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub revoked: Option<String>,
+    pub revoked: Option<u64>,
     /// When it last proved a mint, where it has.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub used: Option<String>,
+    pub used: Option<u64>,
 }
 
 /// One key as the listing shows it, without its secret.
@@ -398,7 +398,7 @@ pub struct ListedKey {
     /// Whether a household member minted it for themselves.
     pub member_minted: bool,
     /// When it was minted.
-    pub minted: String,
+    pub minted: u64,
     /// The name it was minted under.
     pub name: String,
     /// The device key whose signature proved its mint, absent where none did.
@@ -408,14 +408,14 @@ pub struct ListedKey {
     pub purpose: super::KeyPurpose,
     /// When it was revoked, where it has been.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub revoked: Option<String>,
+    pub revoked: Option<u64>,
     /// What it admits: `read`, `act` or `member:<name>`.
     pub scope: String,
     /// Where it stands.
     pub state: super::KeyState,
     /// When it was last admitted, where it has been.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub used: Option<String>,
+    pub used: Option<u64>,
 }
 
 /// One push endpoint as the listing shows it.
@@ -426,7 +426,7 @@ pub struct ListedPushEndpoint {
     /// The name it was registered under.
     pub name: String,
     /// When it was registered.
-    pub registered: String,
+    pub registered: u64,
 }
 
 /// The archives this machine has kept.
@@ -506,14 +506,6 @@ pub enum LogLevel {
 /// second answer, and the two would disagree about some service's spelling.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct LogLine {
-    /// When the container itself says it wrote the line, where it said so.
-    ///
-    /// Kept verbatim and unparsed. Containers disagree with the host clock and
-    /// with each other, and the only defensible ordering is each container's own
-    /// account of itself — which a reader can only apply if it is carried
-    /// rather than replaced by an arrival time.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<String>,
     /// How bad the line says it is, in one lowercase word.
     ///
     /// Absent where the line says nothing about itself. It is never guessed from
@@ -526,6 +518,15 @@ pub struct LogLine {
     pub line: String,
     /// The Compose service it came from.
     pub service: String,
+    /// The container's own text stamped on the line, where it stamped one: not one
+    /// of lemonfiber's instants.
+    ///
+    /// Kept verbatim and unparsed. Containers disagree with the host clock and
+    /// with each other, and the only defensible ordering is each container's own
+    /// account of itself — which a reader can only apply if it is carried
+    /// rather than replaced by an arrival time.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stamped: Option<String>,
     /// Which stream it arrived on.
     pub stream: super::Stream,
 }

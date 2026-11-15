@@ -504,6 +504,9 @@ pub struct ServiceFields {
     /// Whether its configuration directory is read-only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub config_ro: Option<bool>,
+    /// The name its container knows itself by, where it declares one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub container_hostname: Option<String>,
     /// Its environment.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub env: Option<std::collections::BTreeMap<String, super::ServiceValue>>,
@@ -557,9 +560,14 @@ pub struct ServiceMount {
     pub to: String,
 }
 
-/// The network a service runs inside instead of its own: its filler's, or a fence's.
+/// The network a service runs inside instead of its own, its filler's or a fence's, or the
+/// sibling it carries out of the machine.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct ServiceNetwork {
+    /// The service of its own plugin it carries out of the machine, holding nothing, where
+    /// it is that service's egress.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub egress_for: Option<String>,
     /// Whether it fetches whatever address it is handed, and so runs inside a fence that
     /// refuses every private address.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -872,24 +880,4 @@ pub struct SettingMove {
     /// What it holds now.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub was: Option<String>,
-}
-
-/// One setting.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct SettingRead {
-    /// Every value it accepts, where its manifest declares them.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub choices: Option<Vec<super::Choosable>>,
-    /// The environment file's key it is held under, where it is held there.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub environment: Option<String>,
-    /// Its name.
-    pub name: String,
-    /// Each service that reads it.
-    pub readers: Vec<super::Reader>,
-    /// The operator's value, where one is recorded.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub value: Option<String>,
-    /// Whose it is.
-    pub whose: super::Owner,
 }

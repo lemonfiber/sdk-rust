@@ -136,6 +136,15 @@ pub struct ValueReplaced {
     pub withheld: bool,
 }
 
+/// A plugin naming forms the stack does not declare.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Vanished {
+    /// The forms it names that the stack does not declare, in the order it names them.
+    pub forms: Vec<String>,
+    /// The plugin, by its id.
+    pub plugin: String,
+}
+
 /// What one case's recording came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "outcome")]
@@ -182,7 +191,7 @@ pub struct VersionReport {
     /// taken, which an Android device key's chain is checked against; nothing where it
     /// does not read.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub attestation_status: Option<String>,
+    pub attestation_status: Option<u64>,
     /// The running binary's version.
     pub binary: String,
     /// What this build's release changed, and every release there has been.

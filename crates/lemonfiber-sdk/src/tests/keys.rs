@@ -69,8 +69,8 @@ async fn a_key_is_minted_with_its_secret_or_as_a_claim_and_a_device_key_is_regis
         "name": "home", "purpose": "home-assistant", "scope": "read", "secret": "lfk_x",
         "address": null, "pin": null,
     });
-    let claimed = json!({ "lapses": "1", "link": link(&whole()), "name": "home", "purpose": "home-assistant", "scope": "read" });
-    let registered = json!({ "app": "app", "backing": "strongbox", "fingerprint": "f", "name": "phone", "registered": "1" });
+    let claimed = json!({ "lapses": 1, "link": link(&whole()), "name": "home", "purpose": "home-assistant", "scope": "read" });
+    let registered = json!({ "app": "app", "backing": "strongbox", "fingerprint": "f", "name": "phone", "registered": 1 });
     let (client, client_script) = client(Scripted::answering(vec![
         Ok(reply(200, enveloped("minted-key", &minted))),
         Ok(reply(200, enveloped("key-claim", &claimed))),

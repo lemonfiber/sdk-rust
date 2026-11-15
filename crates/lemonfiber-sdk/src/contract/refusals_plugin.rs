@@ -377,3 +377,11 @@ name: "KEY_UNREADABLE",
 status: 400,
 description: "Raised when a key an author names to verify a plugin's images against cannot be read, or is not a PEM public key on the P-256 curve.",
 };
+
+/// `PLUGIN-52`: Raised when a plugin's manifest names a form the stack does not declare.
+pub const UNDECLARED_FORM: crate::RefusalCode = crate::RefusalCode {
+    code: "PLUGIN-52",
+    name: "UNDECLARED_FORM",
+    status: 400,
+    description: "Raised when a plugin's manifest names a form the stack does not declare.",
+};

@@ -86,7 +86,7 @@ pub struct DeviceChallenge {
     /// The challenge, in base64url, signed as it is written here.
     pub challenge: String,
     /// When it stops standing, one minute after it was issued.
-    pub expires: String,
+    pub expires: u64,
 }
 
 /// An attestation as a phone sends it, tagged by the platform that made it.

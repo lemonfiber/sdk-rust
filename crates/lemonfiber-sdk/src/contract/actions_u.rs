@@ -1,9 +1,9 @@
 /// `POST /api/actions/undo`.
 #[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
 pub struct UndoAction {
-    /// The stamp of the run to put back, as the history writes it.
+    /// When the run to put back was made, as the history writes it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<String>,
+    pub at: Option<u64>,
     /// Whether to rehearse: write nothing, and answer with what the action would do.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dry_run: Option<bool>,

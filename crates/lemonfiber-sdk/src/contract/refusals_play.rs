@@ -69,3 +69,28 @@ pub const NO_SUCH_PICTURE: crate::RefusalCode = crate::RefusalCode {
     status: 404,
     description: "Said where a title on the member's shelf has no picture of the kind asked for.",
 };
+
+/// `PLAY-10`: Said where the member's own account may not watch live TV, or the server has none.
+pub const NO_LIVE_TV: crate::RefusalCode = crate::RefusalCode {
+    code: "PLAY-10",
+    name: "NO_LIVE_TV",
+    status: 404,
+    description:
+        "Said where the member's own account may not watch live TV, or the server has none.",
+};
+
+/// `PLAY-11`: Said where the live stream named is not one the core opened for this member.
+pub const NOT_THEIR_STREAM: crate::RefusalCode = crate::RefusalCode {
+    code: "PLAY-11",
+    name: "NOT_THEIR_STREAM",
+    status: 404,
+    description: "Said where the live stream named is not one the core opened for this member.",
+};
+
+/// `PLAY-12`: Said where the pass handed back does not open for this member and title.
+pub const NOT_THEIR_PASS: crate::RefusalCode = crate::RefusalCode {
+    code: "PLAY-12",
+    name: "NOT_THEIR_PASS",
+    status: 403,
+    description: "Said where the pass handed back does not open for this member and title.",
+};
