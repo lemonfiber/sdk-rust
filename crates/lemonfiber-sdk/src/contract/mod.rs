@@ -28,6 +28,7 @@ mod reads_b;
 mod reads_c;
 mod reads_e;
 mod reads_f;
+mod reads_g;
 mod reads_h;
 mod reads_l;
 mod reads_m;
@@ -138,6 +139,7 @@ pub mod reads {
     pub use super::reads_c::*;
     pub use super::reads_e::*;
     pub use super::reads_f::*;
+    pub use super::reads_g::*;
     pub use super::reads_h::*;
     pub use super::reads_l::*;
     pub use super::reads_m::*;
@@ -216,7 +218,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "6a2d9bbd6d8c0b7a09258f6352d427c89b8bc2b6";
+pub const REVISION: &str = "bfad4d1b0b66204836fc9a2f8aad73e9337b312d";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -251,6 +253,7 @@ pub const KINDS: &[&str] = &[
     "front-door",
     "glossary",
     "grant",
+    "guide",
     "handoff",
     "held",
     "history",
@@ -422,6 +425,9 @@ pub enum Payload {
     /// The `grant` kind.
     #[serde(rename = "grant")]
     Grant(Box<GrantReport>),
+    /// The `guide` kind.
+    #[serde(rename = "guide")]
+    Guide(Box<GuideReport>),
     /// The `handoff` kind.
     #[serde(rename = "handoff")]
     Handoff(Box<HandoffReport>),

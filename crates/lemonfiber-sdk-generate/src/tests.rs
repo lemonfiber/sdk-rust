@@ -9,7 +9,7 @@ use crate::emit::{formatted, paged};
 use crate::schema::shaped;
 use crate::{run, Refused, CONTRACT, GENERATED, STAMP};
 
-type Outcome = Result<(), Box<dyn std::error::Error>>;
+pub(crate) type Outcome = Result<(), Box<dyn std::error::Error>>;
 
 const REVISION: &str = "0123456789abcdef0123456789abcdef01234567";
 
@@ -215,7 +215,7 @@ pub(crate) fn laid_out(
     Ok(root)
 }
 
-fn edited(
+pub(crate) fn edited(
     edit: impl FnOnce(&mut BTreeMap<String, Value>),
 ) -> Result<tempfile::TempDir, Box<dyn std::error::Error>> {
     let mut files = tree();
@@ -223,7 +223,11 @@ fn edited(
     laid_out(&files)
 }
 
-fn at<'a>(files: &'a mut BTreeMap<String, Value>, file: &str, pointer: &str) -> &'a mut Value {
+pub(crate) fn at<'a>(
+    files: &'a mut BTreeMap<String, Value>,
+    file: &str,
+    pointer: &str,
+) -> &'a mut Value {
     files
         .get_mut(file)
         .and_then(|value| value.pointer_mut(pointer))
@@ -256,7 +260,7 @@ pub(crate) fn set(
     }
 }
 
-fn refused_with(root: &Path, command: &[&str]) -> String {
+pub(crate) fn refused_with(root: &Path, command: &[&str]) -> String {
     run(&words(command), root)
         .err()
         .map(|refused| refused.to_string())
@@ -987,3 +991,5 @@ fn a_name_is_written_in_the_case_rust_writes_it() {
     assert_eq!(type_name("PanelArray_of_Queue"), "PanelArrayOfQueue");
     assert_eq!(type_name("A__b"), "AB");
 }
+
+mod examples;

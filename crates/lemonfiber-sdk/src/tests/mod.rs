@@ -1,5 +1,6 @@
 mod client;
 mod door;
+mod examples;
 mod http;
 mod keys;
 mod stream;
