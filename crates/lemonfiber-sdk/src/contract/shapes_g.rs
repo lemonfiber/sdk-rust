@@ -108,3 +108,37 @@ pub struct Guidance {
     /// What to do when it does not work, keyed by the symptom.
     pub trouble: Vec<super::Trouble>,
 }
+
+/// The live TV guide one member may watch: each channel with its programmes from now
+/// across the guide window.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct GuideReport {
+    /// Each channel their own account may watch whose programme now is within their
+    /// limits. Empty where their account may not watch live TV.
+    pub channels: Vec<super::Guided>,
+    /// The identifier the media server files them under.
+    pub id: String,
+    /// The member this was asked for, by the name they are known by.
+    pub member: String,
+    /// Whether this was a rehearsal: what would have happened, with none of it done.
+    pub rehearsed: bool,
+}
+
+/// One channel in a member's guide.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Guided {
+    /// When the last programme the media server's guide holds on it inside the window
+    /// ends; none where it holds none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub guide_until: Option<super::Instant>,
+    /// The identifier the server tells it apart by.
+    pub id: String,
+    /// What it is called.
+    pub name: String,
+    /// Its number, where it has one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub number: Option<String>,
+    /// Each programme on it from now across the guide window, in the order they air, the
+    /// one on now first; one outside the member's limits is left out, a gap.
+    pub programmes: Vec<super::Airing>,
+}

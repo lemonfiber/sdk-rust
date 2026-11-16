@@ -19,7 +19,10 @@ const INDEX_FIELDS: &[&str] = &[
     "key_callable",
     "reads",
     "refusals",
+    "examples",
 ];
+
+const EXAMPLE_FIELDS: &[&str] = &["kinds", "actions"];
 
 const ANNOTATIONS: &[&str] = &[
     "$ref",
@@ -314,6 +317,7 @@ impl Artefact {
         let actions = read_actions(&mut reader, fields, &mut problems)?;
         let bodies = read_bodies(&mut reader, fields, &mut problems)?;
         let refusals = read_refusals(&reader, fields, &mut problems)?;
+        read_examples(&reader, fields, &kinds, &actions, &mut problems)?;
         let events = events::read(fields, &kinds, &mut problems);
         let reads = match file_of(fields.get("reads"), "the reads", &mut problems) {
             Some(file) => read_reads(&reader.json(file)?, &kinds, &mut problems),
@@ -393,6 +397,60 @@ fn read_kinds(
         }
     }
     Ok(kinds)
+}
+
+fn read_examples(
+    reader: &Reader<'_>,
+    index: &Map<String, Value>,
+    kinds: &BTreeMap<String, Value>,
+    actions: &[Action],
+    problems: &mut Vec<String>,
+) -> Result<(), Refused> {
+    let Some(examples) = index.get("examples") else {
+        return Ok(());
+    };
+    let Some(fields) = object(examples, "the examples", problems) else {
+        return Ok(());
+    };
+    unread(fields, EXAMPLE_FIELDS, "the examples", problems);
+    for (kind, file) in fields
+        .get("kinds")
+        .and_then(Value::as_object)
+        .into_iter()
+        .flatten()
+    {
+        let Some(file) = file.as_str() else {
+            problems.push(format!("the example of the kind {kind} names no file"));
+            continue;
+        };
+        if !kinds.contains_key(kind) {
+            problems.push(format!(
+                "{file} is an example of {kind}, which the index lists no kind of"
+            ));
+        }
+        let example = reader.json(file)?;
+        if example.get("kind").and_then(Value::as_str) != Some(kind.as_str()) {
+            problems.push(format!("{file} is not an envelope of the kind {kind}"));
+        }
+    }
+    for (action, file) in fields
+        .get("actions")
+        .and_then(Value::as_object)
+        .into_iter()
+        .flatten()
+    {
+        let Some(file) = file.as_str() else {
+            problems.push(format!("the example of the action {action} names no file"));
+            continue;
+        };
+        if !actions.iter().any(|one| one.name == *action) {
+            problems.push(format!(
+                "{file} is an example of {action}, which the index lists no action of"
+            ));
+        }
+        reader.json(file)?;
+    }
+    Ok(())
 }
 
 fn read_actions(

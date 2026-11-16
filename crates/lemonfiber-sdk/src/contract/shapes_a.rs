@@ -487,6 +487,20 @@ pub struct Affected {
     pub summary: String,
 }
 
+/// A programme in a channel's guide.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Airing {
+    /// Its certificate, as the server holds it, where it has one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub certificate: Option<String>,
+    /// When it ends.
+    pub ends: super::Instant,
+    /// When it starts.
+    pub starts: super::Instant,
+    /// What it is called.
+    pub title: String,
+}
+
 /// One interruption: what happened, which way, and how much it matters.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Alert {
