@@ -1,3 +1,37 @@
+/// Where a title a member's search found stands in the house.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Stands {
+    /// All of it is here.
+    #[serde(rename = "here")]
+    Here,
+    /// Some of it is here, and the rest may be asked for.
+    #[serde(rename = "partly-here")]
+    PartlyHere,
+    /// Somebody asked for it and it is coming.
+    #[serde(rename = "on-its-way")]
+    OnItsWay,
+    /// It may be asked for.
+    #[serde(rename = "askable")]
+    Askable,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// Work that outlives the request that started it: its name, and what it was.
+///
+/// The action is carried beside the name because a client holding several has to
+/// tell them apart, and asking it to remember which name it gave which request is
+/// asking it to keep a second copy of what this already knows.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Started {
+    /// The action that was asked for, as it was named.
+    pub action: String,
+    /// The name to ask what became of this work by.
+    pub job: String,
+}
+
 /// What each service is doing, and what that adds up to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct StatusReport {
@@ -26,6 +60,11 @@ pub struct StatusReport {
     pub filtered: Vec<super::Filtered>,
     /// The forms asked about; empty means the whole stack was.
     pub forms: Vec<String>,
+    /// Each run-and-exit service, with how its last run ended.
+    ///
+    /// Apart from the services, which are kept running: one of these has a container
+    /// only while a run of it is going, and its health is the exit of its last run.
+    pub scheduled: Vec<super::ScheduledService>,
     /// Each service, worst first.
     ///
     /// A service the active forms filtered out is listed only while it is there; one

@@ -130,3 +130,20 @@ impl crate::Action for RestoreAction {
     const REHEARSAL: bool = true;
     const CONSENT: &[&str] = &["offer", "confirm"];
 }
+
+/// `POST /api/actions/run`.
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
+pub struct RunAction {
+    /// The one service to act on instead of the whole stack.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service: Option<String>,
+    /// Whether to rehearse: write nothing, and answer with what the action would do.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dry_run: Option<bool>,
+}
+
+impl crate::Action for RunAction {
+    const NAME: &str = "run";
+    const REHEARSAL: bool = true;
+    const CONSENT: &[&str] = &[];
+}

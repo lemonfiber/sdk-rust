@@ -71,3 +71,40 @@ pub struct Rotation {
     /// What became of the replacement.
     pub settled: super::Settled,
 }
+
+/// How a run-and-exit service's last run exited.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum RunHealth {
+    /// It has not run yet.
+    #[serde(rename = "not-run")]
+    NotRun,
+    /// It exited zero.
+    #[serde(rename = "succeeded")]
+    Succeeded,
+    /// It exited non-zero, or ended before it exited.
+    #[serde(rename = "failed")]
+    Failed,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// What `lemonfiber run` came to for one service.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct RunReport {
+    /// Whether a time fell due or a run was owed, so it ran or would have.
+    pub due: bool,
+    /// Why nothing was looked at, where something held it back.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub held: Option<String>,
+    /// The run, where one went.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ran: Option<super::ScheduledRun>,
+    /// Whether nothing was run because this was a rehearsal.
+    pub rehearsed: bool,
+    /// The service.
+    pub service: String,
+    /// How many times fell due while that run was still going, each skipped.
+    pub skipped: u32,
+}

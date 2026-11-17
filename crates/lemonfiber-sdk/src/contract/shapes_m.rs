@@ -12,6 +12,9 @@ pub enum Manager {
     /// Linux, through a user service in the operator's own session.
     #[serde(rename = "systemd")]
     Systemd,
+    /// Windows, through a task in the operator's own Task Scheduler.
+    #[serde(rename = "task-scheduler")]
+    TaskScheduler,
     /// A platform lemonfiber does not configure.
     #[serde(rename = "unsupported")]
     Unsupported,

@@ -43,6 +43,7 @@ pub const ALL: &[crate::RefusalCode] = &[
     super::refusals::NO_SUCH_FORM,
     super::refusals::FORMS_CONFLICT,
     super::refusals::ANOTHER_READING,
+    super::refusals::NOT_SCHEDULED,
     super::refusals::BAD_NAME,
     super::refusals::NOT_A_SCOPE,
     super::refusals::NOT_A_PURPOSE,
