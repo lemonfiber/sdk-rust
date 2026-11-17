@@ -112,7 +112,8 @@ pub struct Reader {
     pub needs: std::collections::BTreeMap<String, Vec<String>>,
     /// The service.
     pub service: String,
-    /// The variable it is read into.
+    /// The variable it is read into, or `schedule` where the setting names when the
+    /// service runs.
     pub variable: String,
 }
 

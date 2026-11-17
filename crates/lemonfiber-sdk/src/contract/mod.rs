@@ -50,6 +50,7 @@ mod refusals_cred;
 mod refusals_device;
 mod refusals_form;
 mod refusals_gone;
+mod refusals_host;
 mod refusals_key;
 mod refusals_life;
 mod refusals_migrate;
@@ -187,6 +188,7 @@ pub mod refusals {
     pub use super::refusals_device::*;
     pub use super::refusals_form::*;
     pub use super::refusals_gone::*;
+    pub use super::refusals_host::*;
     pub use super::refusals_key::*;
     pub use super::refusals_life::*;
     pub use super::refusals_migrate::*;
@@ -218,7 +220,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "bfad4d1b0b66204836fc9a2f8aad73e9337b312d";
+pub const REVISION: &str = "9d73abaebc22cf54b512dbc597fb85018f14d4e3";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -291,6 +293,7 @@ pub const KINDS: &[&str] = &[
     "push-endpoints",
     "quality",
     "queue",
+    "ran",
     "removal",
     "repair",
     "replacement",
@@ -539,6 +542,9 @@ pub enum Payload {
     /// The `queue` kind.
     #[serde(rename = "queue")]
     Queue(Box<QueueHealth>),
+    /// The `ran` kind.
+    #[serde(rename = "ran")]
+    Ran(Box<RunReport>),
     /// The `removal` kind.
     #[serde(rename = "removal")]
     Removal(Box<HouseholdRemoval>),

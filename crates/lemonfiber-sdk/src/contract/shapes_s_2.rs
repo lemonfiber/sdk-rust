@@ -1,3 +1,42 @@
+/// One value a setting accepts.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+#[non_exhaustive]
+pub enum SettingChoice {
+    /// A value that is always a choice.
+    ServiceConstant(Box<super::ServiceConstant>),
+    /// Values that are choices only where `needs` is met.
+    SettingChoiceNeeding(Box<super::SettingChoiceNeeding>),
+    /// A value this client was not generated with, as it arrived.
+    Unrecognised(serde_json::Value),
+}
+
+/// Values that are choices only where the other settings `needs` names hold one of the
+/// values it lists.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SettingChoiceNeeding {
+    /// What they are choices under.
+    pub needs: std::collections::BTreeMap<String, Vec<super::ServiceConstant>>,
+    /// The values.
+    pub values: Vec<super::ServiceConstant>,
+}
+
+/// One setting a change moves.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SettingMove {
+    /// What moving it costs, where it costs anything.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub consequence: Option<String>,
+    /// The setting.
+    pub setting: String,
+    /// What it is to hold, or nothing where it is cleared.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<String>,
+    /// What it holds now.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub was: Option<String>,
+}
+
 /// One setting.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct SettingRead {
@@ -453,6 +492,8 @@ pub struct Snapshot {
     pub household: super::PanelHouseholdReport,
     /// The per-service queues.
     pub queue: super::PanelArrayOfQueue,
+    /// Each run-and-exit service, with how its last run ended.
+    pub scheduled: Vec<super::ScheduledService>,
     /// Every service and what it is doing.
     pub services: super::PanelArrayOfService,
     /// The storage picture.
@@ -847,38 +888,4 @@ pub struct StandingReport {
     pub project: String,
     /// Its containers, by service name.
     pub services: Vec<super::OccupantReport>,
-}
-
-/// Where a title a member's search found stands in the house.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum Stands {
-    /// All of it is here.
-    #[serde(rename = "here")]
-    Here,
-    /// Some of it is here, and the rest may be asked for.
-    #[serde(rename = "partly-here")]
-    PartlyHere,
-    /// Somebody asked for it and it is coming.
-    #[serde(rename = "on-its-way")]
-    OnItsWay,
-    /// It may be asked for.
-    #[serde(rename = "askable")]
-    Askable,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
-}
-
-/// Work that outlives the request that started it: its name, and what it was.
-///
-/// The action is carried beside the name because a client holding several has to
-/// tell them apart, and asking it to remember which name it gave which request is
-/// asking it to keep a second copy of what this already knows.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Started {
-    /// The action that was asked for, as it was named.
-    pub action: String,
-    /// The name to ask what became of this work by.
-    pub job: String,
 }

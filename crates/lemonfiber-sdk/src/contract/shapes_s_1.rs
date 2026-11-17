@@ -1,3 +1,49 @@
+/// The setting naming when a run-and-exit service runs, and the times where it holds
+/// nothing.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Schedule {
+    /// The times where the setting holds nothing: a five-field cron expression or one of
+    /// `@hourly`, `@daily`, `@weekly` and `@monthly`.
+    pub default: String,
+    /// The setting, as `<plugin>:<name>`.
+    pub setting: String,
+}
+
+/// One run of a run-and-exit service, as it ended.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ScheduledRun {
+    /// When it ended.
+    pub ended: super::Instant,
+    /// How it exited, absent where it never started or a signal ended it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exit: Option<i32>,
+    /// The last lines it wrote, oldest first, each with any credential in it withheld;
+    /// none to a key, a member or the shared stream, none of which is handed them.
+    pub log: Vec<String>,
+    /// When it started.
+    pub started: super::Instant,
+}
+
+/// One run-and-exit service, as its runs left it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ScheduledService {
+    /// Whether this machine's scheduler holds its job, so its times are fired.
+    pub fired: bool,
+    /// Its health: how its last run exited.
+    pub health: super::RunHealth,
+    /// Its id, which is its Compose service name.
+    pub id: String,
+    /// Its last run, where it has run.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last: Option<super::ScheduledRun>,
+    /// What it is called in front of an operator.
+    pub name: String,
+    /// Whether a run of it is going now.
+    pub running: bool,
+    /// How many of its times fell due while a run was still going, each skipped.
+    pub skipped: u32,
+}
+
 /// How much of the stack a backup covers.
 ///
 /// Whole-stack is the common case, but restoring one service is often what is
@@ -528,6 +574,9 @@ pub struct ServiceFields {
     /// The paths beneath its configuration directory it rebuilds when they are missing.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rebuilt: Option<Vec<String>>,
+    /// When it runs, where it runs to completion on a schedule rather than for good.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub schedule: Option<super::Schedule>,
     /// Where the whole configuration directory of the service it fronts lands in it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub shares_config: Option<String>,
@@ -841,43 +890,4 @@ pub struct SettingChange {
     pub unrestarted: Option<String>,
     /// The services held back once the change is made, each with what it waits for.
     pub waiting: Vec<super::Waiting>,
-}
-
-/// One value a setting accepts.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
-#[non_exhaustive]
-pub enum SettingChoice {
-    /// A value that is always a choice.
-    ServiceConstant(Box<super::ServiceConstant>),
-    /// Values that are choices only where `needs` is met.
-    SettingChoiceNeeding(Box<super::SettingChoiceNeeding>),
-    /// A value this client was not generated with, as it arrived.
-    Unrecognised(serde_json::Value),
-}
-
-/// Values that are choices only where the other settings `needs` names hold one of the
-/// values it lists.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct SettingChoiceNeeding {
-    /// What they are choices under.
-    pub needs: std::collections::BTreeMap<String, Vec<super::ServiceConstant>>,
-    /// The values.
-    pub values: Vec<super::ServiceConstant>,
-}
-
-/// One setting a change moves.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct SettingMove {
-    /// What moving it costs, where it costs anything.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub consequence: Option<String>,
-    /// The setting.
-    pub setting: String,
-    /// What it is to hold, or nothing where it is cleared.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub value: Option<String>,
-    /// What it holds now.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub was: Option<String>,
 }

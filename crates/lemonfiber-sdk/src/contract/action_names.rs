@@ -44,6 +44,7 @@ pub const NAMES: &[&str] = &[
     "reset",
     "restart",
     "restore",
+    "run",
     "search",
     "seed",
     "settings-clear",
