@@ -137,6 +137,10 @@ pub struct RunAction {
     /// The one service to act on instead of the whole stack.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service: Option<String>,
+    /// Whether a run-and-exit service runs at once, whether or not one of its times fell
+    /// due.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub now: Option<bool>,
     /// Whether to rehearse: write nothing, and answer with what the action would do.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dry_run: Option<bool>,

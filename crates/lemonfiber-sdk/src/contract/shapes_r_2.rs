@@ -93,7 +93,8 @@ pub enum RunHealth {
 /// What `lemonfiber run` came to for one service.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct RunReport {
-    /// Whether a time fell due or a run was owed, so it ran or would have.
+    /// Whether a time fell due, a run was owed or one was asked for at once, so it ran or
+    /// would have.
     pub due: bool,
     /// Why nothing was looked at, where something held it back.
     #[serde(default, skip_serializing_if = "Option::is_none")]
