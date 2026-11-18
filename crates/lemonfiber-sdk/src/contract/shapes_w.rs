@@ -337,6 +337,26 @@ pub enum Whose {
     Unrecognised(String),
 }
 
+/// Whether a walkthrough is worth offering to this stack, and which one.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Why {
+    /// Offer this shape of walk.
+    #[serde(rename = "offer")]
+    Offer(Box<super::Shape>),
+    /// Do not offer. What is missing first, said as the reason it would have stopped at.
+    #[serde(rename = "not")]
+    Not(Box<super::Reason>),
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Why, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Why {
+    const TAG: Option<&str> = None;
+    const KNOWN: &[&str] = &["offer", "not"];
+}
+
 /// One of the stack's links, answered.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Wired {
@@ -479,6 +499,16 @@ pub struct WizardReport {
     /// Said in a field of its own so that a rehearsal is never told from the real run by
     /// its wording alone.
     pub rehearsed: super::Ran,
+    /// Whether this stack is set up: a previous run left setup part-way, nothing is
+    /// configured and no setup has begun, or it is configured.
+    pub setup: super::SetUp,
+    /// What testing the data location just given found, where one was given.
+    ///
+    /// Absent for every other answer. A location that does not hardlink is still kept,
+    /// because whether to use it anyway is the operator's to decide once they have read
+    /// this.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub storage: Option<super::StorageFinding>,
     /// Every question that applies on this machine and has no answer yet, in the
     /// order they are put.
     pub unanswered: Vec<super::WizardStep>,

@@ -472,6 +472,21 @@ pub enum SelfUpdateStanding {
     Unrecognised(String),
 }
 
+/// What a run serving the surface presents, answers to and wrote down.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ServedReport {
+    /// What a phone pins for the certificate presented, where the run is encrypted.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fingerprint: Option<String>,
+    /// The name a request has to carry beyond this machine, where the run is encrypted on
+    /// a network.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub named: Option<String>,
+    /// Why where it is served could not be written down, where it could not.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unrecorded: Option<String>,
+}
+
 /// One service, as it stands.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Service {

@@ -517,6 +517,13 @@ pub struct Passed {
     pub to: Vec<String>,
 }
 
+/// What setting the password came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PasswordReport {
+    /// Whether every device key registered under the password before was revoked.
+    pub device_keys_revoked: bool,
+}
+
 /// What one download client said about being paused or resumed.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct PausedClient {
@@ -652,6 +659,15 @@ pub struct Plan {
     pub footprint: super::Footprint,
     /// The forms the operator named, in the order they named them.
     pub forms: Vec<String>,
+    /// Each part this build carries that the forms hold and this machine has never run,
+    /// offered as an install from the build before a start writes anything; answered by
+    /// [`Self::offer`]. Empty on every plan but a preview's.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub installing: Option<Vec<super::UpInstallOffered>>,
+    /// The offer a start answers to take every install in [`Self::installing`], where it
+    /// could be read.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub offer: Option<String>,
     /// The profiles to activate, sorted so the command is reproducible.
     pub profiles: Vec<String>,
     /// Which of [`Self::services`] are already running, where a form's introspection

@@ -198,6 +198,48 @@ pub struct Storage {
     pub hardlink: super::Hardlink,
 }
 
+/// What testing a data location for hardlinks found.
+///
+/// Tested on the location itself where it exists, and otherwise on the deepest parent
+/// that does, which is named so that a result read off a parent is never shown as the
+/// location's own.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "found")]
+#[non_exhaustive]
+pub enum StorageFinding {
+    /// It hardlinks, so imports are instant and cost no extra disk.
+    #[serde(rename = "links")]
+    Links {
+        /// The parent the test ran on, where the location did not exist yet.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        inferred_from: Option<String>,
+    },
+    /// It works but cannot hardlink, so every import is a copy.
+    #[serde(rename = "copy-only")]
+    CopyOnly {
+        /// The filesystem's reason, where it has one that can be named.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        limitation: Option<String>,
+    },
+    /// It could not be tested, with the platform's words for why.
+    #[serde(rename = "untested")]
+    Untested {
+        /// Why the test could not run.
+        reason: String,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<StorageFinding, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for StorageFinding {
+    const TAG: Option<&str> = Some("found");
+    const KNOWN: &[&str] = &["links", "copy-only", "untested"];
+}
+
 /// Everything lemonfiber keeps on this machine, and what became of it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Stored {
