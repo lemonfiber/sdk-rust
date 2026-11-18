@@ -22,6 +22,7 @@ mod actions_t;
 mod actions_u;
 mod actions_w;
 pub mod events;
+pub mod household_words;
 pub mod key_callable;
 mod reads_a;
 mod reads_b;

@@ -47,6 +47,7 @@ pub fn files(artefact: &Artefact, shaped: &Shaped) -> Result<Vec<(String, String
         ("refusal_list", refusal_list(artefact)),
         ("key_callable", key_callable(artefact)),
         ("events", event_kinds(artefact)),
+        ("household_words", household_words(artefact)),
     ];
     let mut written: Vec<(String, String)> = lists
         .into_iter()
@@ -343,7 +344,7 @@ fn root(artefact: &Artefact, shaped: &Shaped, modules: &Modules) -> String {
                     //! from the contract artefact taken from the lemonfiber revision [`REVISION`] names.\n\
                     //! `just generate` writes this module, and CI refuses it where it differs from\n\
                     //! what that writes.\n\n\
-                    mod action_names;\npub mod events;\npub mod key_callable;\nmod refusal_list;\n"
+                    mod action_names;\npub mod events;\npub mod household_words;\npub mod key_callable;\nmod refusal_list;\n"
         .to_owned();
     text.push_str(&each(&modules.reads, "mod ", ";"));
     text.push_str(&each(&modules.actions, "mod ", ";"));
@@ -654,6 +655,65 @@ fn event_kinds(artefact: &Artefact) -> String {
             literal(&kind.kind),
             kind.replaces,
             kind.operator
+        );
+    }
+    text.push_str("];\n");
+    text
+}
+
+fn words(text: &mut String, said: &str, name: &str, words: &[String]) {
+    let _ = writeln!(text, "/// {said}\npub const {name}: &[&str] = &[");
+    for word in words {
+        let _ = writeln!(text, "{},", literal(word));
+    }
+    text.push_str("];\n\n");
+}
+
+fn household_words(artefact: &Artefact) -> String {
+    let published = &artefact.household_words;
+    let mut text =
+        "//! What a household member's surface may not show, as the contract publishes it.\n\n"
+            .to_owned();
+    words(
+        &mut text,
+        "The names of the programs a stack runs, and of lemonfiber itself.",
+        "NAMES",
+        &published.names,
+    );
+    words(
+        &mut text,
+        "The technical terms a member is never shown.",
+        "TERMS",
+        &published.terms,
+    );
+    words(
+        &mut text,
+        "The units a size or a rate is given in.",
+        "SIZES",
+        &published.sizes,
+    );
+    words(
+        &mut text,
+        "What marks a sentence as technical wherever it stands.",
+        "MARKS",
+        &published.marks,
+    );
+    text.push_str("/// Each name lemonfiber declares, with what it names.\npub const DECLARED: &[crate::DeclaredName] = &[\n");
+    for (name, names) in &published.declared {
+        let _ = writeln!(
+            text,
+            "crate::DeclaredName {{\nname: {},\nnames: {},\n}},",
+            literal(name),
+            literal(names)
+        );
+    }
+    text.push_str("];\n\n/// Each sentence a member may not be shown, with what in it is named.\npub const EXAMPLES: &[crate::HouseholdExample] = &[\n");
+    for example in &published.examples {
+        let _ = writeln!(
+            text,
+            "crate::HouseholdExample {{\ntext: {},\nnames: {},\n}},",
+            literal(&example.text),
+            literal(&example.names)
         );
     }
     text.push_str("];\n");
