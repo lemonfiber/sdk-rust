@@ -86,3 +86,37 @@ pub const SHORT_CHOICE: crate::RefusalCode = crate::RefusalCode {
     status: 400,
     description: "Raised when the password chosen at a claim is shorter than the least this takes.",
 };
+
+/// `ADMIT-15`: Raised when a sign-in by a code names a handle that waits on nothing for this caller.
+pub const CODE_NOT_WAITING: crate::RefusalCode = crate::RefusalCode {
+    code: "ADMIT-15",
+    name: "CODE_NOT_WAITING",
+    status: 401,
+    description:
+        "Raised when a sign-in by a code names a handle that waits on nothing for this caller.",
+};
+
+/// `ADMIT-16`: Raised when one source has asked for as many codes to sign in by as it may.
+pub const TOO_MANY_CODES: crate::RefusalCode = crate::RefusalCode {
+    code: "ADMIT-16",
+    name: "TOO_MANY_CODES",
+    status: 429,
+    description: "Raised when one source has asked for as many codes to sign in by as it may.",
+};
+
+/// `ADMIT-17`: Raised when a code to sign in by is asked of a household whose members sign in with a password.
+pub const SIGNS_IN_BY_PASSWORD: crate::RefusalCode = crate::RefusalCode {
+code: "ADMIT-17",
+name: "SIGNS_IN_BY_PASSWORD",
+status: 409,
+description: "Raised when a code to sign in by is asked of a household whose members sign in with a password.",
+};
+
+/// `ADMIT-18`: Raised when what was sent to ask for or finish a sign-in by a code cannot be read.
+pub const NOT_A_CODE_REQUEST: crate::RefusalCode = crate::RefusalCode {
+    code: "ADMIT-18",
+    name: "NOT_A_CODE_REQUEST",
+    status: 400,
+    description:
+        "Raised when what was sent to ask for or finish a sign-in by a code cannot be read.",
+};

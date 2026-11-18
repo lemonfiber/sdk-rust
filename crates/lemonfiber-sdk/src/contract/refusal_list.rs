@@ -11,6 +11,10 @@ pub const ALL: &[crate::RefusalCode] = &[
     super::refusals::NOT_FOR_A_KEY,
     super::refusals::NOT_OPEN,
     super::refusals::SHORT_CHOICE,
+    super::refusals::CODE_NOT_WAITING,
+    super::refusals::TOO_MANY_CODES,
+    super::refusals::SIGNS_IN_BY_PASSWORD,
+    super::refusals::NOT_A_CODE_REQUEST,
     super::refusals::NO_SUCH_ACTION,
     super::refusals::MISSING_ARGUMENT,
     super::refusals::UNRECOGNISED_ARGUMENT,
@@ -226,6 +230,6 @@ pub const ALL: &[crate::RefusalCode] = &[
     super::refusals::NOBODY_ASKING,
     super::refusals::NOT_A_MEMBER,
     super::refusals::NO_PICTURE,
-    super::refusals::THROUGH_THE_HOUSE,
+    super::refusals::NOT_CHECKED,
     super::refusals::UNRECOGNISED,
 ];

@@ -1,19 +1,202 @@
 //! What a household member's surface may not show, as the contract publishes it.
 
 /// The names of the programs a stack runs, and of lemonfiber itself.
-pub const NAMES: &[&str] = &[];
+pub const NAMES: &[&str] = &[
+    "apprise",
+    "audiobookshelf",
+    "bazarr",
+    "bindery",
+    "byparr",
+    "caddy",
+    "calibre",
+    "calibre web automated",
+    "docker",
+    "emby",
+    "flaresolverr",
+    "gluetun",
+    "gotify",
+    "homepage",
+    "jellyfin",
+    "jellyseerr",
+    "komga",
+    "lemonfiber",
+    "lidarr",
+    "medusa",
+    "navidrome",
+    "ntfy",
+    "nzbget",
+    "nzbhydra",
+    "nzbhydra2",
+    "overseerr",
+    "plex",
+    "podman",
+    "prowlarr",
+    "qbittorrent",
+    "radarr",
+    "readarr",
+    "recyclarr",
+    "sabnzbd",
+    "seerr",
+    "sickchill",
+    "sickgear",
+    "sonarr",
+    "tdarr",
+    "transmission",
+    "unpackerr",
+    "whisparr",
+    "wireguard",
+];
 
 /// The technical terms a member is never shown.
-pub const TERMS: &[&str] = &[];
+pub const TERMS: &[&str] = &[
+    "administrator",
+    "admin",
+    "api",
+    "backbone",
+    "bitrate",
+    "block account",
+    "byte",
+    "bytes",
+    "certificate",
+    "codec",
+    "compose",
+    "config",
+    "configuration",
+    "container",
+    "containers",
+    "curator",
+    "custom format",
+    "dashboard",
+    "database",
+    "disk",
+    "dns",
+    "download client",
+    "downloaded",
+    "downloader",
+    "downloading",
+    "endpoint",
+    "engine",
+    "error",
+    "gigabyte",
+    "grab",
+    "grabbed",
+    "hardlink",
+    "hdr",
+    "http",
+    "https",
+    "id",
+    "identifier",
+    "image",
+    "import",
+    "imported",
+    "indexer",
+    "indexers",
+    "ip",
+    "json",
+    "killswitch",
+    "log",
+    "logs",
+    "media server",
+    "megabyte",
+    "monitored",
+    "nzb",
+    "operator",
+    "peer",
+    "pem",
+    "pipeline",
+    "plugin",
+    "port",
+    "port forwarding",
+    "proxy",
+    "quality",
+    "quality profile",
+    "queue",
+    "queued",
+    "quick connect",
+    "ratio",
+    "remux",
+    "request service",
+    "retention",
+    "root folder",
+    "seed",
+    "seeding",
+    "server",
+    "servers",
+    "service",
+    "services",
+    "stack",
+    "stalled",
+    "storage",
+    "terabyte",
+    "token",
+    "torrent",
+    "tracker",
+    "transcode",
+    "transcoding",
+    "tunnel",
+    "upstream",
+    "url",
+    "usenet",
+    "vpn",
+    "webhook",
+];
 
 /// The units a size or a rate is given in.
-pub const SIZES: &[&str] = &[];
+pub const SIZES: &[&str] = &[
+    "b", "kb", "mb", "gb", "tb", "kib", "mib", "gib", "tib", "kbps", "mbps", "gbps",
+];
 
 /// What marks a sentence as technical wherever it stands.
-pub const MARKS: &[&str] = &[];
+pub const MARKS: &[&str] = &["://", "localhost", "www.", "/s", "per second"];
 
 /// Each name lemonfiber declares, with what it names.
-pub const DECLARED: &[crate::DeclaredName] = &[];
+pub const DECLARED: &[crate::DeclaredName] = &[
+crate::DeclaredName {
+name: "form",
+names: "names a combination of profiles a stack declares, and an argument to the verbs that act on one",
+},
+crate::DeclaredName {
+name: "stack",
+names: "names the machine in every command, every path and every page of the documentation",
+},
+];
 
 /// Each sentence a member may not be shown, with what in it is named.
-pub const EXAMPLES: &[crate::HouseholdExample] = &[];
+pub const EXAMPLES: &[crate::HouseholdExample] = &[
+    crate::HouseholdExample {
+        text: "It needs 4 GB more",
+        names: "4",
+    },
+    crate::HouseholdExample {
+        text: "It needs 12GB more",
+        names: "12gb",
+    },
+    crate::HouseholdExample {
+        text: "Fetching at 3 MB/s",
+        names: "3",
+    },
+    crate::HouseholdExample {
+        text: "Fetching forty per second",
+        names: "per second",
+    },
+    crate::HouseholdExample {
+        text: "Reached at 192.168.1.20",
+        names: "192.168.1.20",
+    },
+    crate::HouseholdExample {
+        text: "Open it at localhost",
+        names: "localhost",
+    },
+    crate::HouseholdExample {
+        text: "See www.house.example",
+        names: "www.",
+    },
+    crate::HouseholdExample {
+        text: "Open it at house://shelf",
+        names: "://",
+    },
+    crate::HouseholdExample {
+        text: "Now on v1.4.2",
+        names: "v1.4.2",
+    },
+];

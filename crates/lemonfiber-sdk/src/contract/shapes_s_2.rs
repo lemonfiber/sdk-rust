@@ -1,3 +1,26 @@
+/// A change to one or more settings, made in one act.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SettingChange {
+    /// What this reading names itself, part by part.
+    pub agreement: String,
+    /// Whether it was written.
+    pub applied: bool,
+    /// Every service whose entry the change regenerates.
+    pub regenerates: Vec<String>,
+    /// Every running service the change restarts.
+    pub restarts: Vec<String>,
+    /// Each setting the act moves, in name order.
+    pub settings: Vec<super::SettingMove>,
+    /// Every service held back that the change starts, having given the last thing it
+    /// waited for.
+    pub starts: Vec<String>,
+    /// Why the services it restarts were not restarted, where they were not.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unrestarted: Option<String>,
+    /// The services held back once the change is made, each with what it waits for.
+    pub waiting: Vec<super::Waiting>,
+}
+
 /// One value a setting accepts.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
@@ -455,6 +478,21 @@ pub enum Shown {
     Unrecognised(String),
 }
 
+/// A code to sign in by, or the sign-in by a code still waiting.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SignInCode {
+    /// Where the member approves the code, where one was just asked for.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approve_at: Option<String>,
+    /// The code the member enters where they approve it, where one was just asked for.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
+    /// When the code lapses.
+    pub lapses_at: super::Instant,
+    /// The handle that finishes signing in by the code.
+    pub waiting: String,
+}
+
 /// Everything the dashboard shows at one moment.
 ///
 /// Each source's panel is filled or marked unavailable on its own, so one dead
@@ -851,41 +889,4 @@ pub enum Stall {
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
-}
-
-/// Where a proposed change stands once it has been read against what is in force.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum Stance {
-    /// The setting already holds what was asked for. Nothing to apply, nothing to
-    /// confirm, and the file is not touched — a write of the same value would move
-    /// the file's own timestamp and read afterwards as an edit somebody made.
-    #[serde(rename = "unchanged")]
-    Unchanged,
-    /// Staged and not applied: nothing has been written. Either it is consequential
-    /// and nobody has said yes to it yet, or it was rehearsed.
-    ///
-    /// The default, because nothing having happened yet is what every act starts as,
-    /// and a report built and not filled in should say that rather than claim it acted.
-    #[serde(rename = "pending")]
-    Pending,
-    /// Turned away. It cannot be applied safely, the file is exactly as it was, and
-    /// the refusal says why.
-    #[serde(rename = "blocked")]
-    Blocked,
-    /// Written.
-    #[serde(rename = "applied")]
-    Applied,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
-}
-
-/// One Compose project on this machine that is not lemonfiber's.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct StandingReport {
-    /// The Compose project name.
-    pub project: String,
-    /// Its containers, by service name.
-    pub services: Vec<super::OccupantReport>,
 }
