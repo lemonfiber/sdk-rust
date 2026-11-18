@@ -22,6 +22,13 @@ pub struct ImportReport {
     pub would_carry: Vec<super::RecordReport>,
 }
 
+/// What is still coming down inside the forms a teardown would stop.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct InFlightReport {
+    /// Each download still coming down, with how far it has got.
+    pub downloads: Vec<super::Unfinished>,
+}
+
 /// An indexer credential the operator supplied, and whether it was proven.
 ///
 /// `validated` records whether the live test passed before this was kept — an

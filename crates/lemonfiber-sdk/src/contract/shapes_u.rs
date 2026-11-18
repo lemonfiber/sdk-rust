@@ -117,6 +117,21 @@ pub struct Unfilled {
     pub native: Option<super::Apis>,
 }
 
+/// One download a teardown would interrupt.
+///
+/// Carries the protocol as well as the name, because "still downloading" is only
+/// half of what an operator needs — the other half is which client to go and look in,
+/// and a stack running both has two places it could be.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Unfinished {
+    /// What it is, as the client names it.
+    pub name: String,
+    /// How far along, from zero to a hundred.
+    pub progress: u8,
+    /// Which client has it.
+    pub protocol: super::DashboardProtocol,
+}
+
 /// A removal, before or after it happened.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Uninstall {
