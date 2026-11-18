@@ -1,3 +1,40 @@
+/// Where a proposed change stands once it has been read against what is in force.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Stance {
+    /// The setting already holds what was asked for. Nothing to apply, nothing to
+    /// confirm, and the file is not touched — a write of the same value would move
+    /// the file's own timestamp and read afterwards as an edit somebody made.
+    #[serde(rename = "unchanged")]
+    Unchanged,
+    /// Staged and not applied: nothing has been written. Either it is consequential
+    /// and nobody has said yes to it yet, or it was rehearsed.
+    ///
+    /// The default, because nothing having happened yet is what every act starts as,
+    /// and a report built and not filled in should say that rather than claim it acted.
+    #[serde(rename = "pending")]
+    Pending,
+    /// Turned away. It cannot be applied safely, the file is exactly as it was, and
+    /// the refusal says why.
+    #[serde(rename = "blocked")]
+    Blocked,
+    /// Written.
+    #[serde(rename = "applied")]
+    Applied,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// One Compose project on this machine that is not lemonfiber's.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct StandingReport {
+    /// The Compose project name.
+    pub project: String,
+    /// Its containers, by service name.
+    pub services: Vec<super::OccupantReport>,
+}
+
 /// Where a title a member's search found stands in the house.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]

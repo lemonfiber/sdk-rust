@@ -621,6 +621,10 @@ pub struct ServiceNetwork {
     /// refuses every private address.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fenced: Option<bool>,
+    /// Whether it is held inside the stack, behind a fence passing only what is inside its
+    /// own networks.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub internal: Option<bool>,
     /// The capability whose filler's network it runs inside.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub via: Option<String>,
@@ -850,6 +854,14 @@ pub struct SessionBody {
     pub password: String,
 }
 
+/// What a caller sends to the door: nothing to ask for a code, the handle to finish one.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SessionCodeBody {
+    /// The handle a code was answered with, where this finishes signing in by it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub waiting: Option<String>,
+}
+
 /// Whether this stack is set up.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
@@ -867,27 +879,4 @@ pub enum SetUp {
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
-}
-
-/// A change to one or more settings, made in one act.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct SettingChange {
-    /// What this reading names itself, part by part.
-    pub agreement: String,
-    /// Whether it was written.
-    pub applied: bool,
-    /// Every service whose entry the change regenerates.
-    pub regenerates: Vec<String>,
-    /// Every running service the change restarts.
-    pub restarts: Vec<String>,
-    /// Each setting the act moves, in name order.
-    pub settings: Vec<super::SettingMove>,
-    /// Every service held back that the change starts, having given the last thing it
-    /// waited for.
-    pub starts: Vec<String>,
-    /// Why the services it restarts were not restarted, where they were not.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub unrestarted: Option<String>,
-    /// The services held back once the change is made, each with what it waits for.
-    pub waiting: Vec<super::Waiting>,
 }

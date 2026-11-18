@@ -221,7 +221,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "9d73abaebc22cf54b512dbc597fb85018f14d4e3";
+pub const REVISION: &str = "17aa9bcf52e3c1b4de07cc359bd78372a4445822";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -305,6 +305,7 @@ pub const KINDS: &[&str] = &[
     "settings",
     "settled",
     "setup",
+    "sign-in-code",
     "space",
     "stack",
     "start",
@@ -576,6 +577,9 @@ pub enum Payload {
     /// The `setup` kind.
     #[serde(rename = "setup")]
     Setup(Box<SetupReport>),
+    /// The `sign-in-code` kind.
+    #[serde(rename = "sign-in-code")]
+    SignInCode(Box<SignInCode>),
     /// The `space` kind.
     #[serde(rename = "space")]
     Space(Box<Reckoning>),

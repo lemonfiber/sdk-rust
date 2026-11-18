@@ -52,6 +52,10 @@ pub struct AskAction {
     /// or a book.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub unit: Option<String>,
+    /// The token a page of a member's search vouched for the title asked for with, handed
+    /// back as the page gave it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub found: Option<String>,
     /// Whether to rehearse: write nothing, and answer with what the action would do.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dry_run: Option<bool>,

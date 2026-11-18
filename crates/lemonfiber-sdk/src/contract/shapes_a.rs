@@ -671,6 +671,10 @@ pub struct Askable {
     /// Where its cover is published, where it is music or books and has one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cover: Option<String>,
+    /// The token vouching that this member's search offered it, for their ask to hand
+    /// back, where the core could sign one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub found: Option<String>,
     /// The id it is asked for by.
     pub id: String,
     /// Whether it is a series, a film, music or books.
