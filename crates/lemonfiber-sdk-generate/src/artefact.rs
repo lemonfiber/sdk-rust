@@ -5,6 +5,7 @@ use serde_json::{Map, Value};
 
 use crate::events::{self, Events};
 use crate::files;
+use crate::household::{self, Words};
 use crate::names::is_type_name;
 use crate::{Refused, CONTRACT, STAMP};
 
@@ -20,6 +21,7 @@ const INDEX_FIELDS: &[&str] = &[
     "reads",
     "refusals",
     "examples",
+    "household_words",
 ];
 
 const EXAMPLE_FIELDS: &[&str] = &["kinds", "actions"];
@@ -93,6 +95,7 @@ pub struct Artefact {
     pub key_callable: Vec<KeyCallable>,
     pub refusals: Vec<Refusal>,
     pub events: Events,
+    pub household_words: Words,
 }
 
 pub fn revision(root: &Path) -> Result<String, Refused> {
@@ -333,6 +336,13 @@ impl Artefact {
             }
             None => Vec::new(),
         };
+        let household_words = match fields.get("household_words") {
+            Some(named) => match file_of(Some(named), "the household words", &mut problems) {
+                Some(file) => household::read(&reader.json(file)?, &mut problems),
+                None => Words::default(),
+            },
+            None => Words::default(),
+        };
 
         let mut defs = BTreeMap::new();
         while let Some(name) = reader.wanted.pop_front() {
@@ -354,6 +364,7 @@ impl Artefact {
                 key_callable,
                 refusals,
                 events,
+                household_words,
             })
         } else {
             Err(Refused::listing(

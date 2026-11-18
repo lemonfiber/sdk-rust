@@ -11,7 +11,7 @@ use crate::{run, Refused, CONTRACT, GENERATED, STAMP};
 
 pub(crate) type Outcome = Result<(), Box<dyn std::error::Error>>;
 
-const REVISION: &str = "0123456789abcdef0123456789abcdef01234567";
+pub(crate) const REVISION: &str = "0123456789abcdef0123456789abcdef01234567";
 
 pub(crate) fn words(command: &[&str]) -> Vec<String> {
     command.iter().map(|word| (*word).to_owned()).collect()
@@ -112,6 +112,17 @@ fn lists(put: &mut impl FnMut(&str, Value)) {
         ]),
     );
     put(
+        "household-words.json",
+        json!({
+            "names": ["sonarr"],
+            "terms": ["container"],
+            "sizes": ["gb"],
+            "marks": ["://"],
+            "declared": { "stack": "names the machine" },
+            "examples": [{ "text": "Sonarr is down", "names": "sonarr" }],
+        }),
+    );
+    put(
         "refusals/LIFE.json",
         json!({
             "LIFE-10": { "name": "OFFER_MOVED", "status": 409, "description": "Raised when the offer moved." },
@@ -134,6 +145,7 @@ pub(crate) fn tree() -> BTreeMap<String, Value> {
             "bodies": { "/api/setup/answer": "bodies/setup-answer.json" },
             "key_callable": "key-callable.json",
             "reads": "reads.json",
+            "household_words": "household-words.json",
             "refusals": { "LIFE": "refusals/LIFE.json" },
             "events": {
                 "heartbeat_seconds": 15,
@@ -852,41 +864,6 @@ fn a_revision_names_one_artefact_for_good() -> Outcome {
     Ok(())
 }
 
-#[test]
-fn a_contract_is_taken_whole_from_what_was_extracted_with_its_revision() -> Outcome {
-    let from = laid_out(&tree())?;
-    let extracted = from.path().join(CONTRACT);
-    let into = edited(|files| {
-        files.insert("defs/Stale.json".to_owned(), json!({}));
-    })?;
-    let said = run(
-        &words(&["take", &extracted.to_string_lossy(), "v2.0.0"]),
-        into.path(),
-    )?;
-    assert!(said.contains("v2.0.0") && said.contains("just generate"));
-    assert!(!into.path().join(CONTRACT).join("defs/Stale.json").exists());
-    assert_eq!(fs::read_to_string(into.path().join(STAMP))?, "v2.0.0\n");
-    let fresh = tempfile::tempdir()?;
-    fs::create_dir_all(fresh.path().join("contract"))?;
-    run(
-        &words(&["take", &extracted.to_string_lossy(), REVISION]),
-        fresh.path(),
-    )?;
-    assert!(fresh.path().join(CONTRACT).join("index.json").exists());
-    assert!(refused_with(
-        into.path(),
-        &["take", &extracted.to_string_lossy(), "abc123"]
-    )
-    .contains("abbreviated"));
-    fs::remove_file(extracted.join("reads.json"))?;
-    let said = refused_with(
-        into.path(),
-        &["take", &extracted.to_string_lossy(), REVISION],
-    );
-    assert!(said.contains("missing files its index names") && said.contains("reads.json"));
-    Ok(())
-}
-
 fn page(reads: &str) -> String {
     format!("# Contract\n\n## Reading\n\nEach command:\n\n```\n{reads}\n```\n\n### A part of it\n\n```text\nGET /api/version\n```\n\n## Live state\n\n```\nGET /api/events\n```\n")
 }
@@ -993,3 +970,4 @@ fn a_name_is_written_in_the_case_rust_writes_it() {
 }
 
 mod examples;
+mod vendoring;
