@@ -550,7 +550,8 @@ async fn setup_is_walked_one_request_a_step() -> Outcome {
             "wizard",
             &json!({
                 "asks": true, "at": "welcome", "guard": [], "offered": false, "phase": "in-progress",
-                "plan": [], "ready_for_review": false, "rehearsed": false, "unanswered": [], "written": [],
+                "plan": [], "ready_for_review": false, "rehearsed": false, "setup": "part-way",
+                "unanswered": [], "written": [],
             }),
         )
     };

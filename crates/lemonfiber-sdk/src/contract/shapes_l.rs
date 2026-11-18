@@ -540,3 +540,10 @@ pub struct LogLine {
     /// Which stream it arrived on.
     pub stream: super::Stream,
 }
+
+/// What reading the logs came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct LogsReport {
+    /// How many lines were read.
+    pub lines: u64,
+}

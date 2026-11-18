@@ -221,7 +221,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "5e40f5c6934ace8b8c843b42aedcb8d12d47eefe";
+pub const REVISION: &str = "3412e155e94b51f4fc15644bbeab5b13678b49e3";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -263,12 +263,14 @@ pub const KINDS: &[&str] = &[
     "hosting",
     "household",
     "import",
+    "in-flight",
     "invitation",
     "job",
     "key-claim",
     "keys",
     "lifecycle",
     "log",
+    "logs",
     "migration",
     "minted-key",
     "music",
@@ -279,6 +281,7 @@ pub const KINDS: &[&str] = &[
     "outbound",
     "pairing",
     "part-way",
+    "password",
     "pausing",
     "play",
     "playing",
@@ -302,6 +305,7 @@ pub const KINDS: &[&str] = &[
     "restore",
     "seed",
     "self-update",
+    "served",
     "settings",
     "settled",
     "setup",
@@ -324,6 +328,7 @@ pub const KINDS: &[&str] = &[
     "upgrade",
     "version",
     "walkthrough",
+    "walkthrough-offer",
     "watch",
     "watched",
     "watcher",
@@ -451,6 +456,9 @@ pub enum Payload {
     /// The `import` kind.
     #[serde(rename = "import")]
     Import(Box<ImportReport>),
+    /// The `in-flight` kind.
+    #[serde(rename = "in-flight")]
+    InFlight(Box<InFlightReport>),
     /// The `invitation` kind.
     #[serde(rename = "invitation")]
     Invitation(Box<Invitation>),
@@ -469,6 +477,9 @@ pub enum Payload {
     /// The `log` kind.
     #[serde(rename = "log")]
     Log(Box<LogLine>),
+    /// The `logs` kind.
+    #[serde(rename = "logs")]
+    Logs(Box<LogsReport>),
     /// The `migration` kind.
     #[serde(rename = "migration")]
     Migration(Box<MigrationReport>),
@@ -499,6 +510,9 @@ pub enum Payload {
     /// The `part-way` kind.
     #[serde(rename = "part-way")]
     PartWay(Box<PartWayReport>),
+    /// The `password` kind.
+    #[serde(rename = "password")]
+    Password(Box<PasswordReport>),
     /// The `pausing` kind.
     #[serde(rename = "pausing")]
     Pausing(Box<PausingReport>),
@@ -568,6 +582,9 @@ pub enum Payload {
     /// The `self-update` kind.
     #[serde(rename = "self-update")]
     SelfUpdate(Box<UpdateReport>),
+    /// The `served` kind.
+    #[serde(rename = "served")]
+    Served(Box<ServedReport>),
     /// The `settings` kind.
     #[serde(rename = "settings")]
     Settings(Box<SettingsReport>),
@@ -634,6 +651,9 @@ pub enum Payload {
     /// The `walkthrough` kind.
     #[serde(rename = "walkthrough")]
     Walkthrough(Box<WalkthroughReport>),
+    /// The `walkthrough-offer` kind.
+    #[serde(rename = "walkthrough-offer")]
+    WalkthroughOffer(Box<Why>),
     /// The `watch` kind.
     #[serde(rename = "watch")]
     Watch(Box<SupervisionReport>),
