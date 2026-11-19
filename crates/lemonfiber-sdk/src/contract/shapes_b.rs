@@ -108,6 +108,39 @@ pub enum BandwidthVerdict {
     Unrecognised(String),
 }
 
+/// What a service says its image is built on, and what this build makes of it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "basis")]
+#[non_exhaustive]
+pub enum Based {
+    /// The build of every platform's image is recorded as starting from it.
+    #[serde(rename = "recorded")]
+    Recorded {
+        /// The digest of the upstream image each build is recorded as starting from.
+        digests: Vec<String>,
+    },
+    /// The build provenance could not be asked for.
+    #[serde(rename = "unproven")]
+    Unproven {
+        /// What stopped it being asked for.
+        why: String,
+    },
+    /// The build of some platform's image is not recorded as starting from it.
+    #[serde(rename = "refused")]
+    Refused {
+        /// What each such build is recorded as starting from.
+        why: String,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged, deserialize_with = "crate::open::unrecognised::<Based, _>")]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for Based {
+    const TAG: Option<&str> = Some("basis");
+    const KNOWN: &[&str] = &["recorded", "unproven", "refused"];
+}
+
 /// What asking for a title came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]

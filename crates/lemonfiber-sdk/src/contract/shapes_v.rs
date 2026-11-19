@@ -324,7 +324,9 @@ pub struct Vouched {
     ///
     /// An unproven image does not: a publisher who signed nothing has made no claim,
     /// and refusing every unsigned image would refuse most of the registry. A refused
-    /// one does, because a claim that did not hold is worse than none.
+    /// one does, because a claim that did not hold is worse than none, and so does an
+    /// upstream image a service says it is built on that its build provenance does not
+    /// record.
     pub installable: bool,
 }
 
