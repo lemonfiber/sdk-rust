@@ -507,6 +507,9 @@ pub struct PluginPlaced {
     /// What it asks for there, where it says.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub asks_for: Option<String>,
+    /// The upstream image and release its image is built on, where its manifest says.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub built_on: Option<super::PluginBuiltOn>,
     /// Where inside the container its one configuration directory is mounted.
     ///
     /// Resolved rather than optional. The record answers where the directory is, and

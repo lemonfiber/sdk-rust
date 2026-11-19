@@ -787,6 +787,16 @@ pub struct PluginAsking {
     pub native: Option<super::Apis>,
 }
 
+/// The upstream image a service's image is built on, and the release of it the build
+/// started from.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginBuiltOn {
+    /// The upstream image's registry path as the build names it, without tag or digest.
+    pub image: String,
+    /// The upstream's release the build started from, as that image tags it.
+    pub release: String,
+}
+
 /// One change installing a plugin makes to the machine.
 ///
 /// A path and what goes at it, which is the whole of what an install touches. None is an
