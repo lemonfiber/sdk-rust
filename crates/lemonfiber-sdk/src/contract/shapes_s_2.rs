@@ -747,6 +747,23 @@ impl crate::open::Tags for StackSource {
     const KNOWN: &[&str] = &["bundled", "own"];
 }
 
+/// What the web API composes its routes and its answers from.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct StackStanding {
+    /// Whether household members may mint keys for themselves.
+    pub members_mint: bool,
+    /// The stack's own identifier, the one pairing material carries; absent where this
+    /// machine has nowhere to keep one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stack: Option<String>,
+    /// Each setting a command is refused without that is off on this machine.
+    pub switched_off: Vec<String>,
+    /// Whether a way to be told is configured.
+    pub told: bool,
+    /// Whether a phone's push endpoint is waiting to be woken.
+    pub waiting: bool,
+}
+
 /// What updating the stack would change, or what a run of it came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct StackUpdateReport {
@@ -846,46 +863,6 @@ pub enum Stage {
     /// It is visible and playable in the media server.
     #[serde(rename = "available")]
     Available,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
-}
-
-/// Why an item is not moving.
-///
-/// Ordered by how much of the operator's attention each deserves, worst first, so
-/// a summary that leads with the worst category needs no second ranking.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum Stall {
-    /// Fetched over and over: import is failing silently and being retried, which
-    /// spends bandwidth and Usenet allowance indefinitely while looking normal.
-    #[serde(rename = "redownload-loop")]
-    RedownloadLoop,
-    /// The same item has failed to import more than once. Structural — it will not
-    /// resolve itself.
-    #[serde(rename = "repeated-import-failure")]
-    RepeatedImportFailure,
-    /// Downloaded successfully and never imported. The failure nobody owns: the
-    /// client considers it finished, the curator never picked it up, and from each
-    /// service's own perspective there is nothing wrong.
-    #[serde(rename = "completed-not-imported")]
-    CompletedNotImported,
-    /// On disk, and no curator knows about it.
-    #[serde(rename = "orphaned")]
-    Orphaned,
-    /// No progress at all beyond the threshold.
-    #[serde(rename = "stalled-download")]
-    StalledDownload,
-    /// Monitored, never grabbed — nothing matched, or the indexers are answering
-    /// with nothing.
-    #[serde(rename = "waiting-indefinitely")]
-    WaitingIndefinitely,
-    /// Moving, but slowly enough to be worth knowing about. Deliberately its own
-    /// category rather than a stall: something still arriving needs patience, not
-    /// intervention, and reporting the two alike is how a queue check gets muted.
-    #[serde(rename = "slow")]
-    Slow,
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),

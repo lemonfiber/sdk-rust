@@ -81,8 +81,10 @@ mod shapes_a;
 pub use shapes_a::*;
 mod shapes_b;
 pub use shapes_b::*;
-mod shapes_c;
-pub use shapes_c::*;
+mod shapes_c_1;
+pub use shapes_c_1::*;
+mod shapes_c_2;
+pub use shapes_c_2::*;
 mod shapes_d;
 pub use shapes_d::*;
 mod shapes_e;
@@ -221,7 +223,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "3412e155e94b51f4fc15644bbeab5b13678b49e3";
+pub const REVISION: &str = "8b30dfd31edd98e292da759a812d032ff398410d";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -238,6 +240,7 @@ pub const KINDS: &[&str] = &[
     "beside",
     "boot",
     "bundle",
+    "caller",
     "capabilities",
     "catalogue",
     "certificate",
@@ -312,6 +315,7 @@ pub const KINDS: &[&str] = &[
     "sign-in-code",
     "space",
     "stack",
+    "standing",
     "start",
     "status",
     "step",
@@ -381,6 +385,9 @@ pub enum Payload {
     /// The `bundle` kind.
     #[serde(rename = "bundle")]
     Bundle(Box<Bundle>),
+    /// The `caller` kind.
+    #[serde(rename = "caller")]
+    Caller(Box<Calling>),
     /// The `capabilities` kind.
     #[serde(rename = "capabilities")]
     Capabilities(Box<Capabilities>),
@@ -603,6 +610,9 @@ pub enum Payload {
     /// The `stack` kind.
     #[serde(rename = "stack")]
     Stack(Box<StackReport>),
+    /// The `standing` kind.
+    #[serde(rename = "standing")]
+    Standing(Box<StackStanding>),
     /// The `start` kind.
     #[serde(rename = "start")]
     Start(Box<String>),

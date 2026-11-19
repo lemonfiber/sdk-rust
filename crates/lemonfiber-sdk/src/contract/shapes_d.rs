@@ -315,6 +315,9 @@ pub enum DoctorVerdict {
         meaning: String,
         /// What to do, most likely first.
         remedies: Vec<super::Remedy>,
+        /// How many whole seconds to wait before asking again, where the refusal says.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        retry_after: Option<u64>,
         /// How much it matters.
         severity: Box<super::ProblemSeverity>,
         /// Where it stands with respect to being fixed.
@@ -344,6 +347,9 @@ pub enum DoctorVerdict {
         meaning: String,
         /// What to do, most likely first.
         remedies: Vec<super::Remedy>,
+        /// How many whole seconds to wait before asking again, where the refusal says.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        retry_after: Option<u64>,
         /// How much it matters.
         severity: Box<super::ProblemSeverity>,
         /// Where it stands with respect to being fixed.

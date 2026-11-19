@@ -15,6 +15,7 @@ pub const ALL: &[crate::RefusalCode] = &[
     super::refusals::TOO_MANY_CODES,
     super::refusals::SIGNS_IN_BY_PASSWORD,
     super::refusals::NOT_A_CODE_REQUEST,
+    super::refusals::NO_SESSION,
     super::refusals::NO_SUCH_ACTION,
     super::refusals::MISSING_ARGUMENT,
     super::refusals::UNRECOGNISED_ARGUMENT,

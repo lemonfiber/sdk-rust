@@ -120,3 +120,12 @@ pub const NOT_A_CODE_REQUEST: crate::RefusalCode = crate::RefusalCode {
     description:
         "Raised when what was sent to ask for or finish a sign-in by a code cannot be read.",
 };
+
+/// `ADMIT-19`: Raised when this machine would not supply the bytes a session's secret is made of.
+pub const NO_SESSION: crate::RefusalCode = crate::RefusalCode {
+    code: "ADMIT-19",
+    name: "NO_SESSION",
+    status: 500,
+    description:
+        "Raised when this machine would not supply the bytes a session's secret is made of.",
+};
