@@ -218,6 +218,7 @@ pub const ALL: &[crate::RefusalCode] = &[
     super::refusals::WIRING_MOVED,
     super::refusals::UNREASONABLE,
     super::refusals::ALREADY_FILLS,
+    super::refusals::VPN_DECLINED,
     super::refusals::NOT_A_SEARCH,
     super::refusals::NOT_A_PLACE,
     super::refusals::NOT_ASKABLE,

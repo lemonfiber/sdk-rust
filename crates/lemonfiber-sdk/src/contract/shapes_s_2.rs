@@ -1,3 +1,22 @@
+/// Whether this stack is set up.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum SetUp {
+    /// Nothing is configured and no setup has begun.
+    #[serde(rename = "none")]
+    None,
+    /// A setup has begun and not finished: answers are being gathered, are waiting for
+    /// review, or an apply stopped part-way.
+    #[serde(rename = "part-way")]
+    PartWay,
+    /// The stack is configured and no setup is part-way through.
+    #[serde(rename = "done")]
+    Done,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// A change to one or more settings, made in one act.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct SettingChange {

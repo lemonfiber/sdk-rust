@@ -330,6 +330,13 @@ pub enum SeedState {
     /// show one, so a secret among the adopted is never put on display by a question.
     #[serde(rename = "would-adopt")]
     WouldAdopt,
+    /// A download client lemonfiber created in a curator, taken back out of it because
+    /// nothing here answers where it points any more.
+    #[serde(rename = "taken-back")]
+    TakenBack,
+    /// A download client a real run would take back, and this one did not.
+    #[serde(rename = "would-take-back")]
+    WouldTakeBack,
     /// An area the operator declared unmanaged. Nothing was read from the service and
     /// nothing was written to it, and the reason they gave is carried so a report says
     /// whose decision it was.
@@ -400,6 +407,8 @@ impl crate::open::Tags for SeedState {
         "unmanaged",
         "would-wire",
         "would-adopt",
+        "taken-back",
+        "would-take-back",
         "observed",
         "unmatched",
         "skipped",
@@ -875,23 +884,4 @@ pub struct SessionCodeBody {
     /// The handle a code was answered with, where this finishes signing in by it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub waiting: Option<String>,
-}
-
-/// Whether this stack is set up.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum SetUp {
-    /// Nothing is configured and no setup has begun.
-    #[serde(rename = "none")]
-    None,
-    /// A setup has begun and not finished: answers are being gathered, are waiting for
-    /// review, or an apply stopped part-way.
-    #[serde(rename = "part-way")]
-    PartWay,
-    /// The stack is configured and no setup is part-way through.
-    #[serde(rename = "done")]
-    Done,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
 }
