@@ -440,6 +440,12 @@ pub enum WiringSettled {
     /// Nothing claims it. What asked is named beside this, which is the point.
     #[serde(rename = "unfilled")]
     Unfilled,
+    /// The operator chose that nothing fills it.
+    #[serde(rename = "declined")]
+    Declined {
+        /// Every claimant passed over.
+        over: Vec<String>,
+    },
     /// A value this client was not generated with, as it arrived.
     #[serde(
         untagged,
@@ -450,7 +456,14 @@ pub enum WiringSettled {
 
 impl crate::open::Tags for WiringSettled {
     const TAG: Option<&str> = Some("settled");
-    const KNOWN: &[&str] = &["outright", "each", "contested", "chosen", "unfilled"];
+    const KNOWN: &[&str] = &[
+        "outright",
+        "each",
+        "contested",
+        "chosen",
+        "unfilled",
+        "declined",
+    ];
 }
 
 /// Where a setup run stands, and what it is still asking for.

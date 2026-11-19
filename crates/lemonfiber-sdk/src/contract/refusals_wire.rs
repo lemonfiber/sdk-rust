@@ -54,3 +54,12 @@ name: "ALREADY_FILLS",
 status: 400,
 description: "Raised where the service chosen already fills the capability, so there is nothing to change.",
 };
+
+/// `WIRE-8`: Raised where a choice names what fills the egress guard while torrents run without a VPN.
+pub const VPN_DECLINED: crate::RefusalCode = crate::RefusalCode {
+    code: "WIRE-8",
+    name: "VPN_DECLINED",
+    status: 409,
+    description:
+        "Raised where a choice names what fills the egress guard while torrents run without a VPN.",
+};
