@@ -484,13 +484,19 @@ pub enum SelfUpdateStanding {
 /// What a run serving the surface presents, answers to and wrote down.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct ServedReport {
-    /// What a phone pins for the certificate presented, where the run is encrypted.
+    /// The certificate it presents, as it describes itself, where the run is encrypted.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub fingerprint: Option<String>,
+    pub certificate: Option<super::Described>,
+    /// Whether it presents a certificate, rather than plain text.
+    pub encrypted: bool,
     /// The name a request has to carry beyond this machine, where the run is encrypted on
     /// a network.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub named: Option<String>,
+    /// Whether it is offered to the network, rather than to this machine alone.
+    pub network: bool,
+    /// The port it listens on.
+    pub port: u16,
     /// Why where it is served could not be written down, where it could not.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub unrecorded: Option<String>,

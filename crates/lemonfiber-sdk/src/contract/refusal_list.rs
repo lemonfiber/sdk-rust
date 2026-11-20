@@ -178,6 +178,7 @@ pub const ALL: &[crate::RefusalCode] = &[
     super::refusals::UNRENDERABLE,
     super::refusals::NO_JOB_NAME,
     super::refusals::UNANSWERED,
+    super::refusals::NOT_SERVING,
     super::refusals::NO_SUCH_SETTING,
     super::refusals::A_SECRET,
     super::refusals::TAKEN_ELSEWHERE,

@@ -21,3 +21,12 @@ pub const UNANSWERED: crate::RefusalCode = crate::RefusalCode {
     status: 500,
     description: "Raised when an action's work ended before it had an answer to give.",
 };
+
+/// `SERVE-9`: Raised when how the web surface is served is asked of a run that is not serving it.
+pub const NOT_SERVING: crate::RefusalCode = crate::RefusalCode {
+    code: "SERVE-9",
+    name: "NOT_SERVING",
+    status: 500,
+    description:
+        "Raised when how the web surface is served is asked of a run that is not serving it.",
+};

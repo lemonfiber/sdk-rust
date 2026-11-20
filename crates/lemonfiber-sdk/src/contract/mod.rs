@@ -31,6 +31,7 @@ mod reads_e;
 mod reads_f;
 mod reads_g;
 mod reads_h;
+mod reads_i;
 mod reads_l;
 mod reads_m;
 mod reads_n;
@@ -147,6 +148,7 @@ pub mod reads {
     pub use super::reads_f::*;
     pub use super::reads_g::*;
     pub use super::reads_h::*;
+    pub use super::reads_i::*;
     pub use super::reads_l::*;
     pub use super::reads_m::*;
     pub use super::reads_n::*;
@@ -225,7 +227,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "6db6ef01be5e9aa7281df9238671046470786744";
+pub const REVISION: &str = "f50f13a52dd6073632deae451c4979ed36bc5f7d";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
