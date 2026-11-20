@@ -225,7 +225,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "ec4b88684f89800a0b5be485ea3c8fedb5e64dce";
+pub const REVISION: &str = "6db6ef01be5e9aa7281df9238671046470786744";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
