@@ -450,6 +450,9 @@ pub struct Listing {
     pub archives: Vec<String>,
 }
 
+/// The `Locale` shape.
+pub type Locale = String;
+
 /// Where something a service keeps is on this machine, or why that is not said.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]

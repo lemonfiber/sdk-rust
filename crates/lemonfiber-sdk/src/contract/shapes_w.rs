@@ -487,6 +487,9 @@ pub struct WizardReport {
     /// What the VPN step asks of the egress guard where one carries the torrents, in the
     /// order it asks it: empty where nothing fills the guard or it asks nothing.
     pub guard: Vec<super::GuardQuestion>,
+    /// The house's zone and locale: the ones the operator confirmed or gave, or the ones
+    /// proposed from the host's where none are yet.
+    pub house: super::SetupHouse,
     /// Whether this machine has setup left to do. False once configuration
     /// exists and nothing is part-way through, which is when a surface directs
     /// the operator to reconfiguration instead of asking the first question again.
@@ -546,7 +549,9 @@ pub enum WizardStep {
     /// States what is about to happen and roughly how long it takes. Informs.
     #[serde(rename = "welcome")]
     Welcome,
-    /// Detects the environment: OS, Docker, Compose, daemon reachability. Informs.
+    /// Detects the environment: OS, Docker, Compose, daemon reachability; and proposes
+    /// the house's zone and locale from the host's, for the operator to confirm or
+    /// change.
     #[serde(rename = "preflight")]
     Preflight,
     /// The account checklist derived from the protocol choice. Informs.

@@ -135,6 +135,8 @@ mod shapes_v;
 pub use shapes_v::*;
 mod shapes_w;
 pub use shapes_w::*;
+mod shapes_z;
+pub use shapes_z::*;
 
 /// Every read the web API serves: a struct for each, holding what it takes.
 pub mod reads {
@@ -223,7 +225,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "5a2ca238ed1089f75168ce20392a52e3c7792d9d";
+pub const REVISION: &str = "ec4b88684f89800a0b5be485ea3c8fedb5e64dce";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[

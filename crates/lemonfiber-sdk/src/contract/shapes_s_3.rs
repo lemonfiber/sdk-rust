@@ -1,3 +1,43 @@
+/// A stage in an item's journey, ordered from "nobody asked for it" to "playable". The
+/// declaration order is the pipeline order, so one stage compares less than a later one.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum Stage {
+    /// Nobody has asked for it — no \*arr is monitoring it.
+    #[serde(rename = "not-monitored")]
+    NotMonitored,
+    /// Monitored, waiting to be searched for.
+    #[serde(rename = "monitored")]
+    Monitored,
+    /// A search is running.
+    #[serde(rename = "searching")]
+    Searching,
+    /// Releases were found by an indexer.
+    #[serde(rename = "found")]
+    Found,
+    /// A release was sent to the download client.
+    #[serde(rename = "grabbed")]
+    Grabbed,
+    /// The download is in progress.
+    #[serde(rename = "downloading")]
+    Downloading,
+    /// The download finished.
+    #[serde(rename = "downloaded")]
+    Downloaded,
+    /// The \*arr is importing it to the library.
+    #[serde(rename = "importing")]
+    Importing,
+    /// It was imported to the library on disk.
+    #[serde(rename = "imported")]
+    Imported,
+    /// It is visible and playable in the media server.
+    #[serde(rename = "available")]
+    Available,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// Why an item is not moving.
 ///
 /// Ordered by how much of the operator's attention each deserves, worst first, so
