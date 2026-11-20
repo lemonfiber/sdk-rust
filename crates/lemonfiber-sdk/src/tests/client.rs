@@ -549,7 +549,9 @@ async fn setup_is_walked_one_request_a_step() -> Outcome {
         enveloped(
             "wizard",
             &json!({
-                "asks": true, "at": "welcome", "guard": [], "offered": false, "phase": "in-progress",
+                "asks": true, "at": "welcome", "guard": [],
+                "house": {"zone": "Europe/Amsterdam", "locale": "en-US"},
+                "offered": false, "phase": "in-progress",
                 "plan": [], "ready_for_review": false, "rehearsed": false, "setup": "part-way",
                 "unanswered": [], "written": [],
             }),

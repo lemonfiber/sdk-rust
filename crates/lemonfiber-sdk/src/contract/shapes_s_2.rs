@@ -256,6 +256,9 @@ pub struct SettledReport {
 /// to rather than arriving as a field a reader has to guess the meaning of.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum SetupAnswerBody {
+    /// The house's zone and locale, as the operator confirmed or gave them.
+    #[serde(rename = "house")]
+    House(Box<super::SetupHouse>),
     /// The protocol choice.
     #[serde(rename = "protocols")]
     Protocols(Box<super::Protocols>),
@@ -301,6 +304,15 @@ pub struct SetupGuarded {
     /// Each of its settings given, by name, with its value.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub settings: Option<std::collections::BTreeMap<String, String>>,
+}
+
+/// Where the house is: the zone the stack runs in and the house's language and region.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SetupHouse {
+    /// The house's language and region.
+    pub locale: super::Locale,
+    /// The zone the stack runs in, which it writes as `TZ`.
+    pub zone: super::Zone,
 }
 
 /// How a setup run ended.
@@ -845,44 +857,4 @@ pub struct StackUpdateReport {
     /// over the project this run would start, and held to nothing lemonfiber vets.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub unvetted: Option<super::Unvetted>,
-}
-
-/// A stage in an item's journey, ordered from "nobody asked for it" to "playable". The
-/// declaration order is the pipeline order, so one stage compares less than a later one.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum Stage {
-    /// Nobody has asked for it — no \*arr is monitoring it.
-    #[serde(rename = "not-monitored")]
-    NotMonitored,
-    /// Monitored, waiting to be searched for.
-    #[serde(rename = "monitored")]
-    Monitored,
-    /// A search is running.
-    #[serde(rename = "searching")]
-    Searching,
-    /// Releases were found by an indexer.
-    #[serde(rename = "found")]
-    Found,
-    /// A release was sent to the download client.
-    #[serde(rename = "grabbed")]
-    Grabbed,
-    /// The download is in progress.
-    #[serde(rename = "downloading")]
-    Downloading,
-    /// The download finished.
-    #[serde(rename = "downloaded")]
-    Downloaded,
-    /// The \*arr is importing it to the library.
-    #[serde(rename = "importing")]
-    Importing,
-    /// It was imported to the library on disk.
-    #[serde(rename = "imported")]
-    Imported,
-    /// It is visible and playable in the media server.
-    #[serde(rename = "available")]
-    Available,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
 }
