@@ -54,6 +54,33 @@ impl crate::open::Tags for DashboardReading {
     const KNOWN: &[&str] = &["known", "stale", "unknown"];
 }
 
+/// What a certificate says about itself.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Described {
+    /// What a phone pins: SHA-256 over the certificate's DER encoding, lower-case hex.
+    pub fingerprint: String,
+    /// Who signed it, as an RFC 4514 string, cut where it is too long to show.
+    pub issuer: String,
+    /// Whether the issuer was cut, being too long to show whole.
+    pub issuer_cut: bool,
+    /// The names it is made out to, its subject alternative names, each whole; those too
+    /// many or too long to show, or not written as text, are left out.
+    pub names: Vec<String>,
+    /// How many of the names it is made out to are left out, being too many or too long to
+    /// show, or not written as text.
+    pub names_more: u64,
+    /// Whether it was signed by its own key under its own name.
+    pub self_signed: bool,
+    /// Who it is made out to, as an RFC 4514 string, cut where it is too long to show.
+    pub subject: String,
+    /// Whether the subject was cut, being too long to show whole.
+    pub subject_cut: bool,
+    /// When it begins to hold.
+    pub valid_from: super::Instant,
+    /// When it stops holding.
+    pub valid_until: super::Instant,
+}
+
 /// A kind of device somebody in the house might watch on.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Device {

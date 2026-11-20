@@ -22,7 +22,7 @@ pub struct ImportReport {
     pub would_carry: Vec<super::RecordReport>,
 }
 
-/// What is still coming down inside the forms a teardown would stop.
+/// What is still coming down inside what a stop would stop.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct InFlightReport {
     /// Each download still coming down, with how far it has got.
