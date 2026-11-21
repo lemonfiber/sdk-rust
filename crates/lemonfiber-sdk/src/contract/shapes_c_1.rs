@@ -551,6 +551,9 @@ pub struct ConfigReport {
     /// Absent for a read, and for a change to a setting nobody catalogued a cost for.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub consequence: Option<String>,
+    /// Every answer setup writes, in the catalogue's order, whether or not anything holds
+    /// it. Never a value: a value is read where it is held, withheld there as it is.
+    pub decisions: Vec<super::DecisionReport>,
     /// Whether this was a rehearsal, so a change that `changed` reports was one
     /// that *would* be made rather than one that was.
     pub rehearsed: bool,

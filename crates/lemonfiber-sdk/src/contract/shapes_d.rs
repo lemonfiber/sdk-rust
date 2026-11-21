@@ -54,6 +54,88 @@ impl crate::open::Tags for DashboardReading {
     const KNOWN: &[&str] = &["known", "stale", "unknown"];
 }
 
+/// The setting an answer setup writes is held in.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum DecisionKey {
+    /// The `DataRoot` variant.
+    #[serde(rename = "DATA_ROOT")]
+    DataRoot,
+    /// The `MediaServerMode` variant.
+    #[serde(rename = "MEDIA_SERVER_MODE")]
+    MediaServerMode,
+    /// The `LemonfiberUsenet` variant.
+    #[serde(rename = "LEMONFIBER_USENET")]
+    LemonfiberUsenet,
+    /// The `LemonfiberTorrent` variant.
+    #[serde(rename = "LEMONFIBER_TORRENT")]
+    LemonfiberTorrent,
+    /// The `LemonfiberVpn` variant.
+    #[serde(rename = "LEMONFIBER_VPN")]
+    LemonfiberVpn,
+    /// The `Puid` variant.
+    #[serde(rename = "PUID")]
+    Puid,
+    /// The `Pgid` variant.
+    #[serde(rename = "PGID")]
+    Pgid,
+    /// The `VpnProvider` variant.
+    #[serde(rename = "VPN_PROVIDER")]
+    VpnProvider,
+    /// The `IndexerUrl` variant.
+    #[serde(rename = "INDEXER_URL")]
+    IndexerUrl,
+    /// The `IndexerApikey` variant.
+    #[serde(rename = "INDEXER_APIKEY")]
+    IndexerApikey,
+    /// The `UsenetHost` variant.
+    #[serde(rename = "USENET_HOST")]
+    UsenetHost,
+    /// The `UsenetPort` variant.
+    #[serde(rename = "USENET_PORT")]
+    UsenetPort,
+    /// The `UsenetUser` variant.
+    #[serde(rename = "USENET_USER")]
+    UsenetUser,
+    /// The `UsenetPass` variant.
+    #[serde(rename = "USENET_PASS")]
+    UsenetPass,
+    /// The `UsenetTls` variant.
+    #[serde(rename = "USENET_TLS")]
+    UsenetTls,
+    /// The `LemonfiberFrontDoor` variant.
+    #[serde(rename = "LEMONFIBER_FRONT_DOOR")]
+    LemonfiberFrontDoor,
+    /// The `Tz` variant.
+    #[serde(rename = "TZ")]
+    Tz,
+    /// The `LemonfiberLocale` variant.
+    #[serde(rename = "LEMONFIBER_LOCALE")]
+    LemonfiberLocale,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// One answer setup writes, as it can be changed afterwards.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct DecisionReport {
+    /// What changing it affects, in the core's words.
+    pub affects: String,
+    /// What changing it costs.
+    pub cost: super::Cost,
+    /// Whether its value is withheld as a credential.
+    pub credential: bool,
+    /// Whether the answer is held, in the configuration or the settings store.
+    pub held: bool,
+    /// The setting the answer is kept in.
+    pub key: super::DecisionKey,
+    /// The name `settings set` takes, where the settings store keeps the answer. Absent
+    /// where `config set` takes it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub setting: Option<String>,
+}
+
 /// What a certificate says about itself.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Described {
