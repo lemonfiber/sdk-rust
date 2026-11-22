@@ -227,7 +227,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "86f7eed9d0b5b3f0868ad157ba07246e346785db";
+pub const REVISION: &str = "22f9f032a52e986d21339260e96a08edaeecd633";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -292,6 +292,7 @@ pub const KINDS: &[&str] = &[
     "pausing",
     "play",
     "playing",
+    "plugin-catalogue",
     "plugin-claims",
     "plugin-conformance",
     "plugin-provenance",
@@ -533,6 +534,9 @@ pub enum Payload {
     /// The `playing` kind.
     #[serde(rename = "playing")]
     Playing(Box<PlayingReport>),
+    /// The `plugin-catalogue` kind.
+    #[serde(rename = "plugin-catalogue")]
+    PluginCatalogue(Box<PluginCatalogueReport>),
     /// The `plugin-claims` kind.
     #[serde(rename = "plugin-claims")]
     PluginClaims(Box<Claimed>),

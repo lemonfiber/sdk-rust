@@ -1,3 +1,50 @@
+/// A kind of constraint an expectation can put on a body.
+///
+/// The same vocabulary a proof's expectation and a contributed check's use, so that
+/// "a status alone is not evidence" is one rule rather than three. Read as well as
+/// written: a declaration that an assertion fails on a recording names the one of these
+/// that fails there.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum PluginConstraint {
+    /// The status alone.
+    #[serde(rename = "status")]
+    Status,
+    /// Keys carrying exactly these values.
+    #[serde(rename = "json")]
+    Json,
+    /// Keys that must be present, whatever they hold.
+    #[serde(rename = "json_has_keys")]
+    JsonHasKeys,
+    /// Keys that must hold a given kind of thing.
+    #[serde(rename = "json_types")]
+    JsonTypes,
+    /// Keys that must hold at least a given number.
+    #[serde(rename = "json_at_least")]
+    JsonAtLeast,
+    /// The answer read as an array, with at least a given number of entries.
+    #[serde(rename = "json_array_min")]
+    JsonArrayMin,
+    /// The answer did not parse as JSON at all.
+    #[serde(rename = "json_is_absent")]
+    JsonIsAbsent,
+    /// The content type it is served as.
+    #[serde(rename = "content_type")]
+    ContentType,
+    /// What the body must begin with.
+    #[serde(rename = "body_starts_with")]
+    BodyStartsWith,
+    /// The exit status a run ends with.
+    #[serde(rename = "exit")]
+    Exit,
+    /// What a run's standard output begins with.
+    #[serde(rename = "stdout_starts_with")]
+    StdoutStartsWith,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// What a plugin declared about itself, as its install read it.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct PluginDeclaration {
@@ -821,53 +868,4 @@ pub struct PluginRecipeRan {
     /// Why it did not, where it did not.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub why: Option<String>,
-}
-
-/// What taking a plugin off the machine came to, or would come to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginRemoval {
-    /// Every service that stops when it goes, named before any of them does.
-    ///
-    /// By service rather than by plugin, because a service is what an operator notices
-    /// stopping: a plugin that brought two containers takes two things away, and the
-    /// plugin's name alone would not say which of the addresses they use goes quiet.
-    /// None of them comes back — a removal is not a restart — which is why this is
-    /// stated before the run rather than discovered after it.
-    pub interrupts: Vec<String>,
-    /// Every capability that would have nothing filling it afterwards.
-    ///
-    /// Stated before it happens rather than reported after, which is the requirement
-    /// and also the only useful order: an operator told afterwards that their requests
-    /// no longer reach anything has been informed rather than asked.
-    pub leaves: Vec<super::PluginUnfilled>,
-    /// The plugin this is about.
-    pub plugin: String,
-    /// Whether the record of what is installed was written without it.
-    ///
-    /// False on a rehearsal and on a run that got as far as putting the files back and
-    /// no further, which are two different machines and are told apart by what the
-    /// reversal says rather than by a second flag here.
-    pub removed: bool,
-    /// What putting its changes back came to, or would come to.
-    ///
-    /// The rollback layer's own report rather than a shape of this verb's: a removal is
-    /// a reversal with a name on it, and an account of its own would be a second
-    /// description of the same work.
-    pub went_back: super::UndoReversal,
-}
-
-/// What asking an installed plugin's adapters again came to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginReproof {
-    /// Whether its adapters were asked, rather than only said to be.
-    pub asked: bool,
-    /// Whether every answer kept against the plugin was cleared, which a proof that did
-    /// not hold never does.
-    pub cleared: bool,
-    /// Every answer kept against the plugin when it was proved, which a pass clears.
-    pub kept: Vec<super::PluginNonconforming>,
-    /// The plugin proved.
-    pub plugin: String,
-    /// Each proof asked, or that would be asked, with what it came to.
-    pub proofs: Vec<super::PluginProving>,
 }

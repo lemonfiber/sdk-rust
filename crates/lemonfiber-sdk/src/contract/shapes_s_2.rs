@@ -113,6 +113,18 @@ pub struct SettingReport {
     pub value: String,
 }
 
+/// The action a setting is written with.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum SettingWrite {
+    /// `config-set`, which writes the configuration.
+    #[serde(rename = "config-set")]
+    ConfigSet,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// Every setting and secret the stack's services read, and what changing a setting came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct SettingsReport {
