@@ -1,3 +1,52 @@
+/// What taking a plugin off the machine came to, or would come to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginRemoval {
+    /// Every service that stops when it goes, named before any of them does.
+    ///
+    /// By service rather than by plugin, because a service is what an operator notices
+    /// stopping: a plugin that brought two containers takes two things away, and the
+    /// plugin's name alone would not say which of the addresses they use goes quiet.
+    /// None of them comes back — a removal is not a restart — which is why this is
+    /// stated before the run rather than discovered after it.
+    pub interrupts: Vec<String>,
+    /// Every capability that would have nothing filling it afterwards.
+    ///
+    /// Stated before it happens rather than reported after, which is the requirement
+    /// and also the only useful order: an operator told afterwards that their requests
+    /// no longer reach anything has been informed rather than asked.
+    pub leaves: Vec<super::PluginUnfilled>,
+    /// The plugin this is about.
+    pub plugin: String,
+    /// Whether the record of what is installed was written without it.
+    ///
+    /// False on a rehearsal and on a run that got as far as putting the files back and
+    /// no further, which are two different machines and are told apart by what the
+    /// reversal says rather than by a second flag here.
+    pub removed: bool,
+    /// What putting its changes back came to, or would come to.
+    ///
+    /// The rollback layer's own report rather than a shape of this verb's: a removal is
+    /// a reversal with a name on it, and an account of its own would be a second
+    /// description of the same work.
+    pub went_back: super::UndoReversal,
+}
+
+/// What asking an installed plugin's adapters again came to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginReproof {
+    /// Whether its adapters were asked, rather than only said to be.
+    pub asked: bool,
+    /// Whether every answer kept against the plugin was cleared, which a proof that did
+    /// not hold never does.
+    pub cleared: bool,
+    /// Every answer kept against the plugin when it was proved, which a pass clears.
+    pub kept: Vec<super::PluginNonconforming>,
+    /// The plugin proved.
+    pub plugin: String,
+    /// Each proof asked, or that would be asked, with what it came to.
+    pub proofs: Vec<super::PluginProving>,
+}
+
 /// What is asked, and where.
 ///
 /// A method, a path and one media type, and on a plugin's own proof the headers it names

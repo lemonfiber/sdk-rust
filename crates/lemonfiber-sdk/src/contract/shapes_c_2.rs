@@ -1,3 +1,27 @@
+/// Whose credential asked, as a client is told it.
+///
+/// Said rather than left to be inferred from which requests are permitted: a client
+/// guessing a member from a missing read would guess wrong the day that read moves.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum CredentialScope {
+    /// The operator: the password's session, or the token printed at this machine.
+    #[serde(rename = "operator")]
+    Operator,
+    /// A key that reads and acts on nothing.
+    #[serde(rename = "read")]
+    Read,
+    /// A key that reads, and calls the actions the contract publishes for a key.
+    #[serde(rename = "act")]
+    Act,
+    /// A household member: their own session, or a key scoped to them.
+    #[serde(rename = "member")]
+    Member,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// Where a credential stands, as far as lemonfiber can tell without spending it.
 ///
 /// Six states rather than a boolean because the operator's next move differs for

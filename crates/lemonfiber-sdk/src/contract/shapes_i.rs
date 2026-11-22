@@ -92,6 +92,15 @@ pub enum Installed {
     Unrecognised(String),
 }
 
+/// The version of a catalogued plugin installed here, against the catalogue's.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct InstalledVersion {
+    /// Whether the catalogue's version is above it by semver.
+    pub newer: bool,
+    /// The version installed.
+    pub version: String,
+}
+
 /// A moment, as a whole number of seconds since the Unix epoch.
 pub type Instant = u64;
 

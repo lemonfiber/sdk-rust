@@ -797,6 +797,50 @@ pub struct PluginBuiltOn {
     pub release: String,
 }
 
+/// What the catalogue offers, or why it was not read.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PluginCatalogueReport {
+    /// Every plugin the verified index offers, by id; empty where it was not read.
+    pub entries: Vec<super::CataloguedPlugin>,
+    /// Why the index could not be read. Present where it failed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub failure: Option<super::CatalogueFailure>,
+    /// When the index listed was published. Present where it was read.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub published: Option<super::Instant>,
+    /// Which release of the catalogue the index listed is. Present where it was read.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub serial: Option<u64>,
+    /// The setting that keeps the catalogue from being asked, and how to let it be.
+    /// Present where it is switched off.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub setting: Option<super::ReachSetting>,
+    /// Whether the catalogue was read, switched off, or could not be read.
+    pub state: super::PluginCatalogueState,
+    /// How many entries the index holds that could not be listed, for lacking a fact an
+    /// entry carries. Present where it was read.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unreadable: Option<u64>,
+}
+
+/// Whether the catalogue was read.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum PluginCatalogueState {
+    /// Its index was fetched and verified.
+    #[serde(rename = "listed")]
+    Listed,
+    /// Reaching it is switched off, and nothing was asked of it.
+    #[serde(rename = "off")]
+    Off,
+    /// Its index or signature could not be fetched, verified or read.
+    #[serde(rename = "failed")]
+    Failed,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// One change installing a plugin makes to the machine.
 ///
 /// A path and what goes at it, which is the whole of what an install touches. None is an
@@ -835,51 +879,4 @@ pub struct PluginChangedCheck {
     /// next is read the remedy, the service's own output and what else is causing it
     /// — and a second, thinner shape of the same fact is where those stop arriving.
     pub now: super::Finding,
-}
-
-/// A kind of constraint an expectation can put on a body.
-///
-/// The same vocabulary a proof's expectation and a contributed check's use, so that
-/// "a status alone is not evidence" is one rule rather than three. Read as well as
-/// written: a declaration that an assertion fails on a recording names the one of these
-/// that fails there.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum PluginConstraint {
-    /// The status alone.
-    #[serde(rename = "status")]
-    Status,
-    /// Keys carrying exactly these values.
-    #[serde(rename = "json")]
-    Json,
-    /// Keys that must be present, whatever they hold.
-    #[serde(rename = "json_has_keys")]
-    JsonHasKeys,
-    /// Keys that must hold a given kind of thing.
-    #[serde(rename = "json_types")]
-    JsonTypes,
-    /// Keys that must hold at least a given number.
-    #[serde(rename = "json_at_least")]
-    JsonAtLeast,
-    /// The answer read as an array, with at least a given number of entries.
-    #[serde(rename = "json_array_min")]
-    JsonArrayMin,
-    /// The answer did not parse as JSON at all.
-    #[serde(rename = "json_is_absent")]
-    JsonIsAbsent,
-    /// The content type it is served as.
-    #[serde(rename = "content_type")]
-    ContentType,
-    /// What the body must begin with.
-    #[serde(rename = "body_starts_with")]
-    BodyStartsWith,
-    /// The exit status a run ends with.
-    #[serde(rename = "exit")]
-    Exit,
-    /// What a run's standard output begins with.
-    #[serde(rename = "stdout_starts_with")]
-    StdoutStartsWith,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
 }

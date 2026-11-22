@@ -46,3 +46,18 @@ impl crate::Read for PluginsRead {
     const SEGMENTS: &[&str] = &[];
     const KINDS: &[&str] = &["plugins"];
 }
+
+/// `GET /api/plugins/catalogue`, answered with `plugin-catalogue`.
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
+pub struct PluginsCatalogueRead {}
+
+impl crate::Answer for super::PluginCatalogueReport {
+    const TAGGED: bool = false;
+}
+
+impl crate::Read for PluginsCatalogueRead {
+    type Answer = super::PluginCatalogueReport;
+    const PATH: &str = "/api/plugins/catalogue";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["plugin-catalogue"];
+}

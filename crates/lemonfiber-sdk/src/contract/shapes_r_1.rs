@@ -31,6 +31,17 @@ pub struct Rated {
     pub holds_back: Vec<String>,
 }
 
+/// A setting that keeps a request from being made, and the change that lets it be.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ReachSetting {
+    /// The action that writes it.
+    pub action: super::SettingWrite,
+    /// The setting.
+    pub key: String,
+    /// The value that lets the request be made.
+    pub value: String,
+}
+
 /// Where a month stands against a declared cap.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]

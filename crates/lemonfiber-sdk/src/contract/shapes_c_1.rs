@@ -162,6 +162,15 @@ pub struct CarryingReport {
     pub verdict: String,
 }
 
+/// Why the catalogue's index was not read.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct CatalogueFailure {
+    /// The problem code an install by name would be refused with.
+    pub code: String,
+    /// What went wrong, in one line.
+    pub summary: String,
+}
+
 /// What this stack holds, and what it used to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct CatalogueReport {
@@ -178,6 +187,24 @@ pub struct CatalogueReport {
     /// what is running would leave the operator unable to ask about the one they are
     /// deciding whether to run.
     pub services: Vec<super::CataloguedService>,
+}
+
+/// One plugin the catalogue offers.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct CataloguedPlugin {
+    /// What it does, in its author's words.
+    pub description: String,
+    /// The plugin's id, which is the name it is installed by.
+    pub id: String,
+    /// The version installed on this machine. Absent where it is not installed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub installed: Option<super::InstalledVersion>,
+    /// What it calls itself.
+    pub name: String,
+    /// The version the catalogue reviewed.
+    pub version: String,
+    /// What the household is without it.
+    pub without_it: String,
 }
 
 /// What one service is for, as the stack declares it.
@@ -863,28 +890,4 @@ pub struct CredentialRevoked {
     /// Why its services did not restart, where they did not.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub unrestarted: Option<String>,
-}
-
-/// Whose credential asked, as a client is told it.
-///
-/// Said rather than left to be inferred from which requests are permitted: a client
-/// guessing a member from a missing read would guess wrong the day that read moves.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[non_exhaustive]
-pub enum CredentialScope {
-    /// The operator: the password's session, or the token printed at this machine.
-    #[serde(rename = "operator")]
-    Operator,
-    /// A key that reads and acts on nothing.
-    #[serde(rename = "read")]
-    Read,
-    /// A key that reads, and calls the actions the contract publishes for a key.
-    #[serde(rename = "act")]
-    Act,
-    /// A household member: their own session, or a key scoped to them.
-    #[serde(rename = "member")]
-    Member,
-    /// A value this client was not generated with, as it arrived.
-    #[serde(untagged)]
-    Unrecognised(String),
 }
