@@ -1,3 +1,56 @@
+/// How far a rotation reached one consumer.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "reach")]
+#[non_exhaustive]
+pub enum CredentialReach {
+    /// It now holds the replacement.
+    #[serde(rename = "updated")]
+    Updated,
+    /// It will hold the replacement once one more thing happens, and that thing is
+    /// named. A consumer reading the value out of a container's environment has it
+    /// fixed at the moment the container was created, so recording a new one is
+    /// only half of reaching it.
+    #[serde(rename = "pending")]
+    Pending {
+        /// What still has to happen, written as the command that does it.
+        detail: String,
+    },
+    /// It could not be updated. Named rather than dropped, because a consumer left
+    /// holding the old value is the failure this list exists to surface.
+    #[serde(rename = "failed")]
+    Failed {
+        /// Why it could not be.
+        detail: String,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<CredentialReach, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for CredentialReach {
+    const TAG: Option<&str> = Some("reach");
+    const KNOWN: &[&str] = &["updated", "pending", "failed"];
+}
+
+/// What revoking one grant came to, or would come to.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct CredentialRevoked {
+    /// The name this reading goes by, which the revoke takes as its yes.
+    pub agreement: String,
+    /// Whether the grant was ended, rather than read or rehearsed.
+    pub ended: bool,
+    /// The grant it ends.
+    pub grant: super::CredentialGranted,
+    /// The plugin's services that read the credential, restarted once it is withdrawn.
+    pub restarts: Vec<String>,
+    /// Why its services did not restart, where they did not.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unrestarted: Option<String>,
+}
+
 /// Whose credential asked, as a client is told it.
 ///
 /// Said rather than left to be inferred from which requests are permitted: a client
