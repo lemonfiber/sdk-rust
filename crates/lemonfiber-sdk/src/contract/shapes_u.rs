@@ -283,6 +283,24 @@ impl crate::open::Tags for Unit {
     const KNOWN: &[&str] = &["music", "books"];
 }
 
+/// One area the operator declared unmanaged, as it covers things now.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct UnmanagedReport {
+    /// The area as written, a control or layout character written as its bytes in hex.
+    pub area: String,
+    /// Whether `area` was cut short.
+    pub area_cut: bool,
+    /// Each thing the area covers now, in the order the stack holds them. Empty where it
+    /// covers nothing.
+    pub covers: Vec<super::CoveredReport>,
+    /// How many covered things `covers` leaves out for being too many.
+    pub covers_more: u64,
+    /// The reason the operator gave, written as `area` is.
+    pub why: String,
+    /// Whether `why` was cut short.
+    pub why_cut: bool,
+}
+
 /// What is to happen to content the media server has no rating for.
 ///
 /// A choice rather than a default, because a great deal of content carries no rating

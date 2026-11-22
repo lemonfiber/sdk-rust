@@ -591,6 +591,12 @@ pub struct ConfigReport {
     pub review: Option<super::Review>,
     /// The settings asked about — one for a lookup, all of them for a listing.
     pub settings: Vec<super::SettingReport>,
+    /// Each area the operator declared unmanaged, in the order written, with what it
+    /// covers now. Empty where nothing is declared. An area and a reason are the
+    /// operator's own text, to be shown as plain text.
+    pub unmanaged: Vec<super::UnmanagedReport>,
+    /// How many declared areas `unmanaged` leaves out for being too many.
+    pub unmanaged_more: u64,
 }
 
 /// A port lemonfiber wants for a service that something else already answers on.
@@ -763,6 +769,37 @@ pub struct Coverage {
     pub wanted: u64,
 }
 
+/// What a thing a declaration covers is, read off where it was found.
+///
+/// Never off its name, since a stack may name a service `config`: one area can cover a
+/// service, a file and a setting at once, each listed as what it is.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum CoveredKind {
+    /// A service the stack runs, which is not seeded and is observed rather than wired.
+    #[serde(rename = "service")]
+    Service,
+    /// A file lemonfiber writes, which is not written on any run.
+    #[serde(rename = "path")]
+    Path,
+    /// A setting, which `config set` refuses with the operator's reason.
+    #[serde(rename = "setting")]
+    Setting,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// One thing a declaration covers.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct CoveredReport {
+    /// What it is.
+    pub kind: super::CoveredKind,
+    /// Its name: a service's id, a file's place in the stack or the project, or a
+    /// setting's key.
+    pub name: String,
+}
+
 /// What a monitor lemonfiber provisions covers, which its tag names.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
@@ -837,57 +874,4 @@ pub struct CredentialHeld {
     pub setting: String,
     /// Where it stands.
     pub state: super::CredentialState,
-}
-
-/// How far a rotation reached one consumer.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "reach")]
-#[non_exhaustive]
-pub enum CredentialReach {
-    /// It now holds the replacement.
-    #[serde(rename = "updated")]
-    Updated,
-    /// It will hold the replacement once one more thing happens, and that thing is
-    /// named. A consumer reading the value out of a container's environment has it
-    /// fixed at the moment the container was created, so recording a new one is
-    /// only half of reaching it.
-    #[serde(rename = "pending")]
-    Pending {
-        /// What still has to happen, written as the command that does it.
-        detail: String,
-    },
-    /// It could not be updated. Named rather than dropped, because a consumer left
-    /// holding the old value is the failure this list exists to surface.
-    #[serde(rename = "failed")]
-    Failed {
-        /// Why it could not be.
-        detail: String,
-    },
-    /// A value this client was not generated with, as it arrived.
-    #[serde(
-        untagged,
-        deserialize_with = "crate::open::unrecognised::<CredentialReach, _>"
-    )]
-    Unrecognised(serde_json::Value),
-}
-
-impl crate::open::Tags for CredentialReach {
-    const TAG: Option<&str> = Some("reach");
-    const KNOWN: &[&str] = &["updated", "pending", "failed"];
-}
-
-/// What revoking one grant came to, or would come to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct CredentialRevoked {
-    /// The name this reading goes by, which the revoke takes as its yes.
-    pub agreement: String,
-    /// Whether the grant was ended, rather than read or rehearsed.
-    pub ended: bool,
-    /// The grant it ends.
-    pub grant: super::CredentialGranted,
-    /// The plugin's services that read the credential, restarted once it is withdrawn.
-    pub restarts: Vec<String>,
-    /// Why its services did not restart, where they did not.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub unrestarted: Option<String>,
 }
