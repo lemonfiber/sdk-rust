@@ -51,6 +51,11 @@ pub const ALL: &[crate::EventKind] = &[
         operator: false,
     },
     crate::EventKind {
+        kind: "replay",
+        replaces: true,
+        operator: false,
+    },
+    crate::EventKind {
         kind: "settings",
         replaces: true,
         operator: true,
