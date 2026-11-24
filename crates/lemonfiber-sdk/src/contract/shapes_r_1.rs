@@ -609,6 +609,28 @@ pub struct ReplaceReport {
     pub would_stop: Vec<String>,
 }
 
+/// What a stream opened again from an id says of what it is handed before going on.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Replay {
+    /// Whether it holds every alert raised since the id.
+    pub alerts: super::ReplayAlerts,
+}
+
+/// Whether a replay holds every alert raised since the id it was asked from.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum ReplayAlerts {
+    /// Every one.
+    #[serde(rename = "whole")]
+    Whole,
+    /// Those still kept, and some raised since are not.
+    #[serde(rename = "partial")]
+    Partial,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
 /// Where one request stands, in the words the person who made it would use.
 ///
 /// Deliberately coarser than a [`crate::trace::Stage`]: a member does not need to know
@@ -858,33 +880,4 @@ pub struct Revealed {
     pub value: Option<String>,
     /// What the operator is told before it appears, whether or not it appears.
     pub warning: String,
-}
-
-/// A proposed change, read against what is in force, and where it stands.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Review {
-    /// The difference, as it would be applied.
-    pub change: super::ConfigChange,
-    /// What the change comes to on this machine, beyond the value it changes.
-    ///
-    /// Filled by whoever went and asked — the services where they file, the clients
-    /// what they are fetching — and empty on every change that comes to nothing
-    /// beyond its value. Carried on a staged proposal as well as an applied one: a
-    /// review that withheld this until after the yes would be asking for a yes to
-    /// something unstated.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub findings: Option<super::Findings>,
-    /// What proving the replacement credential came to, where one was proven.
-    ///
-    /// A replacement is proven against its live service before the credential it
-    /// replaces is discarded, so this is present for exactly those settings and
-    /// absent everywhere else.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub proof: Option<super::Validation>,
-    /// Why nothing was written, where nothing was and the reason is not simply that
-    /// somebody has yet to say yes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub refusal: Option<String>,
-    /// Where the proposal stands.
-    pub stance: super::Stance,
 }
