@@ -544,6 +544,15 @@ pub struct LogLine {
     pub stream: super::Stream,
 }
 
+/// Where an export went, or would have gone.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct LogsExported {
+    /// The file, named relative to the directory the viewer was run in.
+    pub path: String,
+    /// Whether it only said where it would have written.
+    pub rehearsed: bool,
+}
+
 /// What reading the logs came to.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct LogsReport {
