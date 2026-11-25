@@ -720,6 +720,66 @@ pub struct Contribution {
     pub why: Option<String>,
 }
 
+/// What a running copy copies, as its reading names it.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "scope")]
+#[non_exhaustive]
+pub enum CopiedScope {
+    /// Every service's configuration, plus lemonfiber's own and the stack.
+    #[serde(rename = "whole_stack")]
+    WholeStack,
+    /// One named service's configuration alone.
+    #[serde(rename = "service")]
+    Service {
+        /// The service whose configuration it copies.
+        name: String,
+    },
+    /// An existing setup's own configuration.
+    #[serde(rename = "existing")]
+    Existing {
+        /// The Compose project it copies, to the operator alone.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        project: Option<String>,
+        /// The host trees it copies, to the operator alone.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        trees: Option<Vec<super::Tree>>,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<CopiedScope, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for CopiedScope {
+    const TAG: Option<&str> = Some("scope");
+    const KNOWN: &[&str] = &["whole_stack", "service", "existing"];
+}
+
+/// Whether a copy is a backup or a restore.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+pub enum CopyWhat {
+    /// A backup, writing an archive.
+    #[serde(rename = "backup")]
+    Backup,
+    /// A restore, writing an archive back.
+    #[serde(rename = "restore")]
+    Restore,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(untagged)]
+    Unrecognised(String),
+}
+
+/// The backup or restore running on this machine now, or none.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct CopyingReport {
+    /// The copy running now, or none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub running: Option<super::RunningCopy>,
+}
+
 /// What changing a decision costs.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
@@ -821,57 +881,4 @@ pub enum Covers {
 impl crate::open::Tags for Covers {
     const TAG: Option<&str> = None;
     const KNOWN: &[&str] = &["service", "entry-point", "job"];
-}
-
-/// A credential of another service granted to a third-party plugin, named by the setting it
-/// is held under and never by its value.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct CredentialGranted {
-    /// When the operator approved it, where the record says.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub at: Option<super::Instant>,
-    /// The setting the credential is held under, as the inventory names it.
-    pub credential: String,
-    /// The capability of the plugin's own it was granted to fill.
-    pub r#for: String,
-    /// The service whose credential it is.
-    pub of: String,
-    /// The plugin it is granted to.
-    pub plugin: String,
-}
-
-/// One credential, described without being disclosed.
-///
-/// There is deliberately no value here, and no field a value could be put in later
-/// without the change being visible in review.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct CredentialHeld {
-    /// What is worth saying about this one, where anything is.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub advisory: Option<String>,
-    /// Everything that authenticates with it. Named individually, because a
-    /// consumer left off this list is a consumer a rotation would silently strand.
-    pub consumers: Vec<String>,
-    /// A short likeness of the value, for telling two copies apart in a report.
-    ///
-    /// Absent where there is no value to take one of. Never reversible and never a
-    /// proof — see [`fingerprint`].
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub fingerprint: Option<String>,
-    /// Whose line it is: the stack's own, or an installed plugin's, named.
-    ///
-    /// A different question from who produced it. A plugin's secret is minted by the
-    /// service it belongs to like any other, and what the operator needs to know as well
-    /// is that the service is one a plugin brought.
-    pub from: super::ValueOrigin,
-    /// Where the value lives, as a path or a description of one.
-    pub location: String,
-    /// What it is, in the operator's words — `Media server administrator password`.
-    pub name: String,
-    /// Who produced it.
-    pub origin: super::Origin,
-    /// The setting it is recorded under, which is a name and never a value.
-    pub setting: String,
-    /// Where it stands.
-    pub state: super::CredentialState,
 }

@@ -227,7 +227,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "fa7cf60ce5e59d77b34e6e25c2d1605ee7786aff";
+pub const REVISION: &str = "ad181fa6e37042c23330270e8e350e1ea14ef223";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -251,6 +251,7 @@ pub const KINDS: &[&str] = &[
     "channels",
     "clients",
     "config",
+    "copying",
     "credentials",
     "dashboard",
     "device-challenge",
@@ -412,6 +413,9 @@ pub enum Payload {
     /// The `config` kind.
     #[serde(rename = "config")]
     Config(Box<ConfigReport>),
+    /// The `copying` kind.
+    #[serde(rename = "copying")]
+    Copying(Box<CopyingReport>),
     /// The `credentials` kind.
     #[serde(rename = "credentials")]
     Credentials(Box<Inventory>),

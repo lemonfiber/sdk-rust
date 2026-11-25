@@ -10,7 +10,12 @@ const KIND_FIELDS: &[&str] = &["schema", "nature", "audience"];
 
 const NATURES: [(&str, bool); 2] = [("record", false), ("state", true)];
 
-const AUDIENCES: [(&str, bool); 2] = [("anyone", false), ("operator", true)];
+const AUDIENCES: [(&str, &str); 4] = [
+    ("anyone", "Anyone"),
+    ("operator", "Operator"),
+    ("key", "Key"),
+    ("operator-and-keys", "OperatorAndKeys"),
+];
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct Events {
@@ -22,10 +27,10 @@ pub struct Events {
 pub struct EventKind {
     pub kind: String,
     pub replaces: bool,
-    pub operator: bool,
+    pub audience: &'static str,
 }
 
-fn one_of(said: Option<&Value>, known: &[(&str, bool)]) -> Option<bool> {
+fn one_of<T: Copy>(said: Option<&Value>, known: &[(&str, T)]) -> Option<T> {
     let said = said.and_then(Value::as_str)?;
     known
         .iter()
@@ -33,7 +38,7 @@ fn one_of(said: Option<&Value>, known: &[(&str, bool)]) -> Option<bool> {
         .map(|(_, flag)| *flag)
 }
 
-fn names(known: &[(&str, bool)]) -> String {
+fn names<T>(known: &[(&str, T)]) -> String {
     known
         .iter()
         .map(|(name, _)| *name)
@@ -82,18 +87,18 @@ pub fn read(
             ));
         }
         let replaces = one_of(entry.get("nature"), &NATURES);
-        let operator = one_of(entry.get("audience"), &AUDIENCES);
+        let audience = one_of(entry.get("audience"), &AUDIENCES);
         if replaces.is_none() {
             problems.push(format!("{what} is of no nature: {}", names(&NATURES)));
         }
-        if operator.is_none() {
+        if audience.is_none() {
             problems.push(format!("{what} has no audience: {}", names(&AUDIENCES)));
         }
-        if let (Some(replaces), Some(operator)) = (replaces, operator) {
+        if let (Some(replaces), Some(audience)) = (replaces, audience) {
             events.kinds.push(EventKind {
                 kind: kind.clone(),
                 replaces,
-                operator,
+                audience,
             });
         }
     }

@@ -651,10 +651,10 @@ fn event_kinds(artefact: &Artefact) -> String {
     for kind in &artefact.events.kinds {
         let _ = writeln!(
             text,
-            "crate::EventKind {{\nkind: {},\nreplaces: {},\noperator: {},\n}},",
+            "crate::EventKind {{\nkind: {},\nreplaces: {},\naudience: crate::Audience::{},\n}},",
             literal(&kind.kind),
             kind.replaces,
-            kind.operator
+            kind.audience
         );
     }
     text.push_str("];\n");

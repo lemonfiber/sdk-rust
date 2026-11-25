@@ -4,6 +4,7 @@ mod examples;
 mod http;
 mod keys;
 mod stream;
+mod unions;
 mod wire;
 
 use std::collections::VecDeque;

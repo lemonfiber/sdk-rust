@@ -43,5 +43,5 @@ pub use http::Http;
 pub use jobs::JobStanding;
 pub use keys::{base64url, signed_text, KeyLink};
 pub use line::DEFAULT_WAIT;
-pub use stream::{Arrival, Break, EventKind, EventStream, Following, HEARTBEAT};
+pub use stream::{Arrival, Audience, Break, EventKind, EventStream, Following, HEARTBEAT};
 pub use transport::{Chunks, Failure, Method, Opened, Request, Response, Transport};

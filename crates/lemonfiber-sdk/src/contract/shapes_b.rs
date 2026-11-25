@@ -118,16 +118,28 @@ pub enum Based {
     Recorded {
         /// The digest of the upstream image each build is recorded as starting from.
         digests: Vec<String>,
+        /// The upstream image, as the manifest names it.
+        image: String,
+        /// The upstream's release, as the manifest names it.
+        release: String,
     },
     /// The build provenance could not be asked for.
     #[serde(rename = "unproven")]
     Unproven {
+        /// The upstream image, as the manifest names it.
+        image: String,
+        /// The upstream's release, as the manifest names it.
+        release: String,
         /// What stopped it being asked for.
         why: String,
     },
     /// The build of some platform's image is not recorded as starting from it.
     #[serde(rename = "refused")]
     Refused {
+        /// The upstream image, as the manifest names it.
+        image: String,
+        /// The upstream's release, as the manifest names it.
+        release: String,
         /// What each such build is recorded as starting from.
         why: String,
     },

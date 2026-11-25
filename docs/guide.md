@@ -283,7 +283,8 @@ loop {
   stream, not a quiet one.
 - `contract::events::ALL` lists every kind the stream carries. Each `EventKind` says
   whether a newer one `replaces` an older one, as a state does and a record does not, and
-  whether only the `operator` hears it.
+  its `audience`: `Anyone` the stream admits, the `Operator` alone, a `read` or `act` `Key`
+  alone, or `OperatorAndKeys`.
 - A broken stream is reopened from the last event it carried, sent as `Last-Event-ID`.
   It waits one second, then twice as long after each failure up to thirty seconds, and is
   `Error::StreamLost` after five failures in a row. `Following` sets all three.

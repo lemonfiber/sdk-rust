@@ -15,12 +15,28 @@ fn the_event_kinds_and_the_heartbeat_are_written_as_the_index_lists_them() -> Ou
     let events = fs::read_to_string(generated.join("events.rs"))?;
     assert!(events.contains("pub const HEARTBEAT_SECONDS: u64 = 15;"));
     assert!(events.contains(
-        "crate::EventKind {\n        kind: \"pull\",\n        replaces: false,\n        operator: true,\n    },"
+        "crate::EventKind {\n        kind: \"pull\",\n        replaces: false,\n        audience: crate::Audience::Operator,\n    },"
     ));
     assert!(events.contains(
-        "crate::EventKind {\n        kind: \"status\",\n        replaces: true,\n        operator: false,\n    },"
+        "crate::EventKind {\n        kind: \"status\",\n        replaces: true,\n        audience: crate::Audience::Anyone,\n    },"
     ));
     assert!(fs::read_to_string(generated.join("mod.rs"))?.contains("pub mod events;"));
+    Ok(())
+}
+
+#[test]
+fn every_audience_the_index_names_is_written_as_who_hears_the_kind() -> Outcome {
+    for (said, written) in [("key", "Key"), ("operator-and-keys", "OperatorAndKeys")] {
+        let mut files = tree();
+        set("index.json", "/events/kinds/pull/audience", json!(said))(&mut files);
+        let root = laid_out(&files)?;
+        run(&words(&["generate"]), root.path())?;
+        let events = fs::read_to_string(root.path().join(GENERATED).join("events.rs"))?;
+        assert!(
+            events.contains(&format!("audience: crate::Audience::{written},")),
+            "{said}: {events}"
+        );
+    }
     Ok(())
 }
 
@@ -80,6 +96,6 @@ fn an_event_stream_this_cannot_write_is_refused_naming_what() -> Outcome {
             "/events/kinds/pull/audience",
             json!("members"),
         ),
-        "the event kind pull has no audience: anyone or operator",
+        "the event kind pull has no audience: anyone or operator or key or operator-and-keys",
     )
 }
