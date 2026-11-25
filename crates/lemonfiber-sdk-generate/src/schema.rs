@@ -249,6 +249,10 @@ impl Shaper {
 
     fn body(&mut self, schema: &Value, name: &str) -> Body {
         if let Some(options) = alternatives(schema) {
+            if properties(schema).is_some() {
+                let joined = self.joined(options, schema, name);
+                return self.union(&joined, name);
+            }
             return self.union(options, name);
         }
         if let Some(fields) = properties(schema) {
@@ -295,6 +299,28 @@ impl Shaper {
             });
         }
         written
+    }
+
+    fn joined(&mut self, options: &[Value], schema: &Value, name: &str) -> Vec<Value> {
+        let mut joined = Vec::new();
+        for option in options {
+            let Some(own) = option.as_object().filter(|own| !own.contains_key("$ref")) else {
+                self.problems.push(format!(
+                    "{name}: fields beside a branch they cannot join, which this generator does not write"
+                ));
+                continue;
+            };
+            let mut fields = properties(schema).cloned().unwrap_or_default();
+            fields.extend(properties(option).cloned().unwrap_or_default());
+            let mut needed: Vec<Value> = required(schema).into_iter().map(Value::from).collect();
+            needed.extend(required(option).into_iter().map(Value::from));
+            let mut branch = own.clone();
+            branch.insert("type".to_owned(), Value::from("object"));
+            branch.insert("properties".to_owned(), Value::Object(fields));
+            branch.insert("required".to_owned(), Value::Array(needed));
+            joined.push(Value::Object(branch));
+        }
+        joined
     }
 
     fn union(&mut self, options: &[Value], name: &str) -> Body {
@@ -597,6 +623,7 @@ pub fn shaped(artefact: &Artefact) -> Result<Shaped, Refused> {
         shapes: BTreeMap::new(),
         problems: Vec::new(),
     };
+    crate::keywords::unread_in(artefact, &mut shaper.problems);
     for written in written_names(artefact) {
         if shaper.defs.contains(&written) {
             let carriers: Vec<&str> = artefact
@@ -729,3 +756,6 @@ fn reaches(artefact: &Artefact, kind: &str, target: &dyn Fn(&str) -> bool) -> bo
     }
     false
 }
+
+#[cfg(test)]
+mod tests;

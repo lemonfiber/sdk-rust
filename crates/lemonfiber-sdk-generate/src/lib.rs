@@ -7,6 +7,7 @@ mod emit;
 mod events;
 mod files;
 mod household;
+mod keywords;
 mod names;
 mod reading;
 mod refused;

@@ -22,8 +22,21 @@ pub struct EventKind {
     pub kind: &'static str,
     /// Whether a newer one replaces an older one, as a state does and a record does not.
     pub replaces: bool,
-    /// Whether only the operator hears it.
-    pub operator: bool,
+    /// Who on the stream hears it.
+    pub audience: Audience,
+}
+
+/// Who on the event stream hears a kind, as the contract says.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Audience {
+    /// Everyone the stream admits.
+    Anyone,
+    /// The operator alone.
+    Operator,
+    /// A `read` or an `act` key alone.
+    Key,
+    /// The operator and a `read` or an `act` key.
+    OperatorAndKeys,
 }
 
 const EVENTS: &str = "/api/events";

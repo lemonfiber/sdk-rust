@@ -741,6 +741,10 @@ fn a_shape_this_cannot_write_is_refused_naming_it() -> Outcome {
         "an integer of a format",
     )?;
     refuses(
+        property(json!({ "allOf": [{ "type": "string" }] })),
+        "the definition Status_of_Things/properties/as uses allOf, which this generator does not read",
+    )?;
+    refuses(
         property(json!({ "type": "decimal" })),
         "a type this generator does not know",
     )?;
