@@ -692,6 +692,10 @@ pub struct Plan {
     pub vanished: Option<Vec<super::Vanished>>,
 }
 
+/// The origin a browser plays a title from, as a content security policy names it:
+/// its scheme, host and port alone.
+pub type PlayOrigin = String;
+
 /// Where one title plays from in a member's browser, at the stack's front door, on a
 /// pass sealing a session on their own account.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]

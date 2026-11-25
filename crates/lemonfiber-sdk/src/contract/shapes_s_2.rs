@@ -799,6 +799,10 @@ impl crate::open::Tags for StackSource {
 pub struct StackStanding {
     /// Whether household members may mint keys for themselves.
     pub members_mint: bool,
+    /// The origin a browser plays a title from, which the page's policy allows, where
+    /// the core knows one: built from the stack's front door, never from a request.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plays_from: Option<super::PlayOrigin>,
     /// The stack's own identifier, the one pairing material carries; absent where this
     /// machine has nowhere to keep one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
