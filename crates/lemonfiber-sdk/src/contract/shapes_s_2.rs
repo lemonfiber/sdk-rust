@@ -85,6 +85,10 @@ pub struct SettingRead {
     /// Every value it accepts, where its manifest declares them.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub choices: Option<Vec<super::Choosable>>,
+    /// What the core reads while no value is recorded, for one of the core's own settings
+    /// that holds anything then; a service's setting has its manifest's on each reader.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default: Option<String>,
     /// The environment file's key it is held under, where it is held there.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub environment: Option<String>,
