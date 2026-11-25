@@ -358,6 +358,13 @@ pub struct UnsupportedReport {
     pub what: String,
 }
 
+/// How many live streams whose passes lapsed unrenewed were closed.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Untuned {
+    /// How many were closed.
+    pub closed: u64,
+}
+
 /// The operator's own overlay, named because nothing in it was held to the model.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Unvetted {

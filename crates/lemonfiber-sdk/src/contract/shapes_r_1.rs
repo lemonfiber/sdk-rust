@@ -472,6 +472,17 @@ pub struct RemovedService {
     pub replaced_by: Option<String>,
 }
 
+/// The grant to play of a member whose client spoke, and until when it holds.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Renewed {
+    /// The last day the grant holds unless their client speaks again, as `YYYY-MM-DD`.
+    pub lasts_until: String,
+    /// The member, by the id their session or key names.
+    pub member: String,
+    /// Whether this was a rehearsal, which renews nothing.
+    pub rehearsed: bool,
+}
+
 /// One repair lemonfiber could carry out.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Repair {

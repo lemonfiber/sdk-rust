@@ -227,7 +227,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "67752e87ac032de26eba9f8bd67c785c5cc39910";
+pub const REVISION: &str = "da2e74a8f139e124375eb7c5c03ba15951a4f957";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[
@@ -285,6 +285,7 @@ pub const KINDS: &[&str] = &[
     "news",
     "news-items",
     "notify",
+    "notify-heard",
     "notify-mine",
     "outbound",
     "pairing",
@@ -308,6 +309,7 @@ pub const KINDS: &[&str] = &[
     "queue",
     "ran",
     "removal",
+    "renewed",
     "repair",
     "replacement",
     "replay",
@@ -335,6 +337,7 @@ pub const KINDS: &[&str] = &[
     "tuned",
     "undo",
     "uninstall",
+    "untuned",
     "update",
     "upgrade",
     "version",
@@ -515,6 +518,9 @@ pub enum Payload {
     /// The `notify` kind.
     #[serde(rename = "notify")]
     Notify(Box<NotifyReport>),
+    /// The `notify-heard` kind.
+    #[serde(rename = "notify-heard")]
+    NotifyHeard(Box<Heard>),
     /// The `notify-mine` kind.
     #[serde(rename = "notify-mine")]
     NotifyMine(Box<NotifyMineReport>),
@@ -584,6 +590,9 @@ pub enum Payload {
     /// The `removal` kind.
     #[serde(rename = "removal")]
     Removal(Box<HouseholdRemoval>),
+    /// The `renewed` kind.
+    #[serde(rename = "renewed")]
+    Renewed(Box<Renewed>),
     /// The `repair` kind.
     #[serde(rename = "repair")]
     Repair(Box<RepairReport>),
@@ -665,6 +674,9 @@ pub enum Payload {
     /// The `uninstall` kind.
     #[serde(rename = "uninstall")]
     Uninstall(Box<Uninstall>),
+    /// The `untuned` kind.
+    #[serde(rename = "untuned")]
+    Untuned(Box<Untuned>),
     /// The `update` kind.
     #[serde(rename = "update")]
     Update(Box<StackUpdateReport>),

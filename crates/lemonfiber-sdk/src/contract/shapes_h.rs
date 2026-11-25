@@ -268,6 +268,13 @@ pub struct HealthSummary {
     pub worst: Option<String>,
 }
 
+/// Which service told of an event.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Heard {
+    /// The service whose key it presented.
+    pub service: String,
+}
+
 /// A heartbeat's interval and grace, and its last check-in.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Heartbeat {
