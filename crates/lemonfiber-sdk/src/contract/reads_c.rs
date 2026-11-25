@@ -36,6 +36,21 @@ impl crate::Read for ChannelsRead {
     const KINDS: &[&str] = &["channels"];
 }
 
+/// `GET /api/copying`, answered with `copying`.
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
+pub struct CopyingRead {}
+
+impl crate::Answer for super::CopyingReport {
+    const TAGGED: bool = false;
+}
+
+impl crate::Read for CopyingRead {
+    type Answer = super::CopyingReport;
+    const PATH: &str = "/api/copying";
+    const SEGMENTS: &[&str] = &[];
+    const KINDS: &[&str] = &["copying"];
+}
+
 /// `GET /api/config`, answered with `config`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
 pub struct ConfigRead {

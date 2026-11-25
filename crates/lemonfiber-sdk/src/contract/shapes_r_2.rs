@@ -138,3 +138,82 @@ pub struct RunReport {
     /// How many times fell due while that run was still going, each skipped.
     pub skipped: u32,
 }
+
+/// A backup or restore running now.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "state")]
+#[non_exhaustive]
+pub enum RunningCopy {
+    /// Writing as fast as it can.
+    #[serde(rename = "working")]
+    Working {
+        /// The name an accepting reply gave the work, where one did.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        job: Option<String>,
+        /// The area being written now, named.
+        part: String,
+        /// What it copies.
+        scope: Box<super::CopiedScope>,
+        /// When it started.
+        started: Box<super::Instant>,
+        /// Whether it is a backup or a restore.
+        what: Box<super::CopyWhat>,
+        /// The bytes it will write.
+        whole: u64,
+        /// The bytes written so far.
+        written: u64,
+    },
+    /// Held to the operator's limit.
+    #[serde(rename = "paced")]
+    Paced {
+        /// The name an accepting reply gave the work, where one did.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        job: Option<String>,
+        /// The limit, in bytes a second.
+        limit: u64,
+        /// The area being written now, named.
+        part: String,
+        /// What it copies.
+        scope: Box<super::CopiedScope>,
+        /// When it started.
+        started: Box<super::Instant>,
+        /// Whether it is a backup or a restore.
+        what: Box<super::CopyWhat>,
+        /// The bytes it will write.
+        whole: u64,
+        /// The bytes written so far.
+        written: u64,
+    },
+    /// Nothing written for the minutes the operator's setting holds.
+    #[serde(rename = "stalled")]
+    Stalled {
+        /// The name an accepting reply gave the work, where one did.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        job: Option<String>,
+        /// The area being written now, named.
+        part: String,
+        /// What it copies.
+        scope: Box<super::CopiedScope>,
+        /// When it started.
+        started: Box<super::Instant>,
+        /// Whether it is a backup or a restore.
+        what: Box<super::CopyWhat>,
+        /// The bytes it will write.
+        whole: u64,
+        /// The bytes written so far.
+        written: u64,
+        /// The instant it last wrote.
+        wrote: Box<super::Instant>,
+    },
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<RunningCopy, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for RunningCopy {
+    const TAG: Option<&str> = Some("state");
+    const KNOWN: &[&str] = &["working", "paced", "stalled"];
+}

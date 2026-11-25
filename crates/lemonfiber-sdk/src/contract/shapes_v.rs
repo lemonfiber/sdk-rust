@@ -288,18 +288,48 @@ pub enum Vouch {
     /// A signature over a payload naming this digest verified against a held key.
     #[serde(rename = "signed")]
     Signed {
+        /// What the service says its image is built on, and what its build provenance makes
+        /// of that, where it says.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        built_on: Option<super::Based>,
         /// Which key it verified against, so the answer names what was trusted.
         by: String,
+        /// The digest that fixes what runs.
+        digest: String,
+        /// The registry path, as the manifest declares it.
+        image: String,
+        /// The service the image runs as.
+        service: String,
     },
     /// Nothing was established, and nothing follows from it either way.
     #[serde(rename = "unproven")]
     Unproven {
+        /// What the service says its image is built on, and what its build provenance makes
+        /// of that, where it says.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        built_on: Option<super::Based>,
+        /// The digest that fixes what runs.
+        digest: String,
+        /// The registry path, as the manifest declares it.
+        image: String,
+        /// The service the image runs as.
+        service: String,
         /// What stopped it being established.
         why: String,
     },
     /// A signature is offered and it does not hold.
     #[serde(rename = "refused")]
     Refused {
+        /// What the service says its image is built on, and what its build provenance makes
+        /// of that, where it says.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        built_on: Option<super::Based>,
+        /// The digest that fixes what runs.
+        digest: String,
+        /// The registry path, as the manifest declares it.
+        image: String,
+        /// The service the image runs as.
+        service: String,
         /// Every way it does not.
         why: String,
     },
