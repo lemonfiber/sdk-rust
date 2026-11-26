@@ -1,3 +1,19 @@
+/// One stored value, handed back because the operator asked for it and said so.
+///
+/// Separate from [`Held`] rather than a field on it, so that the inventory cannot
+/// carry a value by accident: a surface that renders the inventory has nothing to
+/// render, whatever it does.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct Revealed {
+    /// Which credential this is.
+    pub name: String,
+    /// The value, present only where the ask was confirmed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<String>,
+    /// What the operator is told before it appears, whether or not it appears.
+    pub warning: String,
+}
+
 /// A proposed change, read against what is in force, and where it stands.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Review {

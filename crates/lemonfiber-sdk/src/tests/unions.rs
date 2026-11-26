@@ -3,7 +3,7 @@ use serde_json::{json, Value};
 use super::Outcome;
 use crate::contract::{Based, RunningCopy, Vouch};
 
-fn kept<T: serde::de::DeserializeOwned + serde::Serialize>(
+pub(super) fn kept<T: serde::de::DeserializeOwned + serde::Serialize>(
     said: &Value,
 ) -> Result<(T, Value), serde_json::Error> {
     let read: T = serde_json::from_value(said.clone())?;

@@ -245,6 +245,13 @@ pub struct Invitation {
 /// is two shapes a client has to be told are about the same thing.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct InvitationApplied {
+    /// What happens to what they ask for, in the words the household read gives a
+    /// member's policy: `everything-waits` once the request service holds them.
+    ///
+    /// Absent where it does not hold them: no request service, or one that could not
+    /// be reached.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub asking: Option<super::Policy>,
     /// What a limit here is, and what it is not.
     ///
     /// Carried on the answer rather than left to a document, because the reader who
@@ -262,6 +269,9 @@ pub struct InvitationApplied {
     /// may *ask for* is a second service's business, and that service can be down while
     /// the media server is not. `NotTried` here is a service with no account for them
     /// yet — nothing to hold rather than a failure to hold something.
+    ///
+    /// On a rehearsal, what the run would do: `Made` where a request service is wired
+    /// and can be asked, `NotTried` where there is none.
     pub requesting: super::Linked,
     /// What becomes of content the media server has no rating for.
     ///
