@@ -64,6 +64,22 @@ fn a_device_key_signs_the_lines_of_one_mint_and_no_other() -> Outcome {
 }
 
 #[tokio::test]
+async fn a_listed_key_names_the_device_key_that_proved_its_mint_and_none_where_the_password_did(
+) -> Outcome {
+    let home = json!({ "member_minted": false, "minted": 1, "name": "home", "purpose": "home-assistant", "scope": "read", "state": "active" });
+    let phone = json!({ "member_minted": false, "minted": 1, "name": "phone", "proved_by": "pixel", "purpose": "home-assistant", "scope": "read", "state": "active" });
+    let listing = json!({ "keys": [phone, home], "purposes": "", "rehearsed": false });
+    let (client, _) = client(Scripted::answering(vec![Ok(reply(
+        200,
+        enveloped("keys", &listing),
+    ))]))?;
+    let listed = client.keys().await?.data.keys;
+    let proved: Vec<Option<&str>> = listed.iter().map(|key| key.proved_by.as_deref()).collect();
+    assert_eq!(proved, [Some("pixel"), None]);
+    Ok(())
+}
+
+#[tokio::test]
 async fn a_key_is_minted_with_its_secret_or_as_a_claim_and_a_device_key_is_registered() -> Outcome {
     let minted = json!({
         "name": "home", "purpose": "home-assistant", "scope": "read", "secret": "lfk_x",
