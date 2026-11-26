@@ -329,7 +329,8 @@ pub struct FrontDoorBeside {
     pub facing: super::Facing,
     /// Whether the address answers from where the asking came from.
     pub reaches: super::FrontDoorReaches,
-    /// The service, by the name it shows itself under.
+    /// The service, by the name it shows itself under, or for a household member by what
+    /// it is to them.
     pub service: String,
     /// Why there is no address, where there is none.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -383,8 +384,9 @@ pub struct FrontDoorReport {
     pub meaning: String,
     /// Whether the address answers from where the asking came from.
     pub reaches: super::FrontDoorReaches,
-    /// The service the household begins at, by the name it shows itself under.
-    /// Absent where this stack publishes nothing they could begin at.
+    /// The service the household begins at, by the name it shows itself under, or for a
+    /// household member by what it is to them. Absent where this stack publishes nothing
+    /// they could begin at.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service: Option<String>,
     /// Where the front door stands.

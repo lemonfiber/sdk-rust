@@ -128,6 +128,20 @@ pub struct Reader {
     pub variable: String,
 }
 
+/// One reader's own default for a setting.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ReaderDefault {
+    /// What its manifest declares while no value is recorded, where it declares one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default: Option<String>,
+    /// Whether the settings it needs hold what it needs, so the variable is written.
+    pub met: bool,
+    /// The service.
+    pub service: String,
+    /// The variable it is read into.
+    pub variable: String,
+}
+
 /// Why a walkthrough could not go on.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
@@ -875,20 +889,4 @@ pub enum Restriction {
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
-}
-
-/// One stored value, handed back because the operator asked for it and said so.
-///
-/// Separate from [`Held`] rather than a field on it, so that the inventory cannot
-/// carry a value by accident: a surface that renders the inventory has nothing to
-/// render, whatever it does.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct Revealed {
-    /// Which credential this is.
-    pub name: String,
-    /// The value, present only where the ask was confirmed.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub value: Option<String>,
-    /// What the operator is told before it appears, whether or not it appears.
-    pub warning: String,
 }
