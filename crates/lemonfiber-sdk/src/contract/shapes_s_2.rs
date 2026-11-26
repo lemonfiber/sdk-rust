@@ -63,12 +63,55 @@ pub struct SettingChoiceNeeding {
     pub values: Vec<super::ServiceConstant>,
 }
 
+/// What a setting falls back to while it holds no operator value.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "of")]
+#[non_exhaustive]
+pub enum SettingDefault {
+    /// One of the core's own settings, with what the core reads while none is recorded.
+    #[serde(rename = "core")]
+    Core {
+        /// The value.
+        value: String,
+    },
+    /// The one default every reader whose `needs` are met declares. Empty is empty by
+    /// default.
+    #[serde(rename = "declared")]
+    Declared {
+        /// The value.
+        value: String,
+    },
+    /// Each reader's own, where the readers whose `needs` are met declare different ones.
+    #[serde(rename = "per-reader")]
+    PerReader {
+        /// Every reader, those whose `needs` are unmet included.
+        readers: Vec<super::ReaderDefault>,
+    },
+    /// Nothing declares one, so nothing is written for it.
+    #[serde(rename = "none")]
+    None,
+    /// A value this client was not generated with, as it arrived.
+    #[serde(
+        untagged,
+        deserialize_with = "crate::open::unrecognised::<SettingDefault, _>"
+    )]
+    Unrecognised(serde_json::Value),
+}
+
+impl crate::open::Tags for SettingDefault {
+    const TAG: Option<&str> = Some("of");
+    const KNOWN: &[&str] = &["core", "declared", "per-reader", "none"];
+}
+
 /// One setting a change moves.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct SettingMove {
     /// What moving it costs, where it costs anything.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub consequence: Option<String>,
+    /// What it falls back to while it holds no operator value, read with the change in
+    /// place.
+    pub default: super::SettingDefault,
     /// The setting.
     pub setting: String,
     /// What it is to hold, or nothing where it is cleared.
@@ -813,68 +856,4 @@ pub struct StackStanding {
     pub told: bool,
     /// Whether a phone's push endpoint is waiting to be woken.
     pub waiting: bool,
-}
-
-/// What updating the stack would change, or what a run of it came to.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct StackUpdateReport {
-    /// What became of each service the run reached, in the order it reached them.
-    pub applied: Vec<super::UpdateApplied>,
-    /// Where the backup taken before anything moved was written.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub backup: Option<String>,
-    /// What the release that brought these pins changed.
-    ///
-    /// The stack this would move to is the one this build carries, and the release
-    /// that carried this build is what says why it moved. An operator weighing a
-    /// stack update is weighing that, and being shown only which image numbers go up
-    /// is being shown the arithmetic rather than the reason.
-    pub changelog: super::Notes,
-    /// What would move, and what taking each step means.
-    pub changes: Vec<super::UpdateChange>,
-    /// Whether the steps were agreed to, or only shown.
-    pub confirmed: bool,
-    /// Each of lemonfiber's own guards this run moved onto its plugin, or would move once
-    /// confirmed, for good and with no yes of its own; one it could not move stays on
-    /// offer and says why.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub guards: Option<Vec<super::StackMoveTaken>>,
-    /// Why the stack is not as the run found it, where it is not.
-    ///
-    /// Two runs end that way and an operator has the same thing to do about either:
-    /// one that met a service which would not come back and stopped there, and one
-    /// where every step succeeded and the stack would not start again afterwards.
-    /// The second is not a failure of the update — `state` still says `Updated`,
-    /// because it is — but the stack came down for the capture and something has to
-    /// say that it is still down.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub halted: Option<String>,
-    /// What the download clients are still working on, named so an operator can
-    /// tell whether the thing they have been waiting for is among them.
-    pub in_flight: Vec<String>,
-    /// Each move in place this run took, or tried to take and could not, with why.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub moved: Option<Vec<super::StackMoveTaken>>,
-    /// Each part this release installs as a plugin that the stack still runs as its own
-    /// service after this run: a move in place on offer, which a confirmed update takes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub moves: Option<Vec<super::MoveOffered>>,
-    /// The offer this answers: every step, from the release each service stands on to
-    /// the one it would move to, named so that an update carrying it back takes those
-    /// steps or is refused.
-    pub offer: String,
-    /// Whether this was a rehearsal: what would have happened, with none of it done.
-    ///
-    /// Said in a field of its own so that a rehearsal is never told from the real run by
-    /// its wording alone.
-    pub rehearsed: bool,
-    /// Stack files the operator had edited, left as they set them rather than
-    /// overwritten with this build's own, each with the change that was held back.
-    pub stack_edits: Vec<super::StackEdit>,
-    /// The one word the run comes to.
-    pub state: super::UpdateState,
-    /// The operator's overlay and every service it changes, where there is one: merged
-    /// over the project this run would start, and held to nothing lemonfiber vets.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub unvetted: Option<super::Unvetted>,
 }

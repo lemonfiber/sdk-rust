@@ -1,4 +1,5 @@
 mod client;
+mod defaults_and_asking;
 mod door;
 mod examples;
 mod http;
