@@ -31,7 +31,7 @@ mod transport;
 mod tests;
 
 pub use address::{Address, CertificatePin, Resolve, SystemResolver};
-pub use asking::{Action, Answer, FileRead, KeyCallable, Read, RefusalCode};
+pub use asking::{Action, Answer, FileRead, KeyCallable, Read, RefusalCode, Route};
 pub use capabilities::CapabilitySet;
 pub use client::{Acted, Client, IdempotencyKey, Logged};
 pub use credential::{Credential, Session};

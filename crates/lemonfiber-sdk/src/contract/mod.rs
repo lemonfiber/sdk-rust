@@ -78,6 +78,7 @@ mod refusals_update;
 mod refusals_wire;
 mod refusals_wish;
 mod refusals_word;
+pub mod routes;
 mod shapes_a;
 pub use shapes_a::*;
 mod shapes_b;
@@ -227,7 +228,7 @@ pub mod refusals {
 pub const API_VERSION: u32 = 1;
 
 /// The lemonfiber revision this contract was taken from.
-pub const REVISION: &str = "cea723ebe8dbe1c4accd07be9b6a1bfb4a57122e";
+pub const REVISION: &str = "a50946378c099dafd315eb3d72f31df64fe33459";
 
 /// Every kind the contract describes.
 pub const KINDS: &[&str] = &[

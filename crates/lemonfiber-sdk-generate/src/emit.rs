@@ -3,7 +3,7 @@ use std::fmt::Write as _;
 use std::io::Write as _;
 use std::process::{Command, Output, Stdio};
 
-use crate::artefact::{Artefact, Read};
+use crate::artefact::{Artefact, Read, METHODS};
 use crate::names::{answer_type, field, literal, pascal, read_type, screaming};
 use crate::schema::{Body, Field, Holds, Shape, Shaped, Ty, Variant, UNRECOGNISED};
 use crate::Refused;
@@ -46,6 +46,7 @@ pub fn files(artefact: &Artefact, shaped: &Shaped) -> Result<Vec<(String, String
         ("action_names", action_names(shaped)),
         ("refusal_list", refusal_list(artefact)),
         ("key_callable", key_callable(artefact)),
+        ("routes", routes(artefact)),
         ("events", event_kinds(artefact)),
         ("household_words", household_words(artefact)),
     ];
@@ -344,7 +345,7 @@ fn root(artefact: &Artefact, shaped: &Shaped, modules: &Modules) -> String {
                     //! from the contract artefact taken from the lemonfiber revision [`REVISION`] names.\n\
                     //! `just generate` writes this module, and CI refuses it where it differs from\n\
                     //! what that writes.\n\n\
-                    mod action_names;\npub mod events;\npub mod household_words;\npub mod key_callable;\nmod refusal_list;\n"
+                    mod action_names;\npub mod events;\npub mod household_words;\npub mod key_callable;\nmod refusal_list;\npub mod routes;\n"
         .to_owned();
     text.push_str(&each(&modules.reads, "mod ", ";"));
     text.push_str(&each(&modules.actions, "mod ", ";"));
@@ -634,6 +635,31 @@ fn key_callable(artefact: &Artefact) -> String {
             callable.disturbs,
             callable.rehearsal,
             callable.idempotent
+        );
+    }
+    text.push_str("];\n");
+    text
+}
+
+fn routes(artefact: &Artefact) -> String {
+    let mut text =
+        "//! Every route the web API serves, by its method and its path, and what the contract\n\
+                    //! says of each.\n\n\
+                    /// Every route the web API serves, in the order the contract lists them.\n\
+                    pub const ALL: &[crate::Route] = &[\n"
+            .to_owned();
+    for route in &artefact.routes {
+        let method = METHODS
+            .iter()
+            .find(|(spelled, _)| *spelled == route.method)
+            .map_or("", |(_, variant)| *variant);
+        let kinds: Vec<String> = route.kinds.iter().map(|kind| literal(kind)).collect();
+        let _ = writeln!(
+            text,
+            "crate::Route {{\nmethod: crate::Method::{method},\npath: {},\nbody: {},\nkinds: &[{}],\n}},",
+            literal(&route.path),
+            route.body,
+            kinds.join(", ")
         );
     }
     text.push_str("];\n");

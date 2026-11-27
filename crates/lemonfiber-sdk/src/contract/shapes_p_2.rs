@@ -812,7 +812,8 @@ pub struct PluginRecipe {
     /// Every value it asks the operator for when it runs, in the order it declares them.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inputs: Option<Vec<super::PluginRecipeInput>>,
-    /// When it runs: as part of an install and an update, or only when asked for by name.
+    /// When it runs: as part of an install and an update, only when asked for by name, or
+    /// once the part its plugin claims is lemonfiber's.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub on: Option<super::PluginRecipeOn>,
     /// Every value it could carry, and where to.
@@ -851,6 +852,11 @@ pub enum PluginRecipeOn {
     /// Only when the operator asks for it by name, with approvals of its own.
     #[serde(rename = "demand")]
     Demand,
+    /// Once the part its plugin claims over `owner.claim@1` answers that it is
+    /// lemonfiber's, under the approvals of the plugin's last install or update, until it
+    /// has held once. It asks the operator for nothing.
+    #[serde(rename = "claim")]
+    Claim,
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),

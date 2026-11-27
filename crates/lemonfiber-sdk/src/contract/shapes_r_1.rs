@@ -383,8 +383,10 @@ pub struct RegisteredDeviceKey {
 /// A push endpoint registered.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct RegisteredPushEndpoint {
-    /// The `https` address its distributor gave.
-    pub endpoint: String,
+    /// The first sixteen lower-case hexadecimal digits of the SHA-256 of that address.
+    pub fingerprint: String,
+    /// The host the address its distributor gave reaches.
+    pub host: String,
     /// The name it was registered under.
     pub name: String,
     /// When it was registered.
