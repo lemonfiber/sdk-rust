@@ -63,6 +63,19 @@ impl RefusalCode {
     }
 }
 
+/// One route the web API serves, and what the contract says of it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Route {
+    /// The method it is served at.
+    pub method: crate::Method,
+    /// Its path, each segment a caller fills written as `{name}`.
+    pub path: &'static str,
+    /// Whether it takes a body.
+    pub body: bool,
+    /// Every kind it may answer with; none for a route answering with a file.
+    pub kinds: &'static [&'static str],
+}
+
 /// One action a key may call, and what the contract says of it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct KeyCallable {

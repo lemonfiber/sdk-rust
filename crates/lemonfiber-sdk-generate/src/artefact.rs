@@ -19,6 +19,7 @@ const INDEX_FIELDS: &[&str] = &[
     "events",
     "key_callable",
     "reads",
+    "routes",
     "refusals",
     "examples",
     "household_words",
@@ -40,6 +41,12 @@ const ACTION_FIELDS: &[&str] = &["action", "arguments", "consent", "rehearsal"];
 const READ_FIELDS: &[&str] = &["path", "parameters", "kinds", "file"];
 
 const CALLABLE_FIELDS: &[&str] = &["action", "disturbs", "rehearsal", "idempotent", "moved"];
+
+const ROUTE_FIELDS: &[&str] = &["method", "path", "body", "kinds"];
+
+/// The methods a route is served at, as HTTP spells each, with the variant of the SDK's
+/// `Method` naming it.
+pub const METHODS: &[(&str, &str)] = &[("GET", "Get"), ("POST", "Post"), ("DELETE", "Delete")];
 
 const REFUSAL_FIELDS: &[&str] = &["name", "status", "description"];
 
@@ -63,6 +70,14 @@ pub struct Read {
     pub parameters: Vec<(String, bool)>,
     pub kinds: Vec<String>,
     pub file: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Route {
+    pub method: String,
+    pub path: String,
+    pub body: bool,
+    pub kinds: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -92,6 +107,7 @@ pub struct Artefact {
     pub actions: Vec<Action>,
     pub bodies: Vec<Body>,
     pub reads: Vec<Read>,
+    pub routes: Vec<Route>,
     pub key_callable: Vec<KeyCallable>,
     pub refusals: Vec<Refusal>,
     pub events: Events,
@@ -272,7 +288,7 @@ fn is_code(code: &str, family: &str) -> bool {
             .is_some_and(|number| !number.is_empty() && number.chars().all(|c| c.is_ascii_digit()))
 }
 
-fn is_read_path(path: &str) -> bool {
+fn is_path(path: &str) -> bool {
     path.strip_prefix("/api/").is_some_and(|rest| {
         rest.split('/').all(|segment| {
             is_word(segment)
@@ -326,6 +342,13 @@ impl Artefact {
             Some(file) => read_reads(&reader.json(file)?, &kinds, &mut problems),
             None => Vec::new(),
         };
+        let routes = match fields.get("routes") {
+            Some(named) => match file_of(Some(named), "the routes", &mut problems) {
+                Some(file) => read_routes(&reader.json(file)?, &kinds, &mut problems),
+                None => Vec::new(),
+            },
+            None => Vec::new(),
+        };
         let key_callable = match file_of(
             fields.get("key_callable"),
             "the actions a key may call",
@@ -361,6 +384,7 @@ impl Artefact {
                 actions,
                 bodies,
                 reads,
+                routes,
                 key_callable,
                 refusals,
                 events,
@@ -549,17 +573,14 @@ fn read_bodies(
             problems.push(format!("the body of {route} names no file"));
             continue;
         };
-        if route
-            .strip_prefix("/api/")
-            .is_some_and(|rest| rest.split('/').all(is_word))
-        {
+        if is_path(route) {
             bodies.push(Body {
                 route: route.clone(),
                 schema: reader.schema(file)?,
             });
         } else {
             problems.push(format!(
-                "the body of {route:?} is not taken at a route of words"
+                "the body of {route:?} is not taken at a route under /api/"
             ));
         }
     }
@@ -661,7 +682,7 @@ fn read_reads(
             .get("path")
             .and_then(Value::as_str)
             .unwrap_or_default();
-        if !is_read_path(path) {
+        if !is_path(path) {
             problems.push(format!("{what}: {path:?} is not a read's path"));
             continue;
         }
@@ -716,6 +737,67 @@ fn read_reads(
         }
     }
     reads
+}
+
+fn read_routes(
+    listed: &Value,
+    kinds: &BTreeMap<String, Value>,
+    problems: &mut Vec<String>,
+) -> Vec<Route> {
+    let mut routes: Vec<Route> = Vec::new();
+    let Some(entries) = listed.as_array() else {
+        problems.push("the routes are not a list".to_owned());
+        return routes;
+    };
+    for (at, entry) in entries.iter().enumerate() {
+        let what = format!("route {at}");
+        let Some(fields) = object(entry, &what, problems) else {
+            continue;
+        };
+        unread(fields, ROUTE_FIELDS, &what, problems);
+        let method = fields
+            .get("method")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let path = fields
+            .get("path")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let answers = strings(fields.get("kinds"), &format!("{what}: kinds"), problems);
+        for kind in &answers {
+            if !kinds.contains_key(kind) {
+                problems.push(format!(
+                    "{what}: {path} answers with {kind}, which the contract describes no kind as"
+                ));
+            }
+        }
+        let Some(body) = fields.get("body").and_then(Value::as_bool) else {
+            problems.push(format!("{what}: body is not true or false"));
+            continue;
+        };
+        if !METHODS.iter().any(|(spelled, _)| *spelled == method) {
+            let every: Vec<&str> = METHODS.iter().map(|(spelled, _)| *spelled).collect();
+            problems.push(format!(
+                "{what}: {method:?} is not one of {}",
+                every.join(", ")
+            ));
+        } else if !is_path(path) {
+            problems.push(format!("{what}: {path:?} is not a route's path"));
+        } else if routes
+            .iter()
+            .any(|route| route.method == method && route.path == path)
+        {
+            problems.push(format!("{what}: {method} {path} is listed twice"));
+        } else {
+            routes.push(Route {
+                method: method.to_owned(),
+                path: path.to_owned(),
+                body,
+                kinds: answers,
+            });
+        }
+    }
+    routes
 }
 
 fn read_key_callable(

@@ -24,7 +24,7 @@ pub fn take(root: &Path, from: &Path, revision: &str) -> Result<String, Refused>
                 .filter_map(|(_, file)| file.as_str().map(str::to_owned)),
         );
     }
-    for list in ["reads", "key_callable", "household_words"] {
+    for list in ["reads", "routes", "key_callable", "household_words"] {
         named.extend(index.get(list).and_then(Value::as_str).map(str::to_owned));
     }
     let held = files::beneath(from);

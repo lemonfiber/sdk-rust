@@ -41,8 +41,8 @@ async fn push_endpoints_are_registered_listed_and_removed_as_the_contract_exampl
             .data
             .endpoints
             .first()
-            .map(|one| one.endpoint.as_str()),
-        Some(ADDRESS)
+            .map(|one| (one.host.as_str(), one.fingerprint.as_str())),
+        Some(("push.example", "2fb15b007051cfa9"))
     );
     client.remove_push_endpoint("a phone/2").await?;
     let sent = script.sent();

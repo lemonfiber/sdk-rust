@@ -8,7 +8,8 @@ const PUSH_ENDPOINTS: &str = "/api/push-endpoints";
 
 /// The phones that asked to be woken: every one for the operator, a member's own for a
 /// member's session, and none for a key. An endpoint's address lets whoever holds it wake
-/// the phone, so a screen shows its host alone.
+/// the phone, so no answer carries it once it is registered: each carries its host and a
+/// fingerprint instead.
 impl Client {
     /// Every push endpoint this credential keeps, in the order they were registered.
     ///

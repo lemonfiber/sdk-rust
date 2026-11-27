@@ -9,6 +9,8 @@ use crate::emit::{formatted, paged};
 use crate::schema::shaped;
 use crate::{run, Refused, CONTRACT, GENERATED, STAMP};
 
+mod routes;
+
 pub(crate) type Outcome = Result<(), Box<dyn std::error::Error>>;
 
 pub(crate) const REVISION: &str = "0123456789abcdef0123456789abcdef01234567";
@@ -105,6 +107,14 @@ fn lists(put: &mut impl FnMut(&str, Value)) {
         ]),
     );
     put(
+        "routes.json",
+        json!([
+            { "method": "DELETE", "path": "/api/keys/{name}", "body": true, "kinds": ["status"] },
+            { "method": "GET", "path": "/api/bundle/{name}", "body": false, "kinds": [] },
+            { "method": "POST", "path": "/api/setup/answer", "body": true, "kinds": ["status", "pull"] },
+        ]),
+    );
+    put(
         "key-callable.json",
         json!([
             { "action": "restart", "disturbs": true, "rehearsal": true, "idempotent": true, "moved": "LIFE-10" },
@@ -145,6 +155,7 @@ pub(crate) fn tree() -> BTreeMap<String, Value> {
             "bodies": { "/api/setup/answer": "bodies/setup-answer.json" },
             "key_callable": "key-callable.json",
             "reads": "reads.json",
+            "routes": "routes.json",
             "household_words": "household-words.json",
             "refusals": { "LIFE": "refusals/LIFE.json" },
             "events": {
@@ -398,7 +409,6 @@ fn what_is_generated_is_held_to_what_is_committed_file_by_file() -> Outcome {
         callable.contains("Some(&super::refusals::OFFER_MOVED)")
             && callable.contains("moved: None")
     );
-
     fs::write(generated.join("actions_r.rs"), "edited")?;
     fs::remove_file(generated.join("refusals_life.rs"))?;
     fs::write(generated.join("stray.rs"), "")?;
@@ -568,7 +578,15 @@ fn an_action_a_body_or_a_refusal_this_cannot_write_is_refused() -> Outcome {
             "/bodies/Setup",
             json!("bodies/setup-answer.json"),
         ),
-        "is not taken at a route of words",
+        "is not taken at a route under /api/",
+    )?;
+    refuses(
+        set(
+            "index.json",
+            "/bodies/~1api~1keys~1{Name}",
+            json!("bodies/setup-answer.json"),
+        ),
+        "is not taken at a route under /api/",
     )?;
     refuses(
         set("index.json", "/refusals/LIFE", json!(1)),
