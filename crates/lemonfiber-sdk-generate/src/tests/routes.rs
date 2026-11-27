@@ -76,5 +76,9 @@ fn a_route_this_cannot_write_is_refused() -> Outcome {
         "route 1: DELETE /api/keys/{name} is listed twice",
     )?;
     refuses(set("routes.json", "/0/extra", json!(1)), "carries extra")?;
+    refuses(
+        set("index.json", "/routes", json!(1)),
+        "names no file for the routes",
+    )?;
     Ok(())
 }
