@@ -254,6 +254,22 @@ The signature is ECDSA P-256 over SHA-256, made by the phone. `base64url` writes
 as the stack reads them in a body. `Client::device_keys` lists the device keys and
 `Client::revoke_device_key` revokes one.
 
+## Phones that are woken
+
+`Client::register_push_endpoint`, `Client::push_endpoints` and
+`Client::remove_push_endpoint` keep the phones the stack wakes on every alert: every one
+for the operator, a member's own for a member's session, and none for a key. The WebPush
+key and secret are sent in base64url. An endpoint's address lets whoever holds it wake
+the phone, so a screen shows its host alone.
+
+```rust
+client.register_push_endpoint(&PushEndpointsBody { name, endpoint, p256dh, auth }).await?;
+for one in client.push_endpoints().await?.data.endpoints {
+    show(&one.name, url_host(&one.endpoint));
+}
+client.remove_push_endpoint("pixel").await?;
+```
+
 ## First-run setup
 
 `Client::setup` reads where setup stands. `setup_answer` answers the question it is on,

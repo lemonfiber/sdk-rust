@@ -4,6 +4,7 @@ mod door;
 mod examples;
 mod http;
 mod keys;
+mod push_endpoints;
 mod stream;
 mod unions;
 mod wire;
