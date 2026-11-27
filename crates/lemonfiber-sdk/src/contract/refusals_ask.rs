@@ -101,3 +101,11 @@ name: "IDEMPOTENCY_KEY_REUSED",
 status: 400,
 description: "Raised where an `Idempotency-Key` already sent with one action and its arguments is sent with another.",
 };
+
+/// `ASK-14`: Raised where the body of a revocation is not `dry_run` alone.
+pub const NOT_A_REVOCATION: crate::RefusalCode = crate::RefusalCode {
+    code: "ASK-14",
+    name: "NOT_A_REVOCATION",
+    status: 400,
+    description: "Raised where the body of a revocation is not `dry_run` alone.",
+};

@@ -810,3 +810,11 @@ pub struct PushEndpointsBody {
     /// The phone's `WebPush` public key, in base64url.
     pub p256dh: String,
 }
+
+/// The body a revocation takes.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PushEndpointsNameBody {
+    /// Whether to answer with what revoking would come to, and revoke nothing.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dry_run: Option<bool>,
+}

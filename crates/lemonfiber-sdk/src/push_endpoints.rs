@@ -1,4 +1,6 @@
-use crate::contract::{PushEndpointListing, PushEndpointsBody, RegisteredPushEndpoint};
+use crate::contract::{
+    PushEndpointListing, PushEndpointsBody, PushEndpointsNameBody, RegisteredPushEndpoint,
+};
 use crate::line::Asked;
 use crate::query::segment;
 use crate::transport::Method;
@@ -52,5 +54,27 @@ impl Client {
         let path = format!("{PUSH_ENDPOINTS}/{}", segment(name)?);
         self.expect(Asked::once(Method::Delete, path), "push-endpoints")
             .await
+    }
+
+    /// What removing one push endpoint by its name would come to, removing nothing: the
+    /// endpoints as they would then stand, the listing saying it was a rehearsal.
+    ///
+    /// # Errors
+    ///
+    /// Every [`Error`] a request can meet, and [`Error::Unsendable`] for a name no path can
+    /// carry as one part.
+    pub async fn rehearse_remove_push_endpoint(
+        &self,
+        name: &str,
+    ) -> Result<Envelope<PushEndpointListing>, Error> {
+        let rehearsing = PushEndpointsNameBody {
+            dry_run: Some(true),
+        };
+        let path = format!("{PUSH_ENDPOINTS}/{}", segment(name)?);
+        self.expect(
+            Asked::sending(Method::Delete, path, &rehearsing)?,
+            "push-endpoints",
+        )
+        .await
     }
 }

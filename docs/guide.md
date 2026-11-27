@@ -209,6 +209,10 @@ let minted = client.mint(&minting).await?;
 client.revoke("home").await?;
 ```
 
+`Client::rehearse_revoke`, `Client::rehearse_revoke_device_key` and
+`Client::rehearse_remove_push_endpoint` rehearse each removal: nothing is removed, and the
+answer is the listing as it would then stand, its `rehearsed` true.
+
 `Client::mint_claim` mints a key as a claim instead, answered with no secret but a key
 link, `lemonfiber://key?...`, that collects the key once. A program holding nothing
 else collects it:

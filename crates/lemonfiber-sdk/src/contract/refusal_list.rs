@@ -29,6 +29,7 @@ pub const ALL: &[crate::RefusalCode] = &[
     super::refusals::NOT_A_KEY_REQUEST,
     super::refusals::NOT_AN_IDEMPOTENCY_KEY,
     super::refusals::IDEMPOTENCY_KEY_REUSED,
+    super::refusals::NOT_A_REVOCATION,
     super::refusals::BUNDLE_NOT_HELD,
     super::refusals::REPLACEMENT_MOVED,
     super::refusals::NOT_A_DEVICE_NAME,
