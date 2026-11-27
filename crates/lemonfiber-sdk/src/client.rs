@@ -19,6 +19,9 @@ const CAPABILITIES: &str = "/api/capabilities";
 
 const JOBS: &str = "/api/jobs/";
 
+/// What a job's path is followed by where its name is let go and its work left running.
+const FORGET: &str = "/forget";
+
 /// The name of one attempt at an action, so an action sent again after no answer arrived
 /// is carried out once: one to 255 visible ASCII characters.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -317,7 +320,7 @@ impl Client {
     /// [`Error::NoSuchJob`] where this run issued no such name, and every [`Error`] a
     /// request can meet.
     pub async fn job(&self, job: &str) -> Result<JobStanding, Error> {
-        self.standing(Method::Get, job).await
+        self.standing(Method::Get, job, "").await
     }
 
     /// Lets the name `job` go, ending the work it stands for, and says where it now stands.
@@ -326,13 +329,23 @@ impl Client {
     ///
     /// As [`Client::job`].
     pub async fn release(&self, job: &str) -> Result<JobStanding, Error> {
-        self.standing(Method::Delete, job).await
+        self.standing(Method::Delete, job, "").await
     }
 
-    async fn standing(&self, method: Method, job: &str) -> Result<JobStanding, Error> {
+    /// Lets the name `job` go, leaving the work it stands for running, and says where that
+    /// work stood. From then on the name is one this run never issued.
+    ///
+    /// # Errors
+    ///
+    /// As [`Client::job`].
+    pub async fn forget(&self, job: &str) -> Result<JobStanding, Error> {
+        self.standing(Method::Post, job, FORGET).await
+    }
+
+    async fn standing(&self, method: Method, job: &str, then: &str) -> Result<JobStanding, Error> {
         let asked = Asked {
             again: method == Method::Get,
-            ..Asked::once(method, format!("{JOBS}{}", segment(job)?))
+            ..Asked::once(method, format!("{JOBS}{}{then}", segment(job)?))
         };
         let answer = self
             .line

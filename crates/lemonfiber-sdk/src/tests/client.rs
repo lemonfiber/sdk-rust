@@ -127,6 +127,30 @@ async fn asking_where_work_stands_is_asked_again_and_letting_it_go_never_is() ->
 }
 
 #[tokio::test(start_paused = true)]
+async fn forgetting_a_name_is_posted_once_and_answers_where_the_work_stood() -> Outcome {
+    let (client, client_script) = client(Scripted::answering(vec![
+        Ok(reply(202, started("job 1/a"))),
+        Ok(reply(503, Vec::new())),
+    ]))?;
+    assert!(matches!(
+        client.forget("job 1/a").await?,
+        JobStanding::Running(_)
+    ));
+    let sent = client_script.sent();
+    assert_eq!(
+        sent.first().map(|request| request.method),
+        Some(Method::Post)
+    );
+    assert_eq!(
+        sent.first().map(|request| request.url.as_str()),
+        Some("http://127.0.0.1:9000/api/jobs/job%201%2Fa/forget")
+    );
+    assert!(client.forget("job-1").await.is_err());
+    assert_eq!(client_script.sent().len(), 2);
+    Ok(())
+}
+
+#[tokio::test(start_paused = true)]
 async fn a_read_stops_asking_after_three_attempts_or_when_the_wait_would_run_out() -> Outcome {
     let (client, client_script) = client(Scripted::answering(vec![Ok(reply(502, Vec::new())); 4]))?;
     assert!(

@@ -165,8 +165,9 @@ if let Acted::Started(started) = client.act(&restart).await? {
 
 `Acted::Answered` holds the outcome where the work was done by the time the answer was
 written, and `Acted::Started` a name for the work that goes on after it. `Client::job`
-asks where it stands and `Client::release` lets the name go, ending the work.
-`Client::follow` asks every `every` until it is finished or ended; given `within`, it
+asks where it stands, `Client::release` lets the name go, ending the work, and
+`Client::forget` lets the name go and leaves the work running; after that the name is
+`Error::NoSuchJob`, as a name another credential started is. `Client::follow` asks every `every` until it is finished or ended; given `within`, it
 is `Error::StillRunning` once that has passed. A failure is an `Error` rather than a
 standing.
 
