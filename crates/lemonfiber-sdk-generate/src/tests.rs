@@ -9,6 +9,8 @@ use crate::emit::{formatted, paged};
 use crate::schema::shaped;
 use crate::{run, Refused, CONTRACT, GENERATED, STAMP};
 
+mod routes;
+
 pub(crate) type Outcome = Result<(), Box<dyn std::error::Error>>;
 
 pub(crate) const REVISION: &str = "0123456789abcdef0123456789abcdef01234567";
@@ -303,22 +305,6 @@ fn a_command_this_does_not_know_is_refused_naming_every_one_it_does() {
 }
 
 #[test]
-fn a_body_taken_at_a_route_with_a_name_in_it_is_written_for_the_routes_words() -> Outcome {
-    let root = edited(set(
-        "index.json",
-        "/bodies/~1api~1keys~1{name}",
-        json!("bodies/setup-answer.json"),
-    ))?;
-    run(&words(&["generate"]), root.path())?;
-    let mut every = String::new();
-    for entry in fs::read_dir(root.path().join(GENERATED))? {
-        every.push_str(&fs::read_to_string(entry?.path())?);
-    }
-    assert!(every.contains("pub enum KeysNameBody"), "{every}");
-    Ok(())
-}
-
-#[test]
 fn an_enum_an_answer_can_carry_is_open_and_one_a_request_reaches_is_closed() -> Outcome {
     let root = laid_out(&tree())?;
     run(&words(&["generate"]), root.path())?;
@@ -423,16 +409,6 @@ fn what_is_generated_is_held_to_what_is_committed_file_by_file() -> Outcome {
         callable.contains("Some(&super::refusals::OFFER_MOVED)")
             && callable.contains("moved: None")
     );
-    let routes = fs::read_to_string(generated.join("routes.rs"))?;
-    assert!(routes.contains(
-        "crate::Route {\n        method: crate::Method::Delete,\n        path: \"/api/keys/{name}\",\n        body: true,\n        kinds: &[\"status\"],\n    },"
-    ), "{routes}");
-    assert!(routes.contains("method: crate::Method::Get,") && routes.contains("kinds: &[],"));
-    assert!(
-        routes.contains("method: crate::Method::Post,")
-            && routes.contains("kinds: &[\"status\", \"pull\"],")
-    );
-
     fs::write(generated.join("actions_r.rs"), "edited")?;
     fs::remove_file(generated.join("refusals_life.rs"))?;
     fs::write(generated.join("stray.rs"), "")?;
@@ -753,41 +729,6 @@ fn a_read_or_a_key_callable_action_this_cannot_write_is_refused() -> Outcome {
         set("reads.json", "/1/path", json!("/api/held-id")),
         "which another read takes",
     )?;
-    refuses(
-        |files: &mut BTreeMap<String, Value>| {
-            files.insert("routes.json".to_owned(), json!({}));
-        },
-        "the routes are not a list",
-    )?;
-    refuses(
-        set("routes.json", "/0", json!(1)),
-        "route 0 is not an object",
-    )?;
-    refuses(
-        set("routes.json", "/0/method", json!("PATCH")),
-        "route 0: \"PATCH\" is not one of GET, POST, DELETE",
-    )?;
-    refuses(
-        set("routes.json", "/0/path", json!("/keys")),
-        "route 0: \"/keys\" is not a route's path",
-    )?;
-    refuses(
-        set("routes.json", "/0/body", json!("yes")),
-        "route 0: body is not true or false",
-    )?;
-    refuses(
-        set("routes.json", "/0/kinds", json!(["nothing"])),
-        "route 0: /api/keys/{name} answers with nothing",
-    )?;
-    refuses(
-        set(
-            "routes.json",
-            "/1",
-            json!({ "method": "DELETE", "path": "/api/keys/{name}", "body": true, "kinds": [] }),
-        ),
-        "route 1: DELETE /api/keys/{name} is listed twice",
-    )?;
-    refuses(set("routes.json", "/0/extra", json!(1)), "carries extra")?;
     refuses(
         set("key-callable.json", "/0", json!(1)),
         "key-callable entry 0 is not an object",
