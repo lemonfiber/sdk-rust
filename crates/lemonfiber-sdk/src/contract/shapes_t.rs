@@ -210,7 +210,7 @@ pub struct Title {
 }
 
 /// What kind of title a curator files, a member asks for and a media server holds: a
-/// series, a film, music or books.
+/// series, a film, music, books, an audiobook or a podcast.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
 pub enum TitleKind {
@@ -226,6 +226,12 @@ pub enum TitleKind {
     /// A book, or a whole author or series of books asked for.
     #[serde(rename = "books")]
     Books,
+    /// An audiobook.
+    #[serde(rename = "audiobooks")]
+    Audiobooks,
+    /// A podcast.
+    #[serde(rename = "podcasts")]
+    Podcasts,
     /// A value this client was not generated with, as it arrived.
     #[serde(untagged)]
     Unrecognised(String),
