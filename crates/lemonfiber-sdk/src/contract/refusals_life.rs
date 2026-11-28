@@ -62,3 +62,11 @@ pub const OFFLINE_INSTALL_UNREAD: crate::RefusalCode = crate::RefusalCode {
     status: 409,
     description: "Raised where a start would install a part whose install could not be read.",
 };
+
+/// `LIFE-16`: Raised when a registry went on refusing an image for its rate limit after every run again of the start, fetch or run that pulls it.
+pub const PULL_THROTTLED: crate::RefusalCode = crate::RefusalCode {
+code: "LIFE-16",
+name: "PULL_THROTTLED",
+status: 503,
+description: "Raised when a registry went on refusing an image for its rate limit after every run again of the start, fetch or run that pulls it.",
+};
