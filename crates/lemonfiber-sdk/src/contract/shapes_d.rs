@@ -265,6 +265,14 @@ pub struct DeviceKeysBody {
     pub public_key: String,
 }
 
+/// The body a revocation takes.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct DeviceKeysNameBody {
+    /// Whether to answer with what revoking would come to, and revoke nothing.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dry_run: Option<bool>,
+}
+
 /// What a quality command did to the stored choice.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]

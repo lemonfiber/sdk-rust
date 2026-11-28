@@ -125,3 +125,11 @@ pub struct KeysClaimBody {
     /// The claim the key link carried.
     pub claim: String,
 }
+
+/// The body a revocation takes.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct KeysNameBody {
+    /// Whether to answer with what revoking would come to, and revoke nothing.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dry_run: Option<bool>,
+}

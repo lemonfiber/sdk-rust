@@ -183,3 +183,70 @@ fn a_key_link_that_is_not_one_is_refused() {
         Err(Error::AddressRefused(_))
     ));
 }
+
+#[tokio::test]
+async fn each_revocation_is_rehearsed_with_dry_run_alone_at_its_own_route() -> Outcome {
+    let listing = |kind: &str, data: Value| Ok(reply(200, enveloped(kind, &data)));
+    let (client, script) = client(Scripted::answering(vec![
+        listing(
+            "keys",
+            json!({ "keys": [], "purposes": "", "rehearsed": true, "revoked": "ha" }),
+        ),
+        listing(
+            "device-keys",
+            json!({ "keys": [], "rehearsed": true, "revoked": "pixel" }),
+        ),
+        listing(
+            "push-endpoints",
+            json!({ "endpoints": [], "rehearsed": true, "removed": "pixel" }),
+        ),
+    ]))?;
+    assert!(client.rehearse_revoke("ha").await?.data.rehearsed);
+    assert!(
+        client
+            .rehearse_revoke_device_key("pixel")
+            .await?
+            .data
+            .rehearsed
+    );
+    assert!(
+        client
+            .rehearse_remove_push_endpoint("pixel")
+            .await?
+            .data
+            .rehearsed
+    );
+    let requests = script.sent();
+    let sent: Vec<(&str, &str, Option<&[u8]>)> = requests
+        .iter()
+        .map(|request| {
+            (
+                request.method.as_str(),
+                request.url.as_str(),
+                request.body.as_deref(),
+            )
+        })
+        .collect();
+    let rehearsing: &[u8] = br#"{"dry_run":true}"#;
+    assert_eq!(
+        sent,
+        vec![
+            (
+                "DELETE",
+                "http://127.0.0.1:9000/api/keys/ha",
+                Some(rehearsing)
+            ),
+            (
+                "DELETE",
+                "http://127.0.0.1:9000/api/device-keys/pixel",
+                Some(rehearsing)
+            ),
+            (
+                "DELETE",
+                "http://127.0.0.1:9000/api/push-endpoints/pixel",
+                Some(rehearsing)
+            ),
+        ]
+    );
+    Ok(())
+}

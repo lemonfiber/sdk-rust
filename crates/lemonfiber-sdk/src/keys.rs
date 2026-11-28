@@ -1,8 +1,8 @@
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::contract::{
-    DeviceChallenge, DeviceKeyListing, DeviceKeysBody, KeyClaim, KeyListing, KeysBody, MintedKey,
-    RegisteredDeviceKey,
+    DeviceChallenge, DeviceKeyListing, DeviceKeysBody, DeviceKeysNameBody, KeyClaim, KeyListing,
+    KeysBody, KeysNameBody, MintedKey, RegisteredDeviceKey,
 };
 use crate::line::Asked;
 use crate::query::segment;
@@ -131,6 +131,21 @@ impl Client {
         .await
     }
 
+    /// What revoking one integration key by its name would come to, revoking nothing: the
+    /// keys as they would then stand, the listing saying it was a rehearsal.
+    ///
+    /// # Errors
+    ///
+    /// Every [`Error`] a request can meet.
+    pub async fn rehearse_revoke(&self, name: &str) -> Result<Envelope<KeyListing>, Error> {
+        let rehearsing = KeysNameBody {
+            dry_run: Some(true),
+        };
+        let path = format!("{KEYS}/{}", segment(name)?);
+        self.expect(Asked::sending(Method::Delete, path, &rehearsing)?, "keys")
+            .await
+    }
+
     /// The operator's device keys, revoked ones included.
     ///
     /// # Errors
@@ -180,6 +195,27 @@ impl Client {
         let path = format!("{DEVICE_KEYS}/{}", segment(name)?);
         self.expect(Asked::once(Method::Delete, path), "device-keys")
             .await
+    }
+
+    /// What revoking one device key by its name would come to, revoking nothing: the device
+    /// keys as they would then stand, the listing saying it was a rehearsal.
+    ///
+    /// # Errors
+    ///
+    /// Every [`Error`] a request can meet.
+    pub async fn rehearse_revoke_device_key(
+        &self,
+        name: &str,
+    ) -> Result<Envelope<DeviceKeyListing>, Error> {
+        let rehearsing = DeviceKeysNameBody {
+            dry_run: Some(true),
+        };
+        let path = format!("{DEVICE_KEYS}/{}", segment(name)?);
+        self.expect(
+            Asked::sending(Method::Delete, path, &rehearsing)?,
+            "device-keys",
+        )
+        .await
     }
 }
 

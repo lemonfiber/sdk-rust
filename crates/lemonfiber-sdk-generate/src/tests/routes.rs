@@ -3,7 +3,7 @@ use std::fs;
 
 use serde_json::{json, Value};
 
-use super::{edited, laid_out, refuses, set, tree, words, Outcome};
+use super::{edited, laid_out, refuses, remove, set, tree, words, Outcome};
 use crate::{run, GENERATED};
 
 #[test]
@@ -78,6 +78,10 @@ fn a_route_this_cannot_write_is_refused() -> Outcome {
     refuses(set("routes.json", "/0/extra", json!(1)), "carries extra")?;
     refuses(
         set("index.json", "/routes", json!(1)),
+        "names no file for the routes",
+    )?;
+    refuses(
+        remove("index.json", "", "routes"),
         "names no file for the routes",
     )?;
     Ok(())

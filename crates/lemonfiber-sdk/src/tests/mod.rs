@@ -15,7 +15,7 @@ use std::sync::{Arc, Mutex};
 use futures_util::stream as flowing;
 use serde_json::{json, Value};
 
-use crate::transport::{Failure, Opened, Request, Response, Transport};
+use crate::transport::{Failure, Method, Opened, Request, Response, Transport};
 use crate::{Address, Client, Credential};
 
 type Outcome = Result<(), Box<dyn std::error::Error>>;
@@ -60,6 +60,11 @@ impl Scripted {
     }
 
     fn record(&self, request: Request) {
+        let (method, url) = (request.method.as_str(), &request.url);
+        assert!(
+            routed(&request),
+            "{method} {url} is no route the contract lists"
+        );
         if let Ok(mut sent) = self.0.sent.lock() {
             sent.push(request);
         }
@@ -97,6 +102,31 @@ impl Transport for Scripted {
             },
         })
     }
+}
+
+/// Whether the contract lists a route at `request`'s method whose path its address fills,
+/// one segment for each `{name}`.
+fn routed(request: &Request) -> bool {
+    let path = request
+        .url
+        .split_once("://")
+        .and_then(|(_, rest)| rest.find('/').map(|at| &rest[at..]))
+        .unwrap_or_default();
+    let asked: Vec<&str> = path
+        .split(['?', '#'])
+        .next()
+        .unwrap_or_default()
+        .split('/')
+        .collect();
+    crate::contract::routes::ALL.iter().any(|route| {
+        let listed: Vec<&str> = route.path.split('/').collect();
+        route.method == request.method
+            && listed.len() == asked.len()
+            && listed
+                .iter()
+                .zip(&asked)
+                .all(|(part, given)| part == given || part.starts_with('{'))
+    })
 }
 
 fn enveloped(kind: &str, data: &Value) -> Vec<u8> {
@@ -167,4 +197,34 @@ impl Transport for Silent {
     async fn open(&self, _request: Request) -> Result<Opened, Failure> {
         std::future::pending().await
     }
+}
+
+#[test]
+fn a_request_at_a_route_the_contract_does_not_list_is_told_apart() {
+    let asked = |method, url: &str| Request {
+        method,
+        url: url.to_owned(),
+        headers: Vec::new(),
+        body: None,
+        most: None,
+    };
+    let here = "http://127.0.0.1:9000";
+    assert!(routed(&asked(
+        Method::Delete,
+        &format!("{here}/api/keys/ha")
+    )));
+    assert!(routed(&asked(
+        Method::Get,
+        &format!("{here}/api/status?form=a")
+    )));
+    assert!(!routed(&asked(
+        Method::Post,
+        &format!("{here}/api/keys/ha")
+    )));
+    assert!(!routed(&asked(Method::Delete, &format!("{here}/api/keys"))));
+    assert!(!routed(&asked(
+        Method::Delete,
+        &format!("{here}/api/keys/ha/more")
+    )));
+    assert!(!routed(&asked(Method::Get, "no address")));
 }
