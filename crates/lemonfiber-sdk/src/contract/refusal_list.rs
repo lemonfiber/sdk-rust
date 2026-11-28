@@ -68,6 +68,7 @@ pub const ALL: &[crate::RefusalCode] = &[
     super::refusals::OFFLINE_INSTALL_UNANSWERED,
     super::refusals::OFFLINE_INSTALL_UNHELD,
     super::refusals::OFFLINE_INSTALL_UNREAD,
+    super::refusals::PULL_THROTTLED,
     super::refusals::OFFER_MOVED,
     super::refusals::NOT_A_BACKEND_NAME,
     super::refusals::BACKEND_NAME_TAKEN,
