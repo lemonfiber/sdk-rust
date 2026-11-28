@@ -51,8 +51,7 @@ impl Client {
         &self,
         name: &str,
     ) -> Result<Envelope<PushEndpointListing>, Error> {
-        let path = format!("{PUSH_ENDPOINTS}/{}", segment(name)?);
-        self.expect(Asked::once(Method::Delete, path), "push-endpoints")
+        self.remove_push_endpoint_with(name, &PushEndpointsNameBody { dry_run: None })
             .await
     }
 
@@ -67,12 +66,31 @@ impl Client {
         &self,
         name: &str,
     ) -> Result<Envelope<PushEndpointListing>, Error> {
-        let rehearsing = PushEndpointsNameBody {
-            dry_run: Some(true),
-        };
+        self.remove_push_endpoint_with(
+            name,
+            &PushEndpointsNameBody {
+                dry_run: Some(true),
+            },
+        )
+        .await
+    }
+
+    /// Removes one push endpoint by its name, or only rehearses removing it where `removing`
+    /// sets `dry_run` true: answered with the endpoints as they then stand, the listing
+    /// saying whether it was a rehearsal. Sent once.
+    ///
+    /// # Errors
+    ///
+    /// Every [`Error`] a request can meet, and [`Error::Unsendable`] for a name no path can
+    /// carry as one part.
+    pub async fn remove_push_endpoint_with(
+        &self,
+        name: &str,
+        removing: &PushEndpointsNameBody,
+    ) -> Result<Envelope<PushEndpointListing>, Error> {
         let path = format!("{PUSH_ENDPOINTS}/{}", segment(name)?);
         self.expect(
-            Asked::sending(Method::Delete, path, &rehearsing)?,
+            Asked::removing(path, removing.dry_run, removing)?,
             "push-endpoints",
         )
         .await

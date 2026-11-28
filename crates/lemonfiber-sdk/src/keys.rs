@@ -124,11 +124,8 @@ impl Client {
     ///
     /// Every [`Error`] a request can meet.
     pub async fn revoke(&self, name: &str) -> Result<Envelope<KeyListing>, Error> {
-        self.expect(
-            Asked::once(Method::Delete, format!("{KEYS}/{}", segment(name)?)),
-            "keys",
-        )
-        .await
+        self.revoke_with(name, &KeysNameBody { dry_run: None })
+            .await
     }
 
     /// What revoking one integration key by its name would come to, revoking nothing: the
@@ -138,11 +135,29 @@ impl Client {
     ///
     /// Every [`Error`] a request can meet.
     pub async fn rehearse_revoke(&self, name: &str) -> Result<Envelope<KeyListing>, Error> {
-        let rehearsing = KeysNameBody {
-            dry_run: Some(true),
-        };
+        self.revoke_with(
+            name,
+            &KeysNameBody {
+                dry_run: Some(true),
+            },
+        )
+        .await
+    }
+
+    /// Revokes one integration key by its name, or only rehearses revoking it where
+    /// `revoking` sets `dry_run` true: answered with the keys as they then stand, the
+    /// listing saying whether it was a rehearsal. Sent once.
+    ///
+    /// # Errors
+    ///
+    /// Every [`Error`] a request can meet.
+    pub async fn revoke_with(
+        &self,
+        name: &str,
+        revoking: &KeysNameBody,
+    ) -> Result<Envelope<KeyListing>, Error> {
         let path = format!("{KEYS}/{}", segment(name)?);
-        self.expect(Asked::sending(Method::Delete, path, &rehearsing)?, "keys")
+        self.expect(Asked::removing(path, revoking.dry_run, revoking)?, "keys")
             .await
     }
 
@@ -192,8 +207,7 @@ impl Client {
     ///
     /// Every [`Error`] a request can meet.
     pub async fn revoke_device_key(&self, name: &str) -> Result<Envelope<DeviceKeyListing>, Error> {
-        let path = format!("{DEVICE_KEYS}/{}", segment(name)?);
-        self.expect(Asked::once(Method::Delete, path), "device-keys")
+        self.revoke_device_key_with(name, &DeviceKeysNameBody { dry_run: None })
             .await
     }
 
@@ -207,12 +221,30 @@ impl Client {
         &self,
         name: &str,
     ) -> Result<Envelope<DeviceKeyListing>, Error> {
-        let rehearsing = DeviceKeysNameBody {
-            dry_run: Some(true),
-        };
+        self.revoke_device_key_with(
+            name,
+            &DeviceKeysNameBody {
+                dry_run: Some(true),
+            },
+        )
+        .await
+    }
+
+    /// Revokes one device key by its name, or only rehearses revoking it where `revoking`
+    /// sets `dry_run` true: answered with the device keys as they then stand, the listing
+    /// saying whether it was a rehearsal. Sent once.
+    ///
+    /// # Errors
+    ///
+    /// Every [`Error`] a request can meet.
+    pub async fn revoke_device_key_with(
+        &self,
+        name: &str,
+        revoking: &DeviceKeysNameBody,
+    ) -> Result<Envelope<DeviceKeyListing>, Error> {
         let path = format!("{DEVICE_KEYS}/{}", segment(name)?);
         self.expect(
-            Asked::sending(Method::Delete, path, &rehearsing)?,
+            Asked::removing(path, revoking.dry_run, revoking)?,
             "device-keys",
         )
         .await
