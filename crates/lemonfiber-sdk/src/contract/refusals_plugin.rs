@@ -385,3 +385,11 @@ pub const UNDECLARED_FORM: crate::RefusalCode = crate::RefusalCode {
     status: 400,
     description: "Raised when a plugin's manifest names a form the stack does not declare.",
 };
+
+/// `PLUGIN-53`: Raised when a recipe runs on claim in a plugin none of whose services speaks `owner.claim@1`; the manifest's every other fault is listed beside it.
+pub const UNCLAIMED_RECIPE: crate::RefusalCode = crate::RefusalCode {
+code: "PLUGIN-53",
+name: "UNCLAIMED_RECIPE",
+status: 400,
+description: "Raised when a recipe runs on claim in a plugin none of whose services speaks `owner.claim@1`; the manifest's every other fault is listed beside it.",
+};
