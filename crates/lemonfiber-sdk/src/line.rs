@@ -69,6 +69,19 @@ impl Asked {
         Self::carrying(method, path, serde_json::to_vec(body))
     }
 
+    /// A removal at `path`, sent once: with no body where `dry_run` is unset, and carrying
+    /// `body` where it is set, rehearsing or carrying the removal out as it says.
+    pub(crate) fn removing(
+        path: String,
+        dry_run: Option<bool>,
+        body: &impl Serialize,
+    ) -> Result<Self, Error> {
+        match dry_run {
+            None => Ok(Self::once(Method::Delete, path)),
+            Some(_) => Self::sending(Method::Delete, path, body),
+        }
+    }
+
     pub(crate) fn carrying(
         method: Method,
         path: String,

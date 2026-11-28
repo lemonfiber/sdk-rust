@@ -213,6 +213,19 @@ client.revoke("home").await?;
 `Client::rehearse_remove_push_endpoint` rehearse each removal: nothing is removed, and the
 answer is the listing as it would then stand, its `rehearsed` true.
 
+`Client::revoke_with`, `Client::revoke_device_key_with` and
+`Client::remove_push_endpoint_with` take the removal's body, whose `dry_run` asks for the
+same rehearsal where it is `Some(true)` and carries the removal out where it is `Some(false)`
+or `None`, as the other SDKs' `dry_run` parameter does. The body has no default, so every
+call says which it is.
+
+```rust
+use lemonfiber_sdk::contract::KeysNameBody;
+
+let would = client.revoke_with("home", &KeysNameBody { dry_run: Some(true) }).await?;
+assert!(would.data.rehearsed);
+```
+
 `Client::mint_claim` mints a key as a claim instead, answered with no secret but a key
 link, `lemonfiber://key?...`, that collects the key once. A program holding nothing
 else collects it:

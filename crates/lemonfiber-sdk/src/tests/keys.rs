@@ -3,7 +3,10 @@ use std::time::{Duration, UNIX_EPOCH};
 use serde_json::{json, Value};
 
 use super::{client, enveloped, reply, Outcome, Scripted};
-use crate::contract::{DeviceKeyAttestation, DeviceKeysBody, KeysBody};
+use crate::contract::{
+    DeviceKeyAttestation, DeviceKeysBody, DeviceKeysNameBody, KeysBody, KeysNameBody,
+    PushEndpointsNameBody,
+};
 use crate::{base64url, signed_text, Error, KeyLink};
 
 const FINGERPRINT: &str = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
@@ -248,5 +251,87 @@ async fn each_revocation_is_rehearsed_with_dry_run_alone_at_its_own_route() -> O
             ),
         ]
     );
+    Ok(())
+}
+
+#[tokio::test]
+async fn each_revocation_takes_dry_run_as_a_parameter_and_sends_it_as_given() -> Outcome {
+    let forms = [Some(true), Some(false), None];
+    let listing = |kind: &str, data: Value| Ok(reply(200, enveloped(kind, &data)));
+    let (client, script) = client(Scripted::answering(
+        forms
+            .iter()
+            .flat_map(|dry_run| {
+                let rehearsed = *dry_run == Some(true);
+                [
+                    listing(
+                        "keys",
+                        json!({ "keys": [], "purposes": "", "rehearsed": rehearsed }),
+                    ),
+                    listing("device-keys", json!({ "keys": [], "rehearsed": rehearsed })),
+                    listing(
+                        "push-endpoints",
+                        json!({ "endpoints": [], "rehearsed": rehearsed }),
+                    ),
+                ]
+            })
+            .collect(),
+    ))?;
+    let mut rehearsed = Vec::new();
+    for dry_run in forms {
+        rehearsed.push(
+            client
+                .revoke_with("ha", &KeysNameBody { dry_run })
+                .await?
+                .data
+                .rehearsed,
+        );
+        rehearsed.push(
+            client
+                .revoke_device_key_with("pixel", &DeviceKeysNameBody { dry_run })
+                .await?
+                .data
+                .rehearsed,
+        );
+        rehearsed.push(
+            client
+                .remove_push_endpoint_with("pixel", &PushEndpointsNameBody { dry_run })
+                .await?
+                .data
+                .rehearsed,
+        );
+    }
+    assert_eq!(
+        rehearsed,
+        [true, true, true, false, false, false, false, false, false]
+    );
+    let requests = script.sent();
+    let sent: Vec<(&str, &str, Option<&str>)> = requests
+        .iter()
+        .map(|request| {
+            (
+                request.method.as_str(),
+                request.url.as_str(),
+                request
+                    .body
+                    .as_deref()
+                    .map(|body| std::str::from_utf8(body).unwrap_or_default()),
+            )
+        })
+        .collect();
+    let routes = [
+        "http://127.0.0.1:9000/api/keys/ha",
+        "http://127.0.0.1:9000/api/device-keys/pixel",
+        "http://127.0.0.1:9000/api/push-endpoints/pixel",
+    ];
+    let expected: Vec<(&str, &str, Option<&str>)> = [
+        Some(r#"{"dry_run":true}"#),
+        Some(r#"{"dry_run":false}"#),
+        None,
+    ]
+    .into_iter()
+    .flat_map(|body| routes.map(|route| ("DELETE", route, body)))
+    .collect();
+    assert_eq!(sent, expected);
     Ok(())
 }
