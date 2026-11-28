@@ -342,11 +342,8 @@ impl Artefact {
             Some(file) => read_reads(&reader.json(file)?, &kinds, &mut problems),
             None => Vec::new(),
         };
-        let routes = match fields.get("routes") {
-            Some(named) => match file_of(Some(named), "the routes", &mut problems) {
-                Some(file) => read_routes(&reader.json(file)?, &kinds, &mut problems),
-                None => Vec::new(),
-            },
+        let routes = match file_of(fields.get("routes"), "the routes", &mut problems) {
+            Some(file) => read_routes(&reader.json(file)?, &kinds, &mut problems),
             None => Vec::new(),
         };
         let key_callable = match file_of(
